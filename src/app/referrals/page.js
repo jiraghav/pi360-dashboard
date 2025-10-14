@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import ProtectedRoute from "../components/ProtectedRoute";
 import { apiRequest } from "../utils/api"; // common API helper
+import { formatPhone } from "../utils/formatter"; // common API helper
 
 export default function Referrals() {
   const [referrals, setReferrals] = useState([]);
@@ -13,16 +14,6 @@ export default function Referrals() {
     if (priority.toLowerCase() === "urgent") return "tag tag-warn";
     if (priority.toLowerCase() === "standard") return "tag";
     return "tag";
-  };
-  
-  const formatPhone = (phone) => {
-    if (!phone) return "";
-    const cleaned = ('' + phone).replace(/\D/g, ''); // Remove non-digits
-    const match = cleaned.match(/^(\d{3})(\d{3})(\d{4})$/);
-    if (match) {
-      return `(${match[1]}) ${match[2]}‑${match[3]}`;
-    }
-    return phone; // return original if it doesn't match
   };
 
   useEffect(() => {
@@ -79,7 +70,9 @@ export default function Referrals() {
                   <td>{r.firm}</td>
                   <td>{r.injury}</td>
                   <td>
-                    <span className={getTagClass(r.priority)}>{r.priority}</span>
+                  <span className={getTagClass(r.priority)}>
+                    {r.priority.charAt(0).toUpperCase() + r.priority.slice(1)}
+                  </span>
                   </td>
                   <td>{r.status}</td>
                   <td>{r.age}</td>

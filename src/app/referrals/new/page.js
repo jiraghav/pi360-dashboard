@@ -232,10 +232,6 @@ export default function NewReferral() {
               Cancel
             </button>
           </div>
-          <br />
-          <br />
-          <br />
-          <br />
         </form>
       </div>
     </ProtectedRoute>

@@ -48,19 +48,19 @@ export default function Dashboard() {
           <div className="kpi-4" style={{ marginTop: '8px' }}>
             <div className="tile">
               <div className="label">Pending Referrals</div>
-              <div className="value">{dashboardData.pendingReferrals}</div>
+              <div className="value">{dashboardData?.pendingReferrals}</div>
             </div>
             <div className="tile">
               <div className="label">Active Cases</div>
-              <div className="value">{dashboardData.activeCases}</div>
+              <div className="value">{dashboardData?.activeCases}</div>
             </div>
             <div className="tile">
               <div className="label">Today's Appointments</div>
-              <div className="value">{dashboardData.todaysAppointments}</div>
+              <div className="value">{dashboardData?.todaysAppointments}</div>
             </div>
             <div className="tile">
               <div className="label">Open Tasks</div>
-              <div className="value">{dashboardData.openTasks}</div>
+              <div className="value">{dashboardData?.openTasks}</div>
             </div>
           </div>
         </div>
@@ -71,7 +71,7 @@ export default function Dashboard() {
             <h3>Priority Alerts</h3>
             <table>
               <tbody>
-                  {dashboardData.priorityAlerts && dashboardData.priorityAlerts.length > 0 ? (
+                  {dashboardData?.priorityAlerts && dashboardData.priorityAlerts.length > 0 ? (
                     dashboardData.priorityAlerts.map((alert, i) => (
                       <tr key={i}>
                         <td>{alert.text}</td>
@@ -95,7 +95,7 @@ export default function Dashboard() {
             <h3>Recent Activity</h3>
             <table>
               <tbody>
-                {dashboardData.recentActivity && dashboardData.recentActivity.length > 0 ? (
+                {dashboardData?.recentActivity && dashboardData.recentActivity.length > 0 ? (
                   dashboardData.recentActivity.map((activity, i) => (
                     <tr key={i}>
                       <td>{activity.text}</td>
