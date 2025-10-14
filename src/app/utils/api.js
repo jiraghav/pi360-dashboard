@@ -26,7 +26,7 @@ export async function apiRequest(endpoint, options = {}) {
     if (res.status === 401) {
       // Unauthorized: remove token and redirect
       localStorage.removeItem("token");
-      window.location.href = "/lawyer/login";
+      window.location.href = "/login";
       return;
     }
 

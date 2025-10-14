@@ -7,5 +7,5 @@ export function isAuthenticated() {
 
 export function logout() {
   localStorage.removeItem("token");
-  window.location.href = "/lawyer/login";
+  window.location.href = "/login";
 }
