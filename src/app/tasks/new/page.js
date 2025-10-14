@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import ProtectedRoute from "../../components/ProtectedRoute";
 
 export default function NewTask() {
   const router = useRouter();
@@ -25,37 +26,39 @@ export default function NewTask() {
   };
 
   return (
-    <div className="card">
-      <h3>New Task</h3>
-      <form className="grid cols-2" onSubmit={handleSubmit}>
-        <input
-          name="title"
-          placeholder="Title"
-          value={form.title}
-          onChange={handleChange}
-        />
-        <select name="owner" value={form.owner} onChange={handleChange}>
-          <option>Intake</option>
-          <option>Records</option>
-          <option>Billing</option>
-          <option>Reductions</option>
-        </select>
-        <input name="due" type="date" value={form.due} onChange={handleChange} />
-        <select name="priority" value={form.priority} onChange={handleChange}>
-          <option>Normal</option>
-          <option>High</option>
-        </select>
-        <textarea
-          name="details"
-          rows="4"
-          placeholder="Details…"
-          value={form.details}
-          onChange={handleChange}
-        />
-        <button className="btn primary" type="submit">
-          Create
-        </button>
-      </form>
-    </div>
+    <ProtectedRoute>
+      <div className="card">
+        <h3>New Task</h3>
+        <form className="grid cols-2" onSubmit={handleSubmit}>
+          <input
+            name="title"
+            placeholder="Title"
+            value={form.title}
+            onChange={handleChange}
+          />
+          <select name="owner" value={form.owner} onChange={handleChange}>
+            <option>Intake</option>
+            <option>Records</option>
+            <option>Billing</option>
+            <option>Reductions</option>
+          </select>
+          <input name="due" type="date" value={form.due} onChange={handleChange} />
+          <select name="priority" value={form.priority} onChange={handleChange}>
+            <option>Normal</option>
+            <option>High</option>
+          </select>
+          <textarea
+            name="details"
+            rows="4"
+            placeholder="Details…"
+            value={form.details}
+            onChange={handleChange}
+          />
+          <button className="btn primary" type="submit">
+            Create
+          </button>
+        </form>
+      </div>
+    </ProtectedRoute>
   );
 }

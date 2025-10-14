@@ -1,72 +1,105 @@
-// app/referrals/page.js
+"use client";
+
+import { useEffect, useState } from "react";
 import Link from "next/link";
+import ProtectedRoute from "../components/ProtectedRoute";
+import { apiRequest } from "../utils/api"; // common API helper
 
 export default function Referrals() {
-  const referrals = [
-    {
-      patient: "Jane Miller",
-      phone: "(214) 555‑0187",
-      firm: "Smith & Associates",
-      injury: "Neck",
-      priority: "High",
-      status: "Intake",
-      age: "2d",
-    },
-    {
-      patient: "Mike Chen",
-      phone: "(469) 555‑1123",
-      firm: "Johnson Law",
-      injury: "Back",
-      priority: "Normal",
-      status: "Pending",
-      age: "1d",
-    },
-  ];
+  const [referrals, setReferrals] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const getTagClass = (priority) => {
-    if (priority === "High") return "tag tag-warn";
-    if (priority === "Normal") return "tag";
+    if (priority.toLowerCase() === "urgent") return "tag tag-warn";
+    if (priority.toLowerCase() === "standard") return "tag";
     return "tag";
   };
+  
+  const formatPhone = (phone) => {
+    if (!phone) return "";
+    const cleaned = ('' + phone).replace(/\D/g, ''); // Remove non-digits
+    const match = cleaned.match(/^(\d{3})(\d{3})(\d{4})$/);
+    if (match) {
+      return `(${match[1]}) ${match[2]}‑${match[3]}`;
+    }
+    return phone; // return original if it doesn't match
+  };
+
+  useEffect(() => {
+    async function fetchReferrals() {
+      try {
+        const data = await apiRequest("/referrals.php");
+        if (data.status && data.referrals) {
+          const formatted = data.referrals.map((r) => ({
+            patient: `${r.fname} ${r.lname}`,
+            phone: r.phone_home,
+            firm: r.organization,
+            injury: r.type, // API does not provide injury, default to "-"
+            priority: r.priority_level,
+            status: r.status, // API does not provide status, default to "-"
+            age: "-", // API does not provide age, default to "-"
+          }));
+          setReferrals(formatted);
+        }
+      } catch (err) {
+        console.error("Failed to fetch referrals:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchReferrals();
+  }, []);
+
+  if (loading) return <p>Loading referrals...</p>;
 
   return (
-    <div className="card">
-      <h3>Referrals</h3>
-      <div className="chip">SLA: First contact &lt; 2hr</div>
-      <table style={{ marginTop: "10px" }}>
-        <thead>
-          <tr>
-            <th>Patient</th>
-            <th>Phone</th>
-            <th>Firm</th>
-            <th>Injury</th>
-            <th>Priority</th>
-            <th>Status</th>
-            <th>Age</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          {referrals.map((r, i) => (
-            <tr key={i}>
-              <td>{r.patient}</td>
-              <td>{r.phone}</td>
-              <td>{r.firm}</td>
-              <td>{r.injury}</td>
-              <td>
-                <span className={getTagClass(r.priority)}>{r.priority}</span>
-              </td>
-              <td>{r.status}</td>
-              <td>{r.age}</td>
-              <td>
-                <Link className="btn" href="/referrals/new">
-                  Open
-                </Link>
-              </td>
+    <ProtectedRoute>
+      <div className="card">
+        <h3>Referrals</h3>
+        <table style={{ marginTop: "10px" }}>
+          <thead>
+            <tr>
+              <th>Patient</th>
+              <th>Phone</th>
+              <th>Firm</th>
+              <th>Injury</th>
+              <th>Priority</th>
+              <th>Status</th>
+              <th>Age</th>
+              <th></th>
             </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+          </thead>
+          <tbody>
+            {referrals.length > 0 ? (
+              referrals.map((r, i) => (
+                <tr key={i}>
+                  <td>{r.patient}</td>
+                  <td>{formatPhone(r.phone)}</td>
+                  <td>{r.firm}</td>
+                  <td>{r.injury}</td>
+                  <td>
+                    <span className={getTagClass(r.priority)}>{r.priority}</span>
+                  </td>
+                  <td>{r.status}</td>
+                  <td>{r.age}</td>
+                  <td>
+                    <Link className="btn" href="/referrals/new">
+                      Open
+                    </Link>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan={8} style={{ textAlign: "center", color: "#999" }}>
+                  No referrals available
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </ProtectedRoute>
   );
 }

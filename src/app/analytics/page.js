@@ -1,3 +1,5 @@
+import ProtectedRoute from "../components/ProtectedRoute";
+
 export default function Analytics() {
   const metrics = [
     { metric: "Leads → Visits", value: "89.2%" },
@@ -6,24 +8,26 @@ export default function Analytics() {
   ];
 
   return (
-    <div className="card">
-      <h3>Analytics</h3>
-      <table>
-        <thead>
-          <tr>
-            <th>Metric</th>
-            <th>Value</th>
-          </tr>
-        </thead>
-        <tbody>
-          {metrics.map((m, i) => (
-            <tr key={i}>
-              <td>{m.metric}</td>
-              <td>{m.value}</td>
+    <ProtectedRoute>
+      <div className="card">
+        <h3>Analytics</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Metric</th>
+              <th>Value</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+          </thead>
+          <tbody>
+            {metrics.map((m, i) => (
+              <tr key={i}>
+                <td>{m.metric}</td>
+                <td>{m.value}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </ProtectedRoute>
   );
 }

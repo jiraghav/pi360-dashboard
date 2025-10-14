@@ -1,5 +1,6 @@
 // app/schedule/page.js
 import Link from "next/link";
+import ProtectedRoute from "../components/ProtectedRoute";
 
 export default function Schedule() {
   const schedule = [
@@ -22,37 +23,39 @@ export default function Schedule() {
   ];
 
   return (
-    <div className="card">
-      <h3>Schedule</h3>
-      <table>
-        <thead>
-          <tr>
-            <th>Date</th>
-            <th>Time</th>
-            <th>Patient</th>
-            <th>Provider</th>
-            <th>Type</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          {schedule.map((s, i) => (
-            <tr key={i}>
-              <td>{s.date}</td>
-              <td>{s.time}</td>
-              <td>{s.patient}</td>
-              <td>{s.provider}</td>
-              <td>{s.type}</td>
-              <td>{s.status}</td>
+    <ProtectedRoute>
+      <div className="card">
+        <h3>Schedule</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Time</th>
+              <th>Patient</th>
+              <th>Provider</th>
+              <th>Type</th>
+              <th>Status</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
-      <div style={{ marginTop: "10px" }}>
-        <Link className="btn" href="/schedule/quick">
-          Quick Book
-        </Link>
+          </thead>
+          <tbody>
+            {schedule.map((s, i) => (
+              <tr key={i}>
+                <td>{s.date}</td>
+                <td>{s.time}</td>
+                <td>{s.patient}</td>
+                <td>{s.provider}</td>
+                <td>{s.type}</td>
+                <td>{s.status}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <div style={{ marginTop: "10px" }}>
+          <Link className="btn" href="/schedule/quick">
+            Quick Book
+          </Link>
+        </div>
       </div>
-    </div>
+    </ProtectedRoute>
   );
 }

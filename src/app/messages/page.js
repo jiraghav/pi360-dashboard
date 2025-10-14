@@ -1,4 +1,5 @@
 import Link from "next/link";
+import ProtectedRoute from "../components/ProtectedRoute";
 
 export default function Messages() {
   const messages = [
@@ -17,34 +18,36 @@ export default function Messages() {
   ];
 
   return (
-    <div className="card">
-      <h3>Messages</h3>
-      <table>
-        <thead>
-          <tr>
-            <th>With</th>
-            <th>Channel</th>
-            <th>Last</th>
-            <th>Preview</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          {messages.map((m, i) => (
-            <tr key={i}>
-              <td>{m.with}</td>
-              <td>{m.channel}</td>
-              <td>{m.last}</td>
-              <td>{m.preview}</td>
-              <td>
-                <Link className="btn" href="/messages/compose">
-                  Open
-                </Link>
-              </td>
+    <ProtectedRoute>
+      <div className="card">
+        <h3>Messages</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>With</th>
+              <th>Channel</th>
+              <th>Last</th>
+              <th>Preview</th>
+              <th></th>
             </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+          </thead>
+          <tbody>
+            {messages.map((m, i) => (
+              <tr key={i}>
+                <td>{m.with}</td>
+                <td>{m.channel}</td>
+                <td>{m.last}</td>
+                <td>{m.preview}</td>
+                <td>
+                  <Link className="btn" href="/messages/compose">
+                    Open
+                  </Link>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </ProtectedRoute>
   );
 }

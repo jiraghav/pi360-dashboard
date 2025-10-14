@@ -1,3 +1,5 @@
+import ProtectedRoute from "../components/ProtectedRoute";
+
 export default function Discovery() {
   const items = [
     {
@@ -33,34 +35,36 @@ export default function Discovery() {
   };
 
   return (
-    <div className="card">
-      <h3>Discovery & Petitions</h3>
-      <table>
-        <thead>
-          <tr>
-            <th>Case/Patient</th>
-            <th>Firm</th>
-            <th>Type</th>
-            <th>Status</th>
-            <th>Sent</th>
-            <th>Due</th>
-            <th>Priority</th>
-          </tr>
-        </thead>
-        <tbody>
-          {items.map((i, idx) => (
-            <tr key={idx}>
-              <td>{i.casePatient}</td>
-              <td>{i.firm}</td>
-              <td>{i.type}</td>
-              <td><span className={getTagClass(i.status)}>{i.status}</span></td>
-              <td>{i.sent}</td>
-              <td>{i.due}</td>
-              <td><span className={getPriorityClass(i.priority)}>{i.priority}</span></td>
+    <ProtectedRoute>
+      <div className="card">
+        <h3>Discovery & Petitions</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Case/Patient</th>
+              <th>Firm</th>
+              <th>Type</th>
+              <th>Status</th>
+              <th>Sent</th>
+              <th>Due</th>
+              <th>Priority</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+          </thead>
+          <tbody>
+            {items.map((i, idx) => (
+              <tr key={idx}>
+                <td>{i.casePatient}</td>
+                <td>{i.firm}</td>
+                <td>{i.type}</td>
+                <td><span className={getTagClass(i.status)}>{i.status}</span></td>
+                <td>{i.sent}</td>
+                <td>{i.due}</td>
+                <td><span className={getPriorityClass(i.priority)}>{i.priority}</span></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </ProtectedRoute>
   );
 }

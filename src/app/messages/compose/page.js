@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import ProtectedRoute from "../../components/ProtectedRoute";
 
 export default function ComposeMessage() {
   const router = useRouter();
@@ -19,34 +20,36 @@ export default function ComposeMessage() {
   };
 
   return (
-    <div className="card">
-      <h3>Compose</h3>
-      <form className="grid cols-2" onSubmit={handleSubmit}>
-        <input
-          name="to"
-          placeholder="To"
-          value={form.to}
-          onChange={handleChange}
-        />
-        <select
-          name="channel"
-          value={form.channel}
-          onChange={handleChange}
-        >
-          <option>SMS</option>
-          <option>Email</option>
-        </select>
-        <textarea
-          name="body"
-          rows="5"
-          placeholder="Message…"
-          value={form.body}
-          onChange={handleChange}
-        />
-        <button className="btn primary" type="submit">
-          Send
-        </button>
-      </form>
-    </div>
+    <ProtectedRoute>
+      <div className="card">
+        <h3>Compose</h3>
+        <form className="grid cols-2" onSubmit={handleSubmit}>
+          <input
+            name="to"
+            placeholder="To"
+            value={form.to}
+            onChange={handleChange}
+          />
+          <select
+            name="channel"
+            value={form.channel}
+            onChange={handleChange}
+          >
+            <option>SMS</option>
+            <option>Email</option>
+          </select>
+          <textarea
+            name="body"
+            rows="5"
+            placeholder="Message…"
+            value={form.body}
+            onChange={handleChange}
+          />
+          <button className="btn primary" type="submit">
+            Send
+          </button>
+        </form>
+      </div>
+    </ProtectedRoute>
   );
 }
