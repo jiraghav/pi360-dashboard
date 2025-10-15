@@ -13,7 +13,7 @@ export default function Cases() {
   const [total, setTotal] = useState(0);
   const [search, setSearch] = useState("");
   const [searchInput, setSearchInput] = useState("");
-  const [selectedCase, setSelectedCase] = useState(null); // for modal
+  const [selectedCase, setSelectedCase] = useState(null);
   const [showRequestRecordModal, setShowRequestRecordModal] = useState(false);
   const [showSendMessageModal, setShowSendMessageModal] = useState(false);
   const limit = 10;
@@ -46,10 +46,15 @@ export default function Cases() {
             doi: p.doi,
           }));
           setCases(mappedCases);
-          setTotal(data.total || 0);
+          setTotal(data.total || mappedCases.length);
+        } else {
+          setCases([]);
+          setTotal(0);
         }
       } catch (err) {
         console.error("Failed to fetch cases:", err);
+        setCases([]);
+        setTotal(0);
       } finally {
         setLoading(false);
       }
@@ -57,9 +62,8 @@ export default function Cases() {
     fetchCases();
   }, [page, search]);
 
-  const totalPages = Math.ceil(total / limit);
+  const totalPages = Math.max(1, Math.ceil(total / limit));
 
-  // Open modal
   const handleRequestRecords = (caseItem) => {
     setSelectedCase(caseItem);
     setShowRequestRecordModal(true);
@@ -70,20 +74,17 @@ export default function Cases() {
     setShowSendMessageModal(true);
   };
 
-  // Confirm request
   const confirmRequestRecord = async () => {
     if (!selectedCase) return;
 
     try {
-      // Prepare form data
       const formData = new FormData();
       formData.append("pid", selectedCase.pid);
       formData.append("note", selectedCase.description || "");
 
-      // API call using FormData
       const response = await apiRequest("request_records.php", {
         method: "POST",
-        body: formData, // send as form data
+        body: formData,
       });
 
       if (response.status) {
@@ -98,26 +99,24 @@ export default function Cases() {
       alert("Error requesting records. Check console for details.");
     }
   };
-  
+
   const sendBackOfficeMessage = async () => {
     if (!selectedCase) return;
 
     try {
-      // Prepare form data
       const formData = new FormData();
       formData.append("pid", selectedCase.pid);
-      formData.append("message", selectedCase.message || ""); // use message instead of note
+      formData.append("message", selectedCase.message || "");
 
-      // API call to send message
       const response = await apiRequest("send_back_office_msg.php", {
         method: "POST",
-        body: formData, // send as form data
+        body: formData,
       });
 
       if (response.status) {
         alert(response.message);
-        setShowSendMessageModal(false); // close message modal
-        setSelectedCase(null); // reset selected case
+        setShowSendMessageModal(false);
+        setSelectedCase(null);
       } else {
         alert("Failed to send message. Please try again.");
       }
@@ -135,22 +134,32 @@ export default function Cases() {
           style={{
             display: "flex",
             justifyContent: "space-between",
-            alignItems: "center",
+            alignItems: "top",
             marginBottom: "1rem",
           }}
         >
           <h3>Cases</h3>
-          <input
-            type="text"
-            placeholder="Search by patient name"
-            value={searchInput}
-            onChange={(e) => setSearchInput(e.target.value)}
-            style={{
-              padding: "0.3rem 0.5rem",
-              borderRadius: "4px",
-              border: "1px solid #ccc",
-            }}
-          />
+          <div className="search">
+            <svg
+              width="18"
+              height="18"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M12.5 12.5l4 4m-1.5-8a6.5 6.5 0 11-13 0 6.5 6.5 0 0113 0z"
+                stroke="#9db0e3"
+                strokeWidth="1.6"
+                strokeLinecap="round"
+              />
+            </svg>
+            <input
+              type="text"
+              placeholder="Search by patient name"
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+            />
+          </div>
         </div>
 
         {/* Table */}
@@ -183,18 +192,13 @@ export default function Cases() {
                   <td>{c.dob}</td>
                   <td>{c.doi}</td>
                   <td>
-                    <button
-                      onClick={() => handleRequestRecords(c)}
-                      className="btn"
-                    >
+                    <button onClick={() => handleRequestRecords(c)} className="btn">
                       Request Records
                     </button>
                     <button
                       onClick={() => handleSendMessage(c)}
                       className="btn"
-                      style={{
-                        marginLeft: 10,
-                      }}
+                      style={{ marginLeft: 10 }}
                     >
                       Send Back Office Message
                     </button>
@@ -216,15 +220,17 @@ export default function Cases() {
           <button
             onClick={() => setPage((p) => Math.max(1, p - 1))}
             disabled={page === 1 || loading}
+            className="btn"
           >
             Previous
           </button>
           <span style={{ margin: "0 1rem" }}>
-            Page {page} of {totalPages}
+            Page {page} of {totalPages} ({total} cases)
           </span>
           <button
             onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
             disabled={page === totalPages || loading}
+            className="btn"
           >
             Next
           </button>

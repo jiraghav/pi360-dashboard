@@ -228,6 +228,9 @@ export default function NewReferral() {
               type="button"
               onClick={() => router.push("/referrals")}
               disabled={isSubmitting}
+              style={{
+                marginLeft: '8px'
+              }}
             >
               Cancel
             </button>

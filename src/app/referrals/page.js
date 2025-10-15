@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import ProtectedRoute from "../components/ProtectedRoute";
 import { apiRequest } from "../utils/api"; // common API helper
-import { formatPhone } from "../utils/formatter"; // common API helper
+import { formatPhone } from "../utils/formatter"; // common formatter helper
 
 export default function Referrals() {
   const [referrals, setReferrals] = useState([]);
@@ -12,7 +12,7 @@ export default function Referrals() {
 
   const getTagClass = (priority) => {
     if (priority.toLowerCase() === "urgent") return "tag tag-warn";
-    if (priority.toLowerCase() === "standard") return "tag";
+    if (priority.toLowerCase() === "standard") return "tag tag-ok";
     return "tag";
   };
 
@@ -25,10 +25,10 @@ export default function Referrals() {
             patient: `${r.fname} ${r.lname}`,
             phone: r.phone_home,
             firm: r.organization,
-            injury: r.type, // API does not provide injury, default to "-"
+            injury: r.type || "-", // API does not provide injury
             priority: r.priority_level,
-            status: r.status, // API does not provide status, default to "-"
-            age: "-", // API does not provide age, default to "-"
+            status: r.status || "-", // API does not provide status
+            age: "-", // API does not provide age
           }));
           setReferrals(formatted);
         }
@@ -41,8 +41,6 @@ export default function Referrals() {
 
     fetchReferrals();
   }, []);
-
-  if (loading) return <p>Loading referrals...</p>;
 
   return (
     <ProtectedRoute>
@@ -58,11 +56,16 @@ export default function Referrals() {
               <th>Priority</th>
               <th>Status</th>
               <th>Age</th>
-              <th></th>
             </tr>
           </thead>
           <tbody>
-            {referrals.length > 0 ? (
+            {loading ? (
+              <tr>
+                <td colSpan={7} style={{ textAlign: "center", color: "#999" }}>
+                  Loading referrals...
+                </td>
+              </tr>
+            ) : referrals.length > 0 ? (
               referrals.map((r, i) => (
                 <tr key={i}>
                   <td>{r.patient}</td>
@@ -70,22 +73,17 @@ export default function Referrals() {
                   <td>{r.firm}</td>
                   <td>{r.injury}</td>
                   <td>
-                  <span className={getTagClass(r.priority)}>
-                    {r.priority.charAt(0).toUpperCase() + r.priority.slice(1)}
-                  </span>
+                    <span className={getTagClass(r.priority)}>
+                      {r.priority.charAt(0).toUpperCase() + r.priority.slice(1)}
+                    </span>
                   </td>
                   <td>{r.status}</td>
                   <td>{r.age}</td>
-                  <td>
-                    <Link className="btn" href="/referrals/new">
-                      Open
-                    </Link>
-                  </td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan={8} style={{ textAlign: "center", color: "#999" }}>
+                <td colSpan={7} style={{ textAlign: "center", color: "#999" }}>
                   No referrals available
                 </td>
               </tr>
