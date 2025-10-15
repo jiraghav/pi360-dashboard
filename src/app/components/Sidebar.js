@@ -18,6 +18,7 @@ export default function Sidebar() {
         { label: "🗓️ Schedule", path: "/schedule" },
         { label: "💬 Messages", path: "/messages" },
         { label: "✅ Tasks", path: "/tasks" },
+        { label: "🗺️ Maps", path: "/map" },
       ],
     },
     {
