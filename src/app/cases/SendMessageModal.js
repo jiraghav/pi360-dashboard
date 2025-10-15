@@ -7,7 +7,9 @@ export default function SendMessageModal({ selectedCase, onClose, onConfirm, set
 
   if (!selectedCase) return null;
 
-  const handleConfirm = async () => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
     setLoading(true);
     try {
       await onConfirm();
@@ -51,57 +53,60 @@ export default function SendMessageModal({ selectedCase, onClose, onConfirm, set
           DOB: {selectedCase.dob}
         </p>
 
-        {/* Form for message */}
-        <div style={{ marginTop: "1rem" }}>
-          <label
-            htmlFor="message"
-            style={{ display: "block", marginBottom: "0.3rem" }}
-          >
-            Message
-          </label>
-          <textarea
-            id="message"
-            rows={4}
-            value={selectedCase.message || ""}
-            placeholder="Type your message here..."
-            onChange={(e) =>
-              setSelectedCase({ ...selectedCase, message: e.target.value })
-            }
-            style={{
-              width: "100%",
-              padding: "0.5rem",
-              borderRadius: "4px",
-              border: "1px solid #ccc",
-            }}
-          />
-        </div>
+        <form onSubmit={handleSubmit} style={{ marginTop: "1rem" }}>
+          {/* Message field */}
+          <div style={{ marginBottom: "1rem" }}>
+            <label
+              htmlFor="message"
+              style={{ display: "block", marginBottom: "0.3rem" }}
+            >
+              Message <span style={{ color: "red" }}>*</span>
+            </label>
+            <textarea
+              id="message"
+              rows={4}
+              value={selectedCase.message || ""}
+              placeholder="Type your message here..."
+              required
+              onChange={(e) =>
+                setSelectedCase({ ...selectedCase, message: e.target.value })
+              }
+              style={{
+                width: "100%",
+                padding: "0.5rem",
+                borderRadius: "4px",
+                border: "1px solid #ccc",
+              }}
+            />
+          </div>
 
-        {/* Buttons */}
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "flex-end",
-            marginTop: "1rem",
-            gap: "0.5rem",
-          }}
-        >
-          <button
-            onClick={onClose}
-            className="btn"
-            style={{ backgroundColor: "#ccc" }}
-            disabled={loading}
+          {/* Buttons */}
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "flex-end",
+              gap: "0.5rem",
+            }}
           >
-            Cancel
-          </button>
-          <button
-            onClick={handleConfirm}
-            className="btn"
-            style={{ backgroundColor: "#28a745", color: "white" }}
-            disabled={loading}
-          >
-            {loading ? "Sending..." : "Send Message"}
-          </button>
-        </div>
+            <button
+              type="button"
+              onClick={onClose}
+              className="btn"
+              style={{ backgroundColor: "#ccc" }}
+              disabled={loading}
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="btn"
+              style={{ backgroundColor: "#28a745", color: "white" }}
+              disabled={loading}
+            >
+              {loading ? "Sending..." : "Send Message"}
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );

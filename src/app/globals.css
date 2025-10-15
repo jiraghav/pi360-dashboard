@@ -16,6 +16,13 @@ body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,R
 .title{font-weight:800} .sub{color:var(--muted);font-size:.9rem}
 .btn{padding:10px 14px;border-radius:12px;border:1px solid var(--border);background:linear-gradient(180deg,#17264a,#0f1b38);color:#fff;font-weight:700;cursor:pointer;text-decoration:none;display:inline-block}
 .btn.primary{background:linear-gradient(90deg,#7dd3fc,#34d399);color:#031122;border:0}
+.btn:disabled {
+  opacity: 0.6;           /* Make it semi-transparent */
+  cursor: not-allowed;    /* Show not-allowed cursor */
+  background: #ccc !important; /* Override gradient background */
+  color: #666 !important;      /* Darker text color */
+  border-color: #999 !important;
+}
 .layout{display:grid;grid-template-columns:300px 1fr; height:calc(100vh - var(--topbar));}
 .side{height:100%;overflow:auto;border-right:1px solid var(--border);padding:16px 14px;background:linear-gradient(180deg,#0c152b,#0a1224)}
 .search{position:relative;margin:10px 6px 16px}
