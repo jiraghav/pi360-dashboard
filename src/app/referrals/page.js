@@ -19,7 +19,7 @@ export default function Referrals() {
   useEffect(() => {
     async function fetchReferrals() {
       try {
-        const data = await apiRequest("/referrals.php");
+        const data = await apiRequest("referrals.php");
         if (data.status && data.referrals) {
           const formatted = data.referrals.map((r) => ({
             patient: `${r.fname} ${r.lname}`,

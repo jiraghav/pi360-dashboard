@@ -12,7 +12,7 @@ export default function Attorney() {
   useEffect(() => {
     async function fetchAttorneys() {
       try {
-        const data = await apiRequest("/attorneys.php");
+        const data = await apiRequest("attorneys.php");
         if (data.status && Array.isArray(data.lawyerPatientCounts)) {
           setAttorneys(
             data.lawyerPatientCounts.map((item) => ({
