@@ -32,12 +32,12 @@ export default function Cases() {
         );
         if (data.status && data.patients) {
           const mappedCases = data.patients.map((p) => ({
-            patient: `${p.fname} ${p.lname}`,
-            firm: p.organization || "-",
-            status: "Active",
-            stage: "-",
-            lastVisit: "-",
-            imaging: "-",
+            referral_date: p.referral_date,
+            fname: p.fname,
+            mname: p.mname,
+            lname: p.lname,
+            dob: p.dob,
+            doi: p.doi,
           }));
           setCases(mappedCases);
           setTotal(data.total || 0);
@@ -71,12 +71,12 @@ export default function Cases() {
         <table>
           <thead>
             <tr>
-              <th>Patient</th>
-              <th>Firm</th>
-              <th>Status</th>
-              <th>Stage</th>
-              <th>Last Visit</th>
-              <th>Imaging</th>
+              <th>Referral Date</th>
+              <th>First Name</th>
+              <th>Middle Name</th>
+              <th>Last Name</th>
+              <th>DOB</th>
+              <th>DOI</th>
             </tr>
           </thead>
           <tbody>
@@ -89,12 +89,12 @@ export default function Cases() {
             ) : cases.length > 0 ? (
               cases.map((c, i) => (
                 <tr key={i}>
-                  <td>{c.patient}</td>
-                  <td>{c.firm}</td>
-                  <td>{c.status}</td>
-                  <td>{c.stage}</td>
-                  <td>{c.lastVisit}</td>
-                  <td>{c.imaging}</td>
+                  <td>{c.referral_date}</td>
+                  <td>{c.fname}</td>
+                  <td>{c.mname}</td>
+                  <td>{c.lname}</td>
+                  <td>{c.dob}</td>
+                  <td>{c.doi}</td>
                 </tr>
               ))
             ) : (
