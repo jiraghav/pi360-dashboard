@@ -21,6 +21,7 @@ const eslintConfig = [
     ],
     rules: {
       "react/no-unescaped-entities": "off", // ✅ disable unescaped entities warning
+       "@next/next/no-sync-scripts": "off",
     },
   },
 ];
