@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import GuestRoute from "../components/GuestRoute";
-import { apiRequest } from "../utils/api"; // import your API helper
+import { apiRequest } from "../utils/api";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -20,51 +20,62 @@ export default function LoginPage() {
     try {
       const data = await apiRequest("login.php", {
         method: "POST",
-        body: { user: form.username, pass: form.password }, // your apiRequest can handle JSON
+        body: { user: form.username, pass: form.password },
       });
 
-      console.log("JWT Response:", data);
-
-      // Save JWT to localStorage
       localStorage.setItem("token", data.token);
-
-      // Redirect to dashboard
       router.push("/dashboard");
     } catch (err) {
       console.error("Login error:", err);
-      // apiRequest should throw { message } if server sends error
       setError(err.message || "Something went wrong. Please try again.");
     }
   };
 
   return (
     <GuestRoute>
-      <div className="login-card">
-        <div className="login-logo">PI</div>
-        <h1>Welcome Back</h1>
-        <p className="login-sub">Sign in to continue to PI360</p>
+      <main className="flex items-center justify-center min-h-screen bg-gray-900 px-4">
+        <div className="w-full max-w-md bg-[#0b0f16] rounded-xl p-8 shadow-lg text-center space-y-4">
+          <div className="login-logo text-4xl font-bold text-white mb-2">PI</div>
+          <h1 className="text-2xl font-semibold text-white">Welcome Back</h1>
+          <p className="text-gray-400 mb-6">Sign in to continue to PI360</p>
 
-        <form onSubmit={handleSubmit} className="login-form">
-          <input
-            type="text"
-            name="username"
-            placeholder="Username"
-            value={form.username}
-            onChange={handleChange}
-            required
-          />
-          <input
-            type="password"
-            name="password"
-            placeholder="Password"
-            value={form.password}
-            onChange={handleChange}
-            required
-          />
-          <button type="submit">Sign In</button>
-          {error && <p className="login-error">{error}</p>}
-        </form>
-      </div>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <input
+              type="text"
+              name="username"
+              placeholder="Username"
+              value={form.username}
+              onChange={handleChange}
+              required
+              className="w-full px-4 py-3 rounded-lg bg-gray-800 border border-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <input
+              type="password"
+              name="password"
+              placeholder="Password"
+              value={form.password}
+              onChange={handleChange}
+              required
+              className="w-full px-4 py-3 rounded-lg bg-gray-800 border border-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+
+            <button
+              type="submit"
+              className="w-full py-3 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold transition"
+            >
+              Sign In
+            </button>
+
+            {error && (
+              <p className="text-red-400 text-sm mt-2">{error}</p>
+            )}
+          </form>
+
+          <div className="text-gray-500 text-sm mt-4">
+            &copy; {new Date().getFullYear()} PI360. All rights reserved.
+          </div>
+        </div>
+      </main>
     </GuestRoute>
   );
 }

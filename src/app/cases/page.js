@@ -14,6 +14,7 @@ export default function Cases() {
   const [search, setSearch] = useState("");
   const [searchInput, setSearchInput] = useState("");
   const [selectedCase, setSelectedCase] = useState(null);
+  const [expandedRows, setExpandedRows] = useState({});
   const [showRequestRecordModal, setShowRequestRecordModal] = useState(false);
   const [showSendMessageModal, setShowSendMessageModal] = useState(false);
   const limit = 10;
@@ -36,17 +37,8 @@ export default function Cases() {
           `/cases.php?page=${page}&limit=${limit}&search=${encodeURIComponent(search)}`
         );
         if (data.status && data.patients) {
-          const mappedCases = data.patients.map((p) => ({
-            pid: p.pid,
-            referral_date: p.referral_date,
-            fname: p.fname,
-            mname: p.mname,
-            lname: p.lname,
-            dob: p.dob,
-            doi: p.doi,
-          }));
-          setCases(mappedCases);
-          setTotal(data.total || mappedCases.length);
+          setCases(data.patients);
+          setTotal(data.total || data.patients.length);
         } else {
           setCases([]);
           setTotal(0);
@@ -74,185 +66,154 @@ export default function Cases() {
     setShowSendMessageModal(true);
   };
 
-  const confirmRequestRecord = async () => {
-    if (!selectedCase) return;
-
-    try {
-      const formData = new FormData();
-      formData.append("pid", selectedCase.pid);
-      formData.append("note", selectedCase.description || "");
-
-      const response = await apiRequest("request_records.php", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (response.status) {
-        alert(`Records requested for ${selectedCase.fname} ${selectedCase.lname}`);
-        setShowRequestRecordModal(false);
-        setSelectedCase(null);
-      } else {
-        alert("Failed to request records. Please try again.");
-      }
-    } catch (err) {
-      console.error("Error requesting records:", err);
-      alert("Error requesting records. Check console for details.");
-    }
-  };
-
-  const sendBackOfficeMessage = async () => {
-    if (!selectedCase) return;
-
-    try {
-      const formData = new FormData();
-      formData.append("pid", selectedCase.pid);
-      formData.append("message", selectedCase.message || "");
-
-      const response = await apiRequest("send_back_office_msg.php", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (response.status) {
-        alert(response.message);
-        setShowSendMessageModal(false);
-        setSelectedCase(null);
-      } else {
-        alert("Failed to send message. Please try again.");
-      }
-    } catch (err) {
-      console.error("Error sending message:", err);
-      alert("Error sending message. Check console for details.");
-    }
+  const toggleRow = (pid) => {
+    setExpandedRows((prev) => ({ ...prev, [pid]: !prev[pid] }));
   };
 
   return (
     <ProtectedRoute>
-      <div className="card">
-        {/* Header */}
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "top",
-            marginBottom: "1rem",
-          }}
-        >
-          <h3>Cases</h3>
-          <div className="search">
-            <svg
-              width="18"
-              height="18"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M12.5 12.5l4 4m-1.5-8a6.5 6.5 0 11-13 0 6.5 6.5 0 0113 0z"
-                stroke="#9db0e3"
-                strokeWidth="1.6"
-                strokeLinecap="round"
-              />
-            </svg>
-            <input
-              type="text"
-              placeholder="Search by patient name"
-              value={searchInput}
-              onChange={(e) => setSearchInput(e.target.value)}
-            />
+      <main className="px-4 md:px-6 py-8 max-w-7xl mx-auto space-y-8">
+        <section className="card p-5">
+          {/* Header */}
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-semibold">Cases</h3>
+            <div className="flex gap-2">
+              <button className="btn">Export</button>
+              <button className="btn btn-primary">New Referral</button>
+            </div>
           </div>
-        </div>
 
-        {/* Table */}
-        <table>
-          <thead>
-            <tr>
-              <th>Referral Date</th>
-              <th>First Name</th>
-              <th>Middle Name</th>
-              <th>Last Name</th>
-              <th>DOB</th>
-              <th>DOI</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {loading ? (
-              <tr>
-                <td colSpan={7} style={{ textAlign: "center", color: "#999" }}>
-                  Loading cases...
-                </td>
-              </tr>
-            ) : cases.length > 0 ? (
-              cases.map((c, i) => (
-                <tr key={i}>
-                  <td>{c.referral_date}</td>
-                  <td>{c.fname}</td>
-                  <td>{c.mname}</td>
-                  <td>{c.lname}</td>
-                  <td>{c.dob}</td>
-                  <td>{c.doi}</td>
-                  <td>
-                    <button onClick={() => handleRequestRecords(c)} className="btn">
-                      Request Records
-                    </button>
+          {/* Table header */}
+          <div className="grid grid-cols-12 text-mute text-xs uppercase tracking-wide pb-3 border-b border-stroke">
+            <div className="col-span-1">Expand</div>
+            <div className="col-span-2">First</div>
+            <div className="col-span-2">Last</div>
+            <div className="col-span-2">DOB</div>
+            <div className="col-span-2">DOI</div>
+            <div className="col-span-1">Status</div>
+            <div className="col-span-2 text-right">Actions</div>
+          </div>
+
+          {/* Cases rows */}
+          {loading ? (
+            <div className="py-4 text-center col-span-12 text-mute">Loading cases...</div>
+          ) : cases.length === 0 ? (
+            <div className="py-4 text-center col-span-12 text-mute">No cases found</div>
+          ) : (
+            cases.map((c) => (
+              <div key={c.pid} className="mb-4">
+                {/* Main row */}
+                <div className="grid grid-cols-12 items-center py-4 border-b border-stroke/50">
+                  <div className="col-span-1 flex items-center">
                     <button
-                      onClick={() => handleSendMessage(c)}
-                      className="btn"
-                      style={{ marginLeft: 10 }}
+                      className="badge"
+                      onClick={() => toggleRow(c.pid)}
                     >
-                      Send Back Office Message
+                      {expandedRows[c.pid] ? "-" : "+"}
                     </button>
-                  </td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan={7} style={{ textAlign: "center", color: "#999" }}>
-                  No cases found
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+                    <span className="ml-2 flex gap-1">
+                      {/* Example dots for services */}
+                      <span className="dot bg-mint-500" title="Chiro"></span>
+                      <span className="dot bg-sky-500" title="Imaging"></span>
+                      <span className="dot bg-amber-500" title="Pain Mgmt"></span>
+                    </span>
+                  </div>
+                  <div className="col-span-2">{c.fname}</div>
+                  <div className="col-span-2">{c.lname}</div>
+                  <div className="col-span-2">{c.dob}</div>
+                  <div className="col-span-2">{c.doi}</div>
+                  <div className="col-span-1">
+                    <span className="badge text-mint-300">Active</span>
+                  </div>
+                  <div className="col-span-2 text-right flex justify-end gap-2">
+                    <button onClick={() => handleRequestRecords(c)} className="btn">Request Records</button>
+                    <button onClick={() => handleSendMessage(c)} className="btn">Back Office Msg</button>
+                  </div>
+                </div>
 
-        {/* Pagination */}
-        <div style={{ marginTop: "1rem" }}>
-          <button
-            onClick={() => setPage((p) => Math.max(1, p - 1))}
-            disabled={page === 1 || loading}
-            className="btn"
-          >
-            Previous
-          </button>
-          <span style={{ margin: "0 1rem" }}>
-            Page {page} of {totalPages} ({total} cases)
-          </span>
-          <button
-            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-            disabled={page === totalPages || loading}
-            className="btn"
-          >
-            Next
-          </button>
-        </div>
-      </div>
+                {/* Expanded row */}
+                {expandedRows[c.pid] && (
+                  <div className="mt-4 p-4 rounded-xl border border-stroke bg-card">
+                    <div className="text-sm text-mute mb-2">Week of Oct 7</div>
+                    <ul className="text-sm list-disc pl-5 space-y-1">
+                      <li>MRI report pending</li>
+                      <li>PT 2/12 completed</li>
+                      <li>Pain Mgmt consult scheduled 10/22</li>
+                    </ul>
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mt-4">
+                      <div className="card p-3">
+                        <div className="text-mute text-xs">Chiropractic</div>
+                        <div className="font-semibold">Completed</div>
+                        <div className="text-xs text-mute mt-1">Last Visit 09/27/2023</div>
+                      </div>
+                      <div className="card p-3">
+                        <div className="text-mute text-xs">Imaging (MRI/CT)</div>
+                        <div className="font-semibold">Pending Report</div>
+                        <div className="text-xs text-mute mt-1">Last Visit 10/07/2023</div>
+                      </div>
+                      <div className="card p-3">
+                        <div className="text-mute text-xs">Orthopedic</div>
+                        <div className="font-semibold">Next Appt 12/21/2023</div>
+                      </div>
+                      <div className="card p-3">
+                        <div className="text-mute text-xs">Pain Management</div>
+                        <div className="font-semibold">$1,200 total · $400 avg</div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))
+          )}
 
-      {showRequestRecordModal && selectedCase && (
-        <RequestRecordsModal
-          selectedCase={selectedCase}
-          setSelectedCase={setSelectedCase}
-          onClose={() => setShowRequestRecordModal(false)}
-          onConfirm={confirmRequestRecord}
-        />
-      )}
-      {showSendMessageModal && selectedCase && (
-        <SendMessageModal
-          selectedCase={selectedCase}
-          setSelectedCase={setSelectedCase}
-          onClose={() => setShowSendMessageModal(false)}
-          onConfirm={sendBackOfficeMessage}
-        />
-      )}
+          {/* Pagination */}
+          <div className="flex items-center justify-center gap-4 mt-4">
+            <button
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={page === 1 || loading}
+              className="btn"
+            >
+              Previous
+            </button>
+            <span>
+              Page {page} of {totalPages} ({total} cases)
+            </span>
+            <button
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              disabled={page === totalPages || loading}
+              className="btn"
+            >
+              Next
+            </button>
+          </div>
+        </section>
+
+        {/* Modals */}
+        {showRequestRecordModal && selectedCase && (
+          <RequestRecordsModal
+            selectedCase={selectedCase}
+            setSelectedCase={setSelectedCase}
+            onClose={() => setShowRequestRecordModal(false)}
+            onConfirm={() => {
+              alert(`Records requested for ${selectedCase.fname}`);
+              setShowRequestRecordModal(false);
+              setSelectedCase(null);
+            }}
+          />
+        )}
+        {showSendMessageModal && selectedCase && (
+          <SendMessageModal
+            selectedCase={selectedCase}
+            setSelectedCase={setSelectedCase}
+            onClose={() => setShowSendMessageModal(false)}
+            onConfirm={() => {
+              alert(`Message sent to ${selectedCase.fname}`);
+              setShowSendMessageModal(false);
+              setSelectedCase(null);
+            }}
+          />
+        )}
+      </main>
     </ProtectedRoute>
   );
 }

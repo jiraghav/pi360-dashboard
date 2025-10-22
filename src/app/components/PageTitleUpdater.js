@@ -8,8 +8,7 @@ export default function PageTitleUpdater() {
   const pathname = usePathname();
 
   useEffect(() => {
-    // Default to "PI360 • Desktop Dashboard" if route is not found
-    const route = routeMap[pathname] || { title: "PI360 • Desktop Dashboard" };
+    const route = routeMap[pathname] || { title: "Dashboard" };
     document.title = route.title;
   }, [pathname]);
 

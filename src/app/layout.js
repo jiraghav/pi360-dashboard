@@ -9,7 +9,7 @@ import PageTitleUpdater from "./components/PageTitleUpdater";
 export default function RootLayout({ children }) {
   const pathname = usePathname();
 
-  // hide navbar and sidebar on login route (and others if needed)
+  // Hide layout (Navbar + Sidebar) for auth pages
   const hideLayout =
     pathname === "/login" ||
     pathname === "/register" ||
@@ -17,13 +17,85 @@ export default function RootLayout({ children }) {
 
   return (
     <html lang="en">
-      <body>
-        <PageTitleUpdater />
-        {!hideLayout && <Navbar />}
+      <head>
+        {/* Tailwind via CDN */}
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              tailwind.config = {
+                theme: {
+                  extend: {
+                    colors: {
+                      bg: '#0b0f16',
+                      card: '#0e1420',
+                      stroke: '#1b2534',
+                      ink: '#e6edf3',
+                      mute: '#9aa8bd',
+                      sky: { 500: '#38bdf8', 400:'#60c5fa' },
+                      mint: { 500: '#34d399' },
+                      grape: { 500: '#a78bfa' },
+                      amber: { 500: '#f59e0b' },
+                      rose: { 500: '#f87171' },
+                    }
+                  }
+                }
+              }
+            `,
+          }}
+        />
+      </head>
 
-        <div className={hideLayout ? "layout-auth" : "layout"}>
+      <body className="bg-bg text-ink">
+        <PageTitleUpdater />
+
+        {/* Mobile top bar */}
+        {!hideLayout && (
+          <div className="md:hidden flex items-center justify-between px-4 py-3 glass border-b border-stroke/70 sticky top-0 z-50">
+            <button
+              id="openNav"
+              className="btn"
+              onClick={() => {
+                const sidebar = document.getElementById("sidebar");
+                if (sidebar) sidebar.classList.toggle("hidden");
+              }}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="w-5 h-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
+              </svg>
+            </button>
+            <div className="text-sm font-semibold">Complete Injury Centers — PI360</div>
+            <a className="btn btn-primary" href="#">
+              New Referral
+            </a>
+          </div>
+        )}
+
+        <div className="min-h-screen grid md:grid-cols-12">
           {!hideLayout && <Sidebar />}
-          <main className="main">{children}</main>
+
+          <section
+            className={
+              hideLayout
+                ? "col-span-12" // full width when layout is hidden
+                : "md:col-span-9 xl:col-span-10"
+            }
+          >
+            {!hideLayout && <Navbar />}
+
+            <main className="main">{children}</main>
+          </section>
         </div>
       </body>
     </html>

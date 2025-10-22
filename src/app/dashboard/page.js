@@ -1,13 +1,12 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useState } from "react";
 import ProtectedRoute from "../components/ProtectedRoute";
 import { apiRequest } from "../utils/api";
 
 export default function Dashboard() {
   const [dashboardData, setDashboardData] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -16,115 +15,125 @@ export default function Dashboard() {
         const data = await apiRequest("dashboard.php");
         setDashboardData(data);
       } catch (err) {
-        setError(err.message);
+        setError(err.message || "Failed to load dashboard data");
       } finally {
         setLoading(false);
       }
     };
-
-    fetchDashboard();
+    // fetchDashboard();
   }, []);
+
+  // Sample placeholders if data not available
+  const kpis = dashboardData || {
+    todaysPatients: 3,
+    activeCases: 9,
+    pendingReports: 5,
+    openTasks: 23,
+    newReferrals: 14,
+    messages: 7,
+  };
+
+  const alerts = dashboardData?.priorityAlerts || [
+    { text: "MRI report pending", type: "rose" },
+    { text: "Follow‑up overdue", type: "amber" },
+    { text: "Weekly summary completed", type: "mint" },
+  ];
+
+  const activities = dashboardData?.recentActivity || [
+    { text: "New referral uploaded", time: "1h ago" },
+    { text: "Imaging reviewed", time: "2h ago" },
+    { text: "Treatment plan updated", time: "4h ago" },
+  ];
 
   return (
     <ProtectedRoute>
-      <section>
+      <main className="px-4 md:px-6 py-8 max-w-7xl mx-auto space-y-8">
         {/* Quick Actions */}
-        <div className="card">
-          <h3>Quick Actions</h3>
-          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '6px' }}>
-            <Link href="/referrals/new" className="btn primary">New Referral</Link>
-            <Link href="/schedule" className="btn">Schedule Visit</Link>
-            <Link href="/messages/compose" className="btn">Send Message</Link>
-            <Link href="/tasks/new" className="btn">Create Task</Link>
+        <section className="grid grid-cols-12 gap-4">
+          <div className="col-span-12 xl:col-span-4 card p-5">
+            <h3 className="text-mute mb-3">Quick Actions</h3>
+            <div className="grid grid-cols-2 gap-3">
+              <button type="button" className="btn btn-primary">New Referral</button>
+              <button type="button" className="btn">Schedule</button>
+              <button type="button" className="btn">Review Notes</button>
+              <button type="button" className="btn">Send Notes</button>
+            </div>
           </div>
-        </div>
 
-        {/* KPIs */}
-        <div className="card" style={{ marginTop: '12px' }}>
-          <h3>KPIs</h3>
-          <div className="kpi-4" style={{ marginTop: '8px' }}>
-            <div className="tile">
-              <div className="label">Pending Referrals</div>
-              <div className="value">{loading ? "Loading..." : dashboardData?.pendingReferrals}</div>
+          {/* KPIs */}
+          <div className="col-span-12 xl:col-span-8 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+            <div className="kpi">
+              <div className="text-3xl font-semibold">{loading ? "…" : kpis.todaysPatients}</div>
+              <div className="text-mute text-sm">Today's Patients</div>
             </div>
-            <div className="tile">
-              <div className="label">Active Cases</div>
-              <div className="value">{loading ? "Loading..." : dashboardData?.activeCases}</div>
+            <div className="kpi">
+              <div className="text-3xl font-semibold">{loading ? "…" : kpis.activeCases}</div>
+              <div className="text-mute text-sm">Active Cases</div>
             </div>
-            <div className="tile">
-              <div className="label">Today's Appointments</div>
-              <div className="value">{loading ? "Loading..." : dashboardData?.todaysAppointments}</div>
+            <div className="kpi">
+              <div className="text-3xl font-semibold">{loading ? "…" : kpis.pendingReports}</div>
+              <div className="text-mute text-sm">Pending Reports</div>
             </div>
-            <div className="tile">
-              <div className="label">Open Tasks</div>
-              <div className="value">{loading ? "Loading..." : dashboardData?.openTasks}</div>
+            <div className="kpi">
+              <div className="text-3xl font-semibold">{loading ? "…" : kpis.openTasks}</div>
+              <div className="text-mute text-sm">Open Tasks</div>
+            </div>
+            <div className="kpi">
+              <div className="text-3xl font-semibold">{loading ? "…" : kpis.newReferrals}</div>
+              <div className="text-mute text-sm">New Referrals</div>
+            </div>
+            <div className="kpi">
+              <div className="text-3xl font-semibold">{loading ? "…" : kpis.messages}</div>
+              <div className="text-mute text-sm">Messages</div>
             </div>
           </div>
-        </div>
+        </section>
 
         {/* Priority Alerts & Recent Activity */}
-        <div className="two" style={{ marginTop: '12px' }}>
-          <div className="card">
-            <h3>Priority Alerts</h3>
-            <table>
-              <tbody>
-                {loading ? (
-                  <tr>
-                    <td colSpan={2} style={{ textAlign: "center", color: "#999" }}>Loading...</td>
-                  </tr>
-                ) : error ? (
-                  <tr>
-                    <td colSpan={2} style={{ textAlign: "center", color: "red" }}>{error}</td>
-                  </tr>
-                ) : dashboardData?.priorityAlerts?.length > 0 ? (
-                  dashboardData.priorityAlerts.map((alert, i) => (
-                    <tr key={i}>
-                      <td>{alert.text}</td>
-                      <td>
-                        <span className={`tag tag-${alert.type}`}>{alert.type}</span>
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan={2} style={{ textAlign: "center", color: "#999" }}>No alerts available</td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+        <section className="grid grid-cols-12 gap-4">
+          {/* Alerts */}
+          <div className="col-span-12 lg:col-span-6 card p-5">
+            <div className="flex items-center gap-2 mb-3">
+              <span className="dot bg-rose-500"></span>
+              <h4 className="font-semibold">Clinical Alerts</h4>
+            </div>
+            {loading ? (
+              <p className="text-mute">Loading...</p>
+            ) : error ? (
+              <p className="text-rose-500">{error}</p>
+            ) : (
+              alerts.map((alert, i) => (
+                <div key={i} className="flex items-center justify-between border-b border-stroke/60 py-3">
+                  <div>{alert.text}</div>
+                  <span className={`badge text-${alert.type}-300`}>{alert.type.toUpperCase()}</span>
+                </div>
+              ))
+            )}
           </div>
 
-          <div className="card">
-            <h3>Recent Activity</h3>
-            <table>
-              <tbody>
-                {loading ? (
-                  <tr>
-                    <td colSpan={2} style={{ textAlign: "center", color: "#999" }}>Loading...</td>
-                  </tr>
-                ) : error ? (
-                  <tr>
-                    <td colSpan={2} style={{ textAlign: "center", color: "red" }}>{error}</td>
-                  </tr>
-                ) : dashboardData?.recentActivity?.length > 0 ? (
-                  dashboardData.recentActivity.map((activity, i) => (
-                    <tr key={i}>
-                      <td>{activity.text}</td>
-                      <td>
-                        <span className={`tag tag-${activity.status}`}>{activity.status}</span>
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan={2} style={{ textAlign: "center", color: "#999" }}>No recent activity</td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+          {/* Recent Activity */}
+          <div className="col-span-12 lg:col-span-6 card p-5">
+            <div className="flex items-center gap-2 mb-3">
+              <span className="dot bg-sky-400"></span>
+              <h4 className="font-semibold">Activity</h4>
+            </div>
+            {loading ? (
+              <p className="text-mute">Loading...</p>
+            ) : error ? (
+              <p className="text-rose-500">{error}</p>
+            ) : (
+              <ul className="space-y-3">
+                {activities.map((activity, i) => (
+                  <li key={i} className="flex items-center justify-between">
+                    <span>{activity.text}</span>
+                    <span className="text-xs text-mute">{activity.time}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
-        </div>
-      </section>
+        </section>
+      </main>
     </ProtectedRoute>
   );
 }

@@ -6,27 +6,24 @@ import { routeMap } from "../config/routes";
 
 export default function Navbar() {
   const pathname = usePathname();
-  const { title, sub } = routeMap[pathname] || {
-    title: "PI360 • Desktop Dashboard",
-    sub: "Command Center",
-  };
+  const page = routeMap[pathname] || { title: "PI360", sub: "" };
 
   return (
-    <div className="top">
-      <div className="bar">
-        <div className="brand">
-          <div className="gem">PI</div>
-          <div>
-            <div className="title">{title}</div>
-            <div className="sub">{sub}</div>
-          </div>
+    <header className="hidden md:block sticky top-0 z-40 glass border-b border-stroke/70">
+      <div className="px-6 py-4 flex items-center justify-between">
+        {/* Page title and subtitle */}
+        <div>
+          <div className="text-xs uppercase tracking-wide text-mute">Section</div>
+          <h1 className="text-xl font-bold">{page.title}</h1>
         </div>
 
-        <div style={{ display: "flex", gap: "8px" }}>
-          <Link href="/dashboard" className="btn">Export</Link>
-          <Link href="/referrals/new" className="btn primary">+ New Referral</Link>
+        {/* Action buttons */}
+        <div className="flex items-center gap-2">
+          <Link href="#" className="btn btn-primary">New Referral</Link>
+          <Link href="#" className="btn">Send Message</Link>
+          <Link href="#" className="btn">Create Task</Link>
         </div>
       </div>
-    </div>
+    </header>
   );
 }
