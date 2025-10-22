@@ -5,6 +5,7 @@ import ProtectedRoute from "../components/ProtectedRoute";
 import { apiRequest } from "../utils/api";
 import RequestRecordsModal from "./RequestRecordsModal";
 import SendMessageModal from "./SendMessageModal";
+import Link from "next/link";
 
 export default function Cases() {
   const [cases, setCases] = useState([]);
@@ -17,6 +18,7 @@ export default function Cases() {
   const [expandedRows, setExpandedRows] = useState({});
   const [showRequestRecordModal, setShowRequestRecordModal] = useState(false);
   const [showSendMessageModal, setShowSendMessageModal] = useState(false);
+  const [expandedData, setExpandedData] = useState({});
   const limit = 10;
 
   // Debounce search
@@ -66,9 +68,82 @@ export default function Cases() {
     setShowSendMessageModal(true);
   };
 
-  const toggleRow = (pid) => {
-    setExpandedRows((prev) => ({ ...prev, [pid]: !prev[pid] }));
+  const toggleRow = async (pid) => {
+    setExpandedRows((prev) => {
+      // If already open, close it
+      if (prev[pid]) return {};
+      // Otherwise open only this pid, close others
+      return { [pid]: true };
+    });
+  
+    // Fetch data only the first time it's expanded
+    if (!expandedData[pid]) {
+      try {
+        const details = await apiRequest(`/case_details.php?pid=${pid}`);
+        if (details.status) {
+          console.log(details);
+          setExpandedData((prev) => ({
+            ...prev,
+            [pid]: details.data, // whatever your API returns
+          }));
+        }
+      } catch (err) {
+        console.error("Failed to fetch case details:", err);
+      }
+    }
   };
+
+  const confirmRequestRecord = async () => {
+    if (!selectedCase) return;
+
+    try {
+      const formData = new FormData();
+      formData.append("pid", selectedCase.pid);
+      formData.append("note", selectedCase.description || "");
+
+      const response = await apiRequest("request_records.php", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (response.status) {
+        alert(`Records requested for ${selectedCase.fname} ${selectedCase.lname}`);
+        setShowRequestRecordModal(false);
+        setSelectedCase(null);
+      } else {
+        alert("Failed to request records. Please try again.");
+      }
+    } catch (err) {
+      console.error("Error requesting records:", err);
+      alert("Error requesting records. Check console for details.");
+    }
+  };
+    
+  const sendBackOfficeMessage = async () => {
+    if (!selectedCase) return;
+
+    try {
+      const formData = new FormData();
+      formData.append("pid", selectedCase.pid);
+      formData.append("message", selectedCase.message || "");
+
+      const response = await apiRequest("send_back_office_msg.php", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (response.status) {
+        alert(response.message);
+        setShowSendMessageModal(false);
+        setSelectedCase(null);
+      } else {
+        alert("Failed to send message. Please try again.");
+      }
+    } catch (err) {
+      console.error("Error sending message:", err);
+      alert("Error sending message. Check console for details.");
+    };
+  }
 
   return (
     <ProtectedRoute>
@@ -79,7 +154,7 @@ export default function Cases() {
             <h3 className="font-semibold">Cases</h3>
             <div className="flex gap-2">
               <button className="btn">Export</button>
-              <button className="btn btn-primary">New Referral</button>
+              <Link href="/referrals/new" className="btn btn-primary">New Referral</Link>
             </div>
           </div>
 
@@ -112,10 +187,24 @@ export default function Cases() {
                       {expandedRows[c.pid] ? "-" : "+"}
                     </button>
                     <span className="ml-2 flex gap-1">
-                      {/* Example dots for services */}
-                      <span className="dot bg-mint-500" title="Chiro"></span>
-                      <span className="dot bg-sky-500" title="Imaging"></span>
-                      <span className="dot bg-amber-500" title="Pain Mgmt"></span>
+                    {c.super_facilities?.split(",").map((facility, i) => {
+                      const trimmed = facility.trim();
+
+                      // Split description and color by semicolon
+                      const [title, colorCode] = trimmed.split(";");
+
+                      const displayTitle = title ? title.trim() : "Unknown";
+                      const color = colorCode ? colorCode.trim() : "#999"; // default gray if missing
+
+                      return (
+                        <span
+                          key={i}
+                          className="dot"
+                          title={displayTitle}
+                          style={{ backgroundColor: color }}
+                        ></span>
+                      );
+                    })}
                     </span>
                   </div>
                   <div className="col-span-2">{c.fname}</div>
@@ -134,32 +223,39 @@ export default function Cases() {
                 {/* Expanded row */}
                 {expandedRows[c.pid] && (
                   <div className="mt-4 p-4 rounded-xl border border-stroke bg-card">
-                    <div className="text-sm text-mute mb-2">Week of Oct 7</div>
-                    <ul className="text-sm list-disc pl-5 space-y-1">
-                      <li>MRI report pending</li>
-                      <li>PT 2/12 completed</li>
-                      <li>Pain Mgmt consult scheduled 10/22</li>
-                    </ul>
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mt-4">
-                      <div className="card p-3">
-                        <div className="text-mute text-xs">Chiropractic</div>
-                        <div className="font-semibold">Completed</div>
-                        <div className="text-xs text-mute mt-1">Last Visit 09/27/2023</div>
+                    {expandedData[c.pid] ? (
+                      <>
+                        <div className="text-sm text-mute mb-2">
+                          {expandedData[c.pid].week_summary || "Recent Updates"}
+                        </div>
+                
+                        <ul className="text-sm list-disc pl-5 space-y-1">
+                          {expandedData[c.pid].notes?.length > 0 ? (
+                            expandedData[c.pid].notes.map((note, i) => (
+                              <li key={i}>{note}</li>
+                            ))
+                          ) : (
+                            <li>No updates available</li>
+                          )}
+                        </ul>
+                
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mt-4">
+                          {expandedData[c.pid].sections?.map((section, i) => (
+                            <div key={i} className="card p-3">
+                              <div className="text-mute text-xs">{section.title}</div>
+                              <div className="font-semibold">{section.status}</div>
+                              {section.last_visit && (
+                                <div className="text-xs text-mute mt-1">Last Visit: {section.last_visit}</div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </>
+                    ) : (
+                      <div className="py-3 text-center text-mute text-sm">
+                        Loading details...
                       </div>
-                      <div className="card p-3">
-                        <div className="text-mute text-xs">Imaging (MRI/CT)</div>
-                        <div className="font-semibold">Pending Report</div>
-                        <div className="text-xs text-mute mt-1">Last Visit 10/07/2023</div>
-                      </div>
-                      <div className="card p-3">
-                        <div className="text-mute text-xs">Orthopedic</div>
-                        <div className="font-semibold">Next Appt 12/21/2023</div>
-                      </div>
-                      <div className="card p-3">
-                        <div className="text-mute text-xs">Pain Management</div>
-                        <div className="font-semibold">$1,200 total · $400 avg</div>
-                      </div>
-                    </div>
+                    )}
                   </div>
                 )}
               </div>
@@ -194,11 +290,7 @@ export default function Cases() {
             selectedCase={selectedCase}
             setSelectedCase={setSelectedCase}
             onClose={() => setShowRequestRecordModal(false)}
-            onConfirm={() => {
-              alert(`Records requested for ${selectedCase.fname}`);
-              setShowRequestRecordModal(false);
-              setSelectedCase(null);
-            }}
+            onConfirm={confirmRequestRecord}
           />
         )}
         {showSendMessageModal && selectedCase && (
@@ -206,11 +298,7 @@ export default function Cases() {
             selectedCase={selectedCase}
             setSelectedCase={setSelectedCase}
             onClose={() => setShowSendMessageModal(false)}
-            onConfirm={() => {
-              alert(`Message sent to ${selectedCase.fname}`);
-              setShowSendMessageModal(false);
-              setSelectedCase(null);
-            }}
+            onConfirm={sendBackOfficeMessage}
           />
         )}
       </main>

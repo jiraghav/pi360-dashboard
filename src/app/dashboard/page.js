@@ -3,11 +3,13 @@
 import { useEffect, useState } from "react";
 import ProtectedRoute from "../components/ProtectedRoute";
 import { apiRequest } from "../utils/api";
+import { useRouter } from "next/navigation";
 
 export default function Dashboard() {
   const [dashboardData, setDashboardData] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const router = useRouter();
 
   useEffect(() => {
     const fetchDashboard = async () => {
@@ -20,30 +22,19 @@ export default function Dashboard() {
         setLoading(false);
       }
     };
-    // fetchDashboard();
+    fetchDashboard();
   }, []);
-
-  // Sample placeholders if data not available
-  const kpis = dashboardData || {
-    todaysPatients: 3,
-    activeCases: 9,
-    pendingReports: 5,
-    openTasks: 23,
-    newReferrals: 14,
-    messages: 7,
+  
+  const handleNewReferralClick = () => {
+    router.push("/referrals/new");
   };
 
-  const alerts = dashboardData?.priorityAlerts || [
-    { text: "MRI report pending", type: "rose" },
-    { text: "Follow‑up overdue", type: "amber" },
-    { text: "Weekly summary completed", type: "mint" },
-  ];
+  // Sample placeholders if data not available
+  const kpis = dashboardData;
 
-  const activities = dashboardData?.recentActivity || [
-    { text: "New referral uploaded", time: "1h ago" },
-    { text: "Imaging reviewed", time: "2h ago" },
-    { text: "Treatment plan updated", time: "4h ago" },
-  ];
+  const alerts = dashboardData?.priorityAlerts || [];
+
+  const activities = dashboardData?.recentActivity || [];
 
   return (
     <ProtectedRoute>
@@ -53,7 +44,7 @@ export default function Dashboard() {
           <div className="col-span-12 xl:col-span-4 card p-5">
             <h3 className="text-mute mb-3">Quick Actions</h3>
             <div className="grid grid-cols-2 gap-3">
-              <button type="button" className="btn btn-primary">New Referral</button>
+              <button onClick={handleNewReferralClick} className="btn btn-primary">New Referral</button>
               <button type="button" className="btn">Schedule</button>
               <button type="button" className="btn">Review Notes</button>
               <button type="button" className="btn">Send Notes</button>
@@ -63,27 +54,27 @@ export default function Dashboard() {
           {/* KPIs */}
           <div className="col-span-12 xl:col-span-8 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
             <div className="kpi">
-              <div className="text-3xl font-semibold">{loading ? "…" : kpis.todaysPatients}</div>
+              <div className="text-3xl font-semibold">{loading ? "…" : (kpis?.todaysPatients || 0)}</div>
               <div className="text-mute text-sm">Today's Patients</div>
             </div>
             <div className="kpi">
-              <div className="text-3xl font-semibold">{loading ? "…" : kpis.activeCases}</div>
+              <div className="text-3xl font-semibold">{loading ? "…" : (kpis?.activeCases || 0)}</div>
               <div className="text-mute text-sm">Active Cases</div>
             </div>
             <div className="kpi">
-              <div className="text-3xl font-semibold">{loading ? "…" : kpis.pendingReports}</div>
+              <div className="text-3xl font-semibold">{loading ? "…" : (kpis?.pendingReports || 0)}</div>
               <div className="text-mute text-sm">Pending Reports</div>
             </div>
             <div className="kpi">
-              <div className="text-3xl font-semibold">{loading ? "…" : kpis.openTasks}</div>
+              <div className="text-3xl font-semibold">{loading ? "…" : (kpis?.openTasks || 0)}</div>
               <div className="text-mute text-sm">Open Tasks</div>
             </div>
             <div className="kpi">
-              <div className="text-3xl font-semibold">{loading ? "…" : kpis.newReferrals}</div>
+              <div className="text-3xl font-semibold">{loading ? "…" : (kpis?.newReferrals || 0)}</div>
               <div className="text-mute text-sm">New Referrals</div>
             </div>
             <div className="kpi">
-              <div className="text-3xl font-semibold">{loading ? "…" : kpis.messages}</div>
+              <div className="text-3xl font-semibold">{loading ? "…" : (kpis?.messages || 0)}</div>
               <div className="text-mute text-sm">Messages</div>
             </div>
           </div>
@@ -101,11 +92,18 @@ export default function Dashboard() {
               <p className="text-mute">Loading...</p>
             ) : error ? (
               <p className="text-rose-500">{error}</p>
+            ) : alerts.length === 0 ? (
+              <p className="text-mute italic">No clinical alerts</p>
             ) : (
               alerts.map((alert, i) => (
-                <div key={i} className="flex items-center justify-between border-b border-stroke/60 py-3">
+                <div
+                  key={i}
+                  className="flex items-center justify-between border-b border-stroke/60 py-3"
+                >
                   <div>{alert.text}</div>
-                  <span className={`badge text-${alert.type}-300`}>{alert.type.toUpperCase()}</span>
+                  <span className={`badge text-${alert.type}-300`}>
+                    {alert.type.toUpperCase()}
+                  </span>
                 </div>
               ))
             )}
@@ -121,6 +119,8 @@ export default function Dashboard() {
               <p className="text-mute">Loading...</p>
             ) : error ? (
               <p className="text-rose-500">{error}</p>
+            ) : activities.length === 0 ? (
+              <p className="text-mute italic">No activities yet</p>
             ) : (
               <ul className="space-y-3">
                 {activities.map((activity, i) => (

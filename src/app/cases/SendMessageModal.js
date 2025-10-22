@@ -2,14 +2,18 @@
 
 import { useState } from "react";
 
-export default function SendMessageModal({ selectedCase, onClose, onConfirm, setSelectedCase }) {
+export default function SendMessageModal({
+  selectedCase,
+  onClose,
+  onConfirm,
+  setSelectedCase,
+}) {
   const [loading, setLoading] = useState(false);
 
   if (!selectedCase) return null;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     setLoading(true);
     try {
       await onConfirm();
@@ -20,47 +24,40 @@ export default function SendMessageModal({ selectedCase, onClose, onConfirm, set
 
   return (
     <div
-      style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        width: "100%",
-        height: "100%",
-        backgroundColor: "rgba(0,0,0,0.5)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        zIndex: 9999,
-      }}
+      id="sendMessageModal"
+      className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50"
     >
-      <div
-        className="card"
-        style={{
-          width: "400px",
-          padding: "1rem",
-          borderRadius: "8px",
-          boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
-        }}
-      >
-        <h4>Send Message</h4>
-        <p>
+      <div className="card max-w-lg w-full p-6">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-4">
+          <h4 className="font-semibold text-lg">Send Message</h4>
+          <button
+            onClick={onClose}
+            className="badge cursor-pointer hover:bg-stroke/40"
+          >
+            Close
+          </button>
+        </div>
+
+        {/* Case Info */}
+        <p className="text-sm text-mute mb-4">
           You are sending a message regarding:
           <br />
-          <strong>
+          <strong className="text-white">
             {selectedCase.fname} {selectedCase.mname} {selectedCase.lname}
           </strong>
           <br />
           DOB: {selectedCase.dob}
         </p>
 
-        <form onSubmit={handleSubmit} style={{ marginTop: "1rem" }}>
-          {/* Message field */}
-          <div style={{ marginBottom: "1rem" }}>
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
             <label
               htmlFor="message"
-              style={{ display: "block", marginBottom: "0.3rem" }}
+              className="block text-sm mb-1 text-white"
             >
-              Message <span style={{ color: "red" }}>*</span>
+              Message <span className="text-rose-500">*</span>
             </label>
             <textarea
               id="message"
@@ -71,36 +68,23 @@ export default function SendMessageModal({ selectedCase, onClose, onConfirm, set
               onChange={(e) =>
                 setSelectedCase({ ...selectedCase, message: e.target.value })
               }
-              style={{
-                width: "100%",
-                padding: "0.5rem",
-                borderRadius: "4px",
-                border: "1px solid #ccc",
-              }}
+              className="w-full px-3 py-2 rounded-lg bg-[#0b0f16] border border-stroke text-white placeholder:text-mute"
             />
           </div>
 
           {/* Buttons */}
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "flex-end",
-              gap: "0.5rem",
-            }}
-          >
+          <div className="flex justify-end gap-2 pt-2">
             <button
               type="button"
               onClick={onClose}
-              className="btn"
-              style={{ backgroundColor: "#ccc" }}
+              className="btn bg-gray-500 hover:bg-gray-600 text-white"
               disabled={loading}
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="btn"
-              style={{ backgroundColor: "#28a745", color: "white" }}
+              className="btn btn-primary"
               disabled={loading}
             >
               {loading ? "Sending..." : "Send Message"}

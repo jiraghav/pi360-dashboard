@@ -19,7 +19,7 @@ export default function Navbar() {
 
         {/* Action buttons */}
         <div className="flex items-center gap-2">
-          <Link href="#" className="btn btn-primary">New Referral</Link>
+          <Link href="/referrals/new" className="btn btn-primary">New Referral</Link>
           <Link href="#" className="btn">Send Message</Link>
           <Link href="#" className="btn">Create Task</Link>
         </div>

@@ -2,7 +2,12 @@
 
 import { useState } from "react";
 
-export default function RequestRecordsModal({ selectedCase, onClose, onConfirm, setSelectedCase }) {
+export default function RequestRecordsModal({
+  selectedCase,
+  onClose,
+  onConfirm,
+  setSelectedCase,
+}) {
   const [loading, setLoading] = useState(false);
 
   if (!selectedCase) return null;
@@ -18,89 +23,70 @@ export default function RequestRecordsModal({ selectedCase, onClose, onConfirm, 
 
   return (
     <div
-      style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        width: "100%",
-        height: "100%",
-        backgroundColor: "rgba(0,0,0,0.5)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        zIndex: 9999,
-      }}
+      id="requestRecordsModal"
+      className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50"
     >
-      <div
-        className="card"
-        style={{
-          width: "400px",
-          padding: "1rem",
-          borderRadius: "8px",
-          boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
-        }}
-      >
-        <h4>Request Records</h4>
-        <p>
-          Are you sure you want to request records for:
-          <br />
-          <strong>
-            {selectedCase.fname} {selectedCase.mname} {selectedCase.lname}
-          </strong>
-          <br />
-          DOB: {selectedCase.dob}
-        </p>
-
-        {/* Form for description */}
-        <div style={{ marginTop: "1rem" }}>
-          <label
-            htmlFor="description"
-            style={{ display: "block", marginBottom: "0.3rem" }}
-          >
-            Please add any specifics or description
-          </label>
-          <textarea
-            id="description"
-            rows={4}
-            value={selectedCase.description || ""}
-            placeholder="Please add any specifics or description"
-            onChange={(e) =>
-              setSelectedCase({ ...selectedCase, description: e.target.value })
-            }
-            style={{
-              width: "100%",
-              padding: "0.5rem",
-              borderRadius: "4px",
-              border: "1px solid #ccc",
-            }}
-          />
+      <div className="card max-w-lg w-full p-6">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-4">
+          <h4 className="font-semibold text-lg">Request Records</h4>
+          <button onClick={onClose} className="badge cursor-pointer">
+            Close
+          </button>
         </div>
 
-        {/* Buttons */}
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "flex-end",
-            marginTop: "1rem",
-            gap: "0.5rem",
-          }}
-        >
-          <button
-            onClick={onClose}
-            className="btn"
-            style={{ backgroundColor: "#ccc" }}
-            disabled={loading}
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleConfirm}
-            className="btn"
-            style={{ backgroundColor: "#007bff", color: "white" }}
-            disabled={loading}
-          >
-            {loading ? "Submitting..." : "Request Records"}
-          </button>
+        {/* Content */}
+        <div className="space-y-4">
+          <p className="text-sm text-mute">
+            Are you sure you want to request records for:
+            <br />
+            <strong className="text-white">
+              {selectedCase.fname} {selectedCase.mname} {selectedCase.lname}
+            </strong>
+            <br />
+            DOB: {selectedCase.dob}
+          </p>
+
+          {/* Form Field */}
+          <div>
+            <label
+              htmlFor="description"
+              className="block text-sm mb-1 text-white"
+            >
+              Please add any specifics or description
+            </label>
+            <textarea
+              id="description"
+              rows={4}
+              value={selectedCase.description || ""}
+              placeholder="Please add any specifics or description"
+              onChange={(e) =>
+                setSelectedCase({
+                  ...selectedCase,
+                  description: e.target.value,
+                })
+              }
+              className="w-full px-3 py-2 rounded-lg bg-[#0b0f16] border border-stroke text-white placeholder:text-mute"
+            />
+          </div>
+
+          {/* Buttons */}
+          <div className="flex justify-end gap-2 pt-2">
+            <button
+              onClick={onClose}
+              className="btn bg-gray-500 hover:bg-gray-600 text-white"
+              disabled={loading}
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleConfirm}
+              className="btn btn-primary"
+              disabled={loading}
+            >
+              {loading ? "Submitting..." : "Request Records"}
+            </button>
+          </div>
         </div>
       </div>
     </div>
