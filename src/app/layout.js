@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import Navbar from "./components/Navbar";
 import Sidebar from "./components/Sidebar";
 import PageTitleUpdater from "./components/PageTitleUpdater";
+import Link from "next/link";
 
 export default function RootLayout({ children }) {
   const pathname = usePathname();
@@ -76,9 +77,7 @@ export default function RootLayout({ children }) {
               </svg>
             </button>
             <div className="text-sm font-semibold">Complete Injury Centers — PI360</div>
-            <a className="btn btn-primary" href="#">
-              New Referral
-            </a>
+            <Link href="/referrals/new" className="btn btn-primary">New Referral</Link>
           </div>
         )}
 

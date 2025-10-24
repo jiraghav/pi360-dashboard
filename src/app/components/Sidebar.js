@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 export default function Sidebar() {
   const pathname = usePathname();
@@ -20,6 +21,17 @@ export default function Sidebar() {
     router.push("/login");
   };
 
+  // 👉 Hide sidebar + move page to top whenever route changes
+  useEffect(() => {
+    const sidebar = document.getElementById("sidebar");
+    if (sidebar) {
+      sidebar.classList.add("hidden");
+    }
+
+    // Scroll page smoothly to top
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [pathname]);
+
   return (
     <aside
       id="sidebar"
@@ -27,9 +39,13 @@ export default function Sidebar() {
     >
       {/* Branding */}
       <div className="flex items-center gap-3 mb-6">
-        <div className="w-10 h-10 rounded-full bg-sky-500 grid place-items-center font-black">PI</div>
+        <div className="w-10 h-10 rounded-full bg-sky-500 grid place-items-center font-black">
+          PI
+        </div>
         <div>
-          <div className="font-semibold leading-tight">Complete Injury Centers</div>
+          <div className="font-semibold leading-tight">
+            Complete Injury Centers
+          </div>
           <div className="text-xs text-mute -mt-0.5">Powered by PI360</div>
         </div>
       </div>
