@@ -69,7 +69,7 @@ export default function Sidebar() {
           onClick={handleLogout}
           className="btn w-full text-left bg-none border-none text-ink/90 hover:text-ink font-semibold"
         >
-          🔒 Logout
+          Logout
         </button>
       </div>
 

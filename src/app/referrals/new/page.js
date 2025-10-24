@@ -8,6 +8,7 @@ import { apiRequest } from "../../utils/api";
 
 export default function NewReferral() {
   const router = useRouter();
+
   const [form, setForm] = useState({
     patient: null,
     refer_to: "",
@@ -15,16 +16,21 @@ export default function NewReferral() {
     lawyer_id: "",
     notes: "",
     attachment: null,
+    state: null,
+    city: null,
   });
+
   const [referOptions, setReferOptions] = useState([]);
   const [lawyers, setLawyers] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Load refer options and lawyers
   useEffect(() => {
     async function fetchDropdowns() {
       try {
         const referData = await apiRequest("getReferOptions.php");
         setReferOptions(referData.options || []);
+
         const lawyersData = await apiRequest("getLawyers.php");
         setLawyers(lawyersData.lawyers || []);
       } catch (err) {
@@ -34,6 +40,7 @@ export default function NewReferral() {
     fetchDropdowns();
   }, []);
 
+  // Load patients (searchable)
   const loadPatients = async (inputValue, loadedOptions, { page }) => {
     try {
       const params = new URLSearchParams({ limit: 10, page: page || 1 });
@@ -56,8 +63,57 @@ export default function NewReferral() {
     }
   };
 
-  const handlePatientChange = (selected) =>
-    setForm((prev) => ({ ...prev, patient: selected }));
+  // Load states
+  const loadStates = async (inputValue, loadedOptions, { page }) => {
+    try {
+      const params = new URLSearchParams({ search: inputValue || "", page: page || 1 });
+      const data = await apiRequest(`getStates.php?${params.toString()}`);
+      const options = (data.states || []).map((s) => ({
+        label: s.name,
+        value: s.id,
+      }));
+      return {
+        options,
+        hasMore: (page * 10) < (data.total || 0),
+        additional: { page: (page || 1) + 1 },
+      };
+    } catch (err) {
+      console.error("Error loading states:", err);
+      return { options: [], hasMore: false, additional: { page: page || 1 } };
+    }
+  };
+
+  // Load cities based on selected state
+  const loadCities = async (inputValue, loadedOptions, { page }) => {
+    if (!form.state) return { options: [], hasMore: false, additional: { page: 1 } };
+
+    try {
+      const params = new URLSearchParams({
+        state_id: form.state.value,
+        search: inputValue || "",
+        page: page || 1,
+      });
+      const data = await apiRequest(`getCities.php?${params.toString()}`);
+      const options = (data.cities || []).map((c) => ({
+        label: c.name,
+        value: c.id,
+      }));
+      return {
+        options,
+        hasMore: (page * 10) < (data.total || 0),
+        additional: { page: (page || 1) + 1 },
+      };
+    } catch (err) {
+      console.error("Error loading cities:", err);
+      return { options: [], hasMore: false, additional: { page: page || 1 } };
+    }
+  };
+
+  // Handlers
+  const handlePatientChange = (selected) => setForm((prev) => ({ ...prev, patient: selected }));
+  const handleStateChange = (selected) =>
+    setForm((prev) => ({ ...prev, state: selected, city: null })); // reset city
+  const handleCityChange = (selected) => setForm((prev) => ({ ...prev, city: selected }));
   const handleChange = (e) => {
     const { name, value, files } = e.target;
     setForm((prev) => ({ ...prev, [name]: name === "attachment" ? files[0] : value }));
@@ -79,6 +135,8 @@ export default function NewReferral() {
       formData.append("lawyer_id", form.lawyer_id);
       formData.append("referral_detail", form.notes);
       if (form.attachment) formData.append("referral_attachment", form.attachment);
+      if (form.state) formData.append("state_id", form.state.value);
+      if (form.city) formData.append("city_id", form.city.value);
 
       await apiRequest("create_referral.php", { method: "POST", body: formData });
       alert("Referral created successfully!");
@@ -88,6 +146,18 @@ export default function NewReferral() {
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const asyncStyles = {
+    option: (provided, state) => ({
+      ...provided,
+      color: "white",
+      backgroundColor: "black",
+    }),
+    singleValue: (provided) => ({ ...provided, color: "white" }),
+    input: (provided) => ({ ...provided, color: "white" }),
+    placeholder: (provided) => ({ ...provided, color: "#eee" }),
+    control: (provided) => ({ ...provided, backgroundColor: "black", color: "white" }),
   };
 
   return (
@@ -106,18 +176,8 @@ export default function NewReferral() {
               onChange={handlePatientChange}
               isClearable
               additional={{ page: 1 }}
-              styles={{
-                option: (provided, state) => ({
-                  ...provided,
-                  color: "white",
-                  backgroundColor: "black",
-                }),
-                singleValue: (provided) => ({ ...provided, color: "white" }),
-                input: (provided) => ({ ...provided, color: "white" }),
-                placeholder: (provided) => ({ ...provided, color: "#eee" }),
-                control: (provided) => ({ ...provided, backgroundColor: "black", color: "white" }),
-              }}
               className="col-span-1 md:col-span-2"
+              styles={asyncStyles}
             />
 
             {/* Refer To */}
@@ -182,6 +242,41 @@ export default function NewReferral() {
               onChange={handleChange}
               className="border rounded px-3 py-2 md:col-span-2 bg-black text-white"
             />
+            
+            <div className="md:col-span-2">
+              <br />
+              <label className="block mb-1 font-semibold text-white">Send To (Optional):</label>
+            </div>
+
+            {/* State */}
+            <div className="md:col-span-1">
+              <AsyncPaginate
+                key={form.state?.value || "state"}
+                placeholder="Select State"
+                value={form.state}
+                loadOptions={loadStates}
+                onChange={handleStateChange}
+                isClearable
+                additional={{ page: 1 }}
+                styles={asyncStyles}
+              />
+            </div>
+
+            {/* City */}
+            {form.state && (
+              <div className="md:col-span-1">
+                <AsyncPaginate
+                  key={form.city?.value || "city"}
+                  placeholder="Select City"
+                  value={form.city}
+                  loadOptions={loadCities}
+                  onChange={handleCityChange}
+                  isClearable
+                  additional={{ page: 1 }}
+                  styles={asyncStyles}
+                />
+              </div>
+            )}
 
             {/* Buttons */}
             <div className="col-span-1 md:col-span-2 flex justify-end gap-2 mt-2">
@@ -215,3 +310,4 @@ export default function NewReferral() {
     </ProtectedRoute>
   );
 }
+
