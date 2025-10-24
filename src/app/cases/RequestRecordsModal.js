@@ -74,7 +74,7 @@ export default function RequestRecordsModal({
           <div className="flex justify-end gap-2 pt-2">
             <button
               onClick={onClose}
-              className="btn bg-gray-500 hover:bg-gray-600 text-white"
+              className="btn"
               disabled={loading}
             >
               Cancel

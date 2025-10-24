@@ -151,10 +151,22 @@ export default function Cases() {
         <section className="card p-5">
           {/* Header */}
           <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold">Cases</h3>
+            <h3 className="font-semibold">
+              Cases
+            </h3>
             <div className="flex gap-2">
-              <button className="btn">Export</button>
+              {/*<button className="btn">Export</button>*/}
               <Link href="/referrals/new" className="btn btn-primary">New Referral</Link>
+              <Link href="/patients/new" className="btn">New Patient</Link>
+              
+              
+              <input
+                type="text"
+                placeholder="Search by name..."
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                className="w-full md:w-64 border rounded px-3 py-2 bg-black text-white placeholder-gray-400 ml-2"
+              />
             </div>
           </div>
 
@@ -184,12 +196,16 @@ export default function Cases() {
                 <div className="grid grid-cols-1 md:grid-cols-12 items-start md:items-center gap-2 md:gap-0 p-4 md:p-0">
                   {/* Expand */}
                   <div className="flex items-center md:col-span-1">
-                    <button
-                      className="badge"
-                      onClick={() => toggleRow(c.pid)}
-                    >
-                      {expandedRows[c.pid] ? "-" : "+"}
-                    </button>
+                    {
+                      c.super_facilities && (
+                        <button
+                          className="badge"
+                          onClick={() => toggleRow(c.pid)}
+                        >
+                          {expandedRows[c.pid] ? "-" : "+"}
+                        </button>
+                      )
+                    }
                     <span className="ml-2 flex gap-1">
                       {c.super_facilities?.split(",").map((facility, i) => {
                         const trimmed = facility.trim();

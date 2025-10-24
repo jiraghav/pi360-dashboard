@@ -92,7 +92,7 @@ export default function NewReferral() {
 
   return (
     <ProtectedRoute>
-      <main className="px-4 md:px-6 py-8 max-w-7xl mx-auto space-y-8">
+      <main className="px-4 md:px-6 py-8 max-w-3xl mx-auto space-y-8">
         <section className="card p-6">
           <h3 className="text-xl font-semibold mb-6">New Referral</h3>
 
@@ -188,8 +188,8 @@ export default function NewReferral() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className={`btn px-4 py-2 rounded text-white ${
-                  isSubmitting ? "bg-blue-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"
+                className={`btn btn-primary px-4 py-2 ${
+                  isSubmitting ? "cursor-not-allowed" : ""
                 }`}
               >
                 {isSubmitting ? "Creating..." : "Create"}
@@ -204,7 +204,7 @@ export default function NewReferral() {
                     router.push("/dashboard");
                   }
                 }}
-                className="btn px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 text-black"
+                className="btn"
               >
                 Cancel
               </button>

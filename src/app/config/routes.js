@@ -4,4 +4,7 @@ export const routeMap = {
   "/tasks": { title: "Tasks" },
   "/analytics": { title: "Analytics" },
   "/maps": { title: "Maps" },
+  "/referrals/new": { title: "Add Referral" },
+  "/patients/new": { title: "Add Patient" },
+  "/login": { title: "Login" },
 };

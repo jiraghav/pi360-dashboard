@@ -130,8 +130,8 @@ export default function Dashboard() {
         </section>
       </main>
       <ReviewNotesModal
-      isOpen={reviewModalOpen}
-      onClose={() => setReviewModalOpen(false)}
+        isOpen={reviewModalOpen}
+        onClose={() => setReviewModalOpen(false)}
       />
     </ProtectedRoute>
   );
