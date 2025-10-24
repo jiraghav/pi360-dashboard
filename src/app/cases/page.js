@@ -159,7 +159,7 @@ export default function Cases() {
           </div>
 
           {/* Table header */}
-          <div className="grid grid-cols-12 text-mute text-xs uppercase tracking-wide pb-3 border-b border-stroke">
+          <div className="hidden md:grid grid-cols-12 text-mute text-xs uppercase tracking-wide pb-3 border-b border-stroke">
             <div className="col-span-1">Expand</div>
             <div className="col-span-2">First</div>
             <div className="col-span-2">Last</div>
@@ -171,15 +171,19 @@ export default function Cases() {
 
           {/* Cases rows */}
           {loading ? (
-            <div className="py-4 text-center col-span-12 text-mute">Loading cases...</div>
+            <div className="py-4 text-center text-mute">Loading cases...</div>
           ) : cases.length === 0 ? (
-            <div className="py-4 text-center col-span-12 text-mute">No cases found</div>
+            <div className="py-4 text-center text-mute">No cases found</div>
           ) : (
             cases.map((c) => (
-              <div key={c.pid} className="mb-4">
+              <div
+                key={c.pid}
+                className="mb-4 border border-stroke/30 rounded-xl md:border-0 md:rounded-none md:border-b md:border-stroke/50"
+              >
                 {/* Main row */}
-                <div className="grid grid-cols-12 items-center py-4 border-b border-stroke/50">
-                  <div className="col-span-1 flex items-center">
+                <div className="grid grid-cols-1 md:grid-cols-12 items-start md:items-center gap-2 md:gap-0 p-4 md:p-0">
+                  {/* Expand */}
+                  <div className="flex items-center md:col-span-1">
                     <button
                       className="badge"
                       onClick={() => toggleRow(c.pid)}
@@ -187,68 +191,84 @@ export default function Cases() {
                       {expandedRows[c.pid] ? "-" : "+"}
                     </button>
                     <span className="ml-2 flex gap-1">
-                    {c.super_facilities?.split(",").map((facility, i) => {
-                      const trimmed = facility.trim();
-
-                      // Split description and color by semicolon
-                      const [title, colorCode] = trimmed.split(";");
-
-                      const displayTitle = title ? title.trim() : "Unknown";
-                      const color = colorCode ? colorCode.trim() : "#999"; // default gray if missing
-
-                      return (
-                        <span
-                          key={i}
-                          className="dot"
-                          title={displayTitle}
-                          style={{ backgroundColor: color }}
-                        ></span>
-                      );
-                    })}
+                      {c.super_facilities?.split(",").map((facility, i) => {
+                        const trimmed = facility.trim();
+                        const [title, colorCode] = trimmed.split(";");
+                        const displayTitle = title ? title.trim() : "Unknown";
+                        const color = colorCode ? colorCode.trim() : "#999";
+                        return (
+                          <span
+                            key={i}
+                            className="dot"
+                            title={displayTitle}
+                            style={{ backgroundColor: color }}
+                          ></span>
+                        );
+                      })}
                     </span>
                   </div>
-                  <div className="col-span-2">{c.fname}</div>
-                  <div className="col-span-2">{c.lname}</div>
-                  <div className="col-span-2">{c.dob}</div>
-                  <div className="col-span-2">{c.doi}</div>
-                  <div className="col-span-1">
+
+                  {/* First name */}
+                  <div className="md:col-span-2">
+                    <span className="md:hidden font-semibold">First: </span>
+                    {c.fname}
+                  </div>
+
+                  {/* Last name */}
+                  <div className="md:col-span-2">
+                    <span className="md:hidden font-semibold">Last: </span>
+                    {c.lname}
+                  </div>
+
+                  {/* DOB */}
+                  <div className="md:col-span-2">
+                    <span className="md:hidden font-semibold">DOB: </span>
+                    {c.dob}
+                  </div>
+
+                  {/* DOI */}
+                  <div className="md:col-span-2">
+                    <span className="md:hidden font-semibold">DOI: </span>
+                    {c.doi}
+                  </div>
+
+                  {/* Status */}
+                  <div className="md:col-span-1">
+                    <span className="md:hidden font-semibold">Status: </span>
                     <span className="badge text-mint-300">Active</span>
                   </div>
-                  <div className="col-span-2 text-right flex justify-end gap-2">
-                    <button onClick={() => handleRequestRecords(c)} className="btn">Request Records</button>
-                    <button onClick={() => handleSendMessage(c)} className="btn">Back Office Msg</button>
+
+                  {/* Actions */}
+                  <div className="md:col-span-2 flex flex-col sm:flex-row md:justify-end gap-2">
+                    <button
+                      onClick={() => handleRequestRecords(c)}
+                      className="btn w-full sm:w-auto"
+                    >
+                      Request Records
+                    </button>
+                    <button
+                      onClick={() => handleSendMessage(c)}
+                      className="btn w-full sm:w-auto"
+                    >
+                      Back Office Msg
+                    </button>
                   </div>
                 </div>
 
                 {/* Expanded row */}
                 {expandedRows[c.pid] && (
-                  <div className="mt-4 p-4 rounded-xl border border-stroke bg-card">
+                  <div className="mt-2 md:mt-4 p-3 md:p-4 rounded-xl border border-stroke bg-card">
                     {expandedData[c.pid] ? (
                       <>
-                      {/*
-                        <div className="text-sm text-mute mb-2">
-                          {expandedData[c.pid].week_summary || "Recent Updates"}
-                        </div>
-                
-                        <ul className="text-sm list-disc pl-5 space-y-1">
-                          {expandedData[c.pid].notes?.length > 0 ? (
-                            expandedData[c.pid].notes.map((note, i) => (
-                              <li key={i}>{note}</li>
-                            ))
-                          ) : (
-                            <li>No updates available</li>
-                          )}
-                        </ul>
-                      */}
-                        
-                
-                        <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mt-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 mt-2">
                           {expandedData[c.pid].sections?.map((section, i) => (
                             <div key={i} className="card p-3">
                               <div className="text-mute text-xs">{section.title}</div>
                               <div className="font-semibold">{section.status}</div>
                               {section.last_visit && (
-                                <div className="text-xs text-mute mt-1">Last Visit: {section.last_visit}</div>
+                                <div className="text-xs text-mute mt-1">
+                                  Last Visit: {section.last_visit}
+                                </div>
                               )}
                             </div>
                           ))}
