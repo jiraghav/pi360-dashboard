@@ -225,6 +225,7 @@ export default function Cases() {
                   <div className="mt-4 p-4 rounded-xl border border-stroke bg-card">
                     {expandedData[c.pid] ? (
                       <>
+                      {/*
                         <div className="text-sm text-mute mb-2">
                           {expandedData[c.pid].week_summary || "Recent Updates"}
                         </div>
@@ -238,6 +239,8 @@ export default function Cases() {
                             <li>No updates available</li>
                           )}
                         </ul>
+                      */}
+                        
                 
                         <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mt-4">
                           {expandedData[c.pid].sections?.map((section, i) => (
@@ -283,25 +286,24 @@ export default function Cases() {
             </button>
           </div>
         </section>
-
-        {/* Modals */}
-        {showRequestRecordModal && selectedCase && (
-          <RequestRecordsModal
-            selectedCase={selectedCase}
-            setSelectedCase={setSelectedCase}
-            onClose={() => setShowRequestRecordModal(false)}
-            onConfirm={confirmRequestRecord}
-          />
-        )}
-        {showSendMessageModal && selectedCase && (
-          <SendMessageModal
-            selectedCase={selectedCase}
-            setSelectedCase={setSelectedCase}
-            onClose={() => setShowSendMessageModal(false)}
-            onConfirm={sendBackOfficeMessage}
-          />
-        )}
       </main>
+      {/* Modals */}
+      {showRequestRecordModal && selectedCase && (
+        <RequestRecordsModal
+          selectedCase={selectedCase}
+          setSelectedCase={setSelectedCase}
+          onClose={() => setShowRequestRecordModal(false)}
+          onConfirm={confirmRequestRecord}
+        />
+      )}
+      {showSendMessageModal && selectedCase && (
+        <SendMessageModal
+          selectedCase={selectedCase}
+          setSelectedCase={setSelectedCase}
+          onClose={() => setShowSendMessageModal(false)}
+          onConfirm={sendBackOfficeMessage}
+        />
+      )}
     </ProtectedRoute>
   );
 }

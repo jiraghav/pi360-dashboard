@@ -168,14 +168,14 @@ export default function Tasks() {
             </div>
           </section>
         )}
-
-        {/* Task Modal */}
-        <TaskModal
-          isOpen={taskModalOpen}
-          onClose={() => setTaskModalOpen(false)}
-          onCreated={fetchTasks}
-        />
       </main>
+
+      {/* Task Modal */}
+      <TaskModal
+        isOpen={taskModalOpen}
+        onClose={() => setTaskModalOpen(false)}
+        onCreated={fetchTasks}
+      />
     </ProtectedRoute>
   );
 }

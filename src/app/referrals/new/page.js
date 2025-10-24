@@ -109,13 +109,13 @@ export default function NewReferral() {
               styles={{
                 option: (provided, state) => ({
                   ...provided,
-                  color: "black",
-                  backgroundColor: state.isFocused ? "#eee" : "#fff",
+                  color: "white",
+                  backgroundColor: "black",
                 }),
-                singleValue: (provided) => ({ ...provided, color: "black" }),
-                input: (provided) => ({ ...provided, color: "black" }),
-                placeholder: (provided) => ({ ...provided, color: "#999" }),
-                control: (provided) => ({ ...provided, backgroundColor: "white", color: "black" }),
+                singleValue: (provided) => ({ ...provided, color: "white" }),
+                input: (provided) => ({ ...provided, color: "white" }),
+                placeholder: (provided) => ({ ...provided, color: "#eee" }),
+                control: (provided) => ({ ...provided, backgroundColor: "black", color: "white" }),
               }}
               className="col-span-1 md:col-span-2"
             />
@@ -126,7 +126,7 @@ export default function NewReferral() {
               value={form.refer_to}
               onChange={handleChange}
               required
-              className="border rounded px-3 py-2 bg-white text-black"
+              className="border rounded px-3 py-2 bg-black text-white"
             >
               <option value="">Select Refer To</option>
               {referOptions.map((opt) => (
@@ -142,7 +142,7 @@ export default function NewReferral() {
               value={form.priority_level}
               onChange={handleChange}
               required
-              className="border rounded px-3 py-2 bg-white text-black"
+              className="border rounded px-3 py-2 bg-black text-white"
             >
               <option value="">Select Priority Level</option>
               <option value="standard">Standard</option>
@@ -155,7 +155,7 @@ export default function NewReferral() {
               value={form.lawyer_id}
               onChange={handleChange}
               required
-              className="border rounded px-3 py-2 bg-white text-black"
+              className="border rounded px-3 py-2 bg-black text-white"
             >
               <option value="">Select Law Firm</option>
               {lawyers.map((lawyer) => (
@@ -172,7 +172,7 @@ export default function NewReferral() {
               placeholder="Notes..."
               value={form.notes}
               onChange={handleChange}
-              className="border rounded px-3 py-2 resize-none md:col-span-2 bg-white text-black"
+              className="border rounded px-3 py-2 resize-none md:col-span-2 bg-black text-white"
             />
 
             {/* Attachment */}
@@ -180,7 +180,7 @@ export default function NewReferral() {
               type="file"
               name="attachment"
               onChange={handleChange}
-              className="border rounded px-3 py-2 md:col-span-2 bg-white text-black"
+              className="border rounded px-3 py-2 md:col-span-2 bg-black text-white"
             />
 
             {/* Buttons */}
