@@ -150,22 +150,28 @@ export default function Cases() {
       <main className="px-4 md:px-6 py-8 max-w-7xl mx-auto space-y-8">
         <section className="card p-5">
           {/* Header */}
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold">
-              Cases
-            </h3>
-            <div className="flex gap-2">
-              {/*<button className="btn">Export</button>*/}
-              <Link href="/referrals/new" className="btn btn-primary">New Referral</Link>
-              <Link href="/patients/new" className="btn">New Patient</Link>
-              
-              
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
+            <h3 className="text-lg font-semibold">Cases</h3>
+
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full md:w-auto">
+              {/* Buttons */}
+              <div className="flex flex-row flex-wrap gap-2">
+                {/* <button className="btn">Export</button> */}
+                <Link href="/referrals/new" className="btn btn-primary whitespace-nowrap">
+                  New Referral
+                </Link>
+                <Link href="/patients/new" className="btn whitespace-nowrap">
+                  New Patient
+                </Link>
+              </div>
+
+              {/* Search Input */}
               <input
                 type="text"
                 placeholder="Search by name..."
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
-                className="w-full md:w-64 border rounded px-3 py-2 bg-black text-white placeholder-gray-400 ml-2"
+                className="w-full sm:w-64 border rounded px-3 py-2 bg-black text-white placeholder-gray-400"
               />
             </div>
           </div>

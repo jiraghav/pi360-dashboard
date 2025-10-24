@@ -28,6 +28,7 @@ export default function Dashboard() {
   }, []);
 
   const handleNewReferralClick = () => router.push("/referrals/new");
+  const handleNewPatientClick = () => router.push("/patients/new");
   const handleSendMsgToBackOfficeClick = () => router.push("/cases");
 
   const kpis = dashboardData;
@@ -45,7 +46,7 @@ export default function Dashboard() {
               <button onClick={handleNewReferralClick} className="btn btn-primary">
                 New Referral
               </button>
-              <button type="button" className="btn">Schedule</button>
+              <button type="button" onClick={handleNewPatientClick} className="btn">New Patient</button>
               <button
                 type="button"
                 className="btn"
