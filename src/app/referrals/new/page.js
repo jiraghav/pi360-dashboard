@@ -8,7 +8,7 @@ import { apiRequest } from "../../utils/api";
 
 export default function NewReferral() {
   const router = useRouter();
-  const searchParams = useSearchParams();
+  const searchParams = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
 
   const [form, setForm] = useState({
     patient: null,
@@ -25,7 +25,7 @@ export default function NewReferral() {
   const [lawyers, setLawyers] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const pid = searchParams.get("pid"); // Get pid from URL
+  const pid = searchParams?.get("pid") || null; // Get pid from URL
 
   // Load refer options and lawyers
   useEffect(() => {

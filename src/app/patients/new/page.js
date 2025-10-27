@@ -7,7 +7,8 @@ import { apiRequest } from "../../utils/api";
 
 export default function NewPatient() {
   const router = useRouter();
-  const params = new URLSearchParams(window.location.search);
+  const searchParams = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
+  const from = searchParams?.get("from") || null;
   const [form, setForm] = useState({
     fname: "",
     lname: "",
@@ -19,7 +20,6 @@ export default function NewPatient() {
   });
   const [lawyers, setLawyers] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const from = params.get("from");
 
   useEffect(() => {
     async function fetchLawyers() {
