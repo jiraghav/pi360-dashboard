@@ -1,13 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import ProtectedRoute from "../../components/ProtectedRoute";
 import { AsyncPaginate } from "react-select-async-paginate";
 import { apiRequest } from "../../utils/api";
 
 export default function NewReferral() {
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   const [form, setForm] = useState({
     patient: null,
@@ -24,6 +25,8 @@ export default function NewReferral() {
   const [lawyers, setLawyers] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const pid = searchParams.get("pid"); // Get pid from URL
+
   // Load refer options and lawyers
   useEffect(() => {
     async function fetchDropdowns() {
@@ -39,6 +42,28 @@ export default function NewReferral() {
     }
     fetchDropdowns();
   }, []);
+
+  // Auto-select patient if pid is passed
+  useEffect(() => {
+    async function fetchPatientByPid() {
+      if (!pid) return;
+      try {
+        const data = await apiRequest(`getPatientById.php?pid=${pid}`);
+        if (data && data.patient) {
+          setForm((prev) => ({
+            ...prev,
+            patient: {
+              label: `${data.patient.fname} ${data.patient.lname}`,
+              value: data.patient.pid,
+            },
+          }));
+        }
+      } catch (err) {
+        console.error("Failed to auto-select patient:", err);
+      }
+    }
+    fetchPatientByPid();
+  }, [pid]);
 
   // Load patients (searchable)
   const loadPatients = async (inputValue, loadedOptions, { page }) => {
@@ -112,7 +137,7 @@ export default function NewReferral() {
   // Handlers
   const handlePatientChange = (selected) => setForm((prev) => ({ ...prev, patient: selected }));
   const handleStateChange = (selected) =>
-    setForm((prev) => ({ ...prev, state: selected, city: null })); // reset city
+    setForm((prev) => ({ ...prev, state: selected, city: null }));
   const handleCityChange = (selected) => setForm((prev) => ({ ...prev, city: selected }));
   const handleChange = (e) => {
     const { name, value, files } = e.target;
@@ -164,7 +189,20 @@ export default function NewReferral() {
     <ProtectedRoute>
       <main className="px-4 md:px-6 py-8 max-w-3xl mx-auto space-y-8">
         <section className="card p-6">
-          <h3 className="text-xl font-semibold mb-6">New Referral</h3>
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-xl font-semibold">New Referral</h3>
+            <button
+              type="button"
+              onClick={() => router.push("/patients/new?from=referral")}
+              className="btn btn-sm btn-primary"
+            >
+              + New Patient
+            </button>
+          </div>
+
+          <p className="text-sm text-gray-400 mb-4">
+            Add a new patient or select an existing one from the list below.
+          </p>
 
           <form className="grid grid-cols-1 md:grid-cols-2 gap-4" onSubmit={handleSubmit}>
             {/* Patient */}
@@ -242,13 +280,12 @@ export default function NewReferral() {
               onChange={handleChange}
               className="border rounded px-3 py-2 md:col-span-2 bg-black text-white"
             />
-            
-            <div className="md:col-span-2">
-              <br />
+
+            {/* State / City */}
+            <div className="md:col-span-2 mt-2">
               <label className="block mb-1 font-semibold text-white">Send To (Optional):</label>
             </div>
 
-            {/* State */}
             <div className="md:col-span-1">
               <AsyncPaginate
                 key={form.state?.value || "state"}
@@ -262,7 +299,6 @@ export default function NewReferral() {
               />
             </div>
 
-            {/* City */}
             {form.state && (
               <div className="md:col-span-1">
                 <AsyncPaginate
@@ -293,11 +329,8 @@ export default function NewReferral() {
                 type="button"
                 disabled={isSubmitting}
                 onClick={() => {
-                  if (window.history.length > 1) {
-                    router.back();
-                  } else {
-                    router.push("/dashboard");
-                  }
+                  if (window.history.length > 1) router.back();
+                  else router.push("/dashboard");
                 }}
                 className="btn"
               >
@@ -310,4 +343,3 @@ export default function NewReferral() {
     </ProtectedRoute>
   );
 }
-

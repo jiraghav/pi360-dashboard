@@ -7,6 +7,7 @@ import { apiRequest } from "../../utils/api";
 
 export default function NewPatient() {
   const router = useRouter();
+  const params = new URLSearchParams(window.location.search);
   const [form, setForm] = useState({
     fname: "",
     lname: "",
@@ -18,6 +19,7 @@ export default function NewPatient() {
   });
   const [lawyers, setLawyers] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const from = params.get("from");
 
   useEffect(() => {
     async function fetchLawyers() {
@@ -55,9 +57,14 @@ export default function NewPatient() {
         formData.append(key, value);
       });
 
-      await apiRequest("create_patient.php", { method: "POST", body: formData });
+      const response = await apiRequest("create_patient.php", { method: "POST", body: formData });
       alert("Patient created successfully!");
-      router.push("/cases");
+
+      if (from === "referral") {
+        router.push(`/referrals/new?pid=${response.pid}`);
+      } else {
+        router.push("/cases");
+      }
     } catch (err) {
       alert("Failed to create patient: " + err.message);
     } finally {
@@ -177,14 +184,20 @@ export default function NewPatient() {
 
             {/* Buttons */}
             <div className="col-span-1 md:col-span-2 flex justify-end gap-2 mt-4">
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className={`btn btn-primary px-4 py-2 ${
-                  isSubmitting ? "cursor-not-allowed" : ""
-                }`}
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className={`btn btn-primary px-4 py-2 ${
+                isSubmitting ? "cursor-not-allowed opacity-75" : ""
+              }`}
               >
-                {isSubmitting ? "Creating..." : "Create"}
+              {isSubmitting
+                ? from === "referral"
+                  ? "Sending Referral..."
+                  : "Creating..."
+                : from === "referral"
+                  ? "Create & Send Referral"
+                  : "Create"}
               </button>
               <button
                 type="button"
