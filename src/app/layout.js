@@ -2,15 +2,23 @@
 
 import "./globals.css";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 import Navbar from "./components/Navbar";
 import Sidebar from "./components/Sidebar";
-import PageTitleUpdater from "./components/PageTitleUpdater";
 import Link from "next/link";
+import { routeMap } from "./config/routes";
 
 export default function RootLayout({ children }) {
   const pathname = usePathname();
+  const route = routeMap[pathname] || { title: "Dashboard" };
+  const [pageTitle, setPageTitle] = useState(route.title);
 
-  // Hide layout (Navbar + Sidebar) for auth pages
+  useEffect(() => {
+    const route = routeMap[pathname] || { title: "Dashboard" };
+    setPageTitle(`${route.title}`);
+    document.title = `${route.title}`;
+  }, [pathname]);
+
   const hideLayout =
     pathname === "/login" ||
     pathname === "/register" ||
@@ -19,6 +27,8 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <head>
+        <title>{pageTitle}</title>
+
         {/* Tailwind via CDN */}
         <script src="https://cdn.tailwindcss.com"></script>
         <script
@@ -48,8 +58,6 @@ export default function RootLayout({ children }) {
       </head>
 
       <body className="bg-bg text-ink">
-        <PageTitleUpdater />
-
         {/* Mobile top bar */}
         {!hideLayout && (
           <div className="md:hidden flex items-center justify-between px-4 py-3 glass border-b border-stroke/70 sticky top-0 z-50">
@@ -86,9 +94,7 @@ export default function RootLayout({ children }) {
 
           <section
             className={
-              hideLayout
-                ? "col-span-12" // full width when layout is hidden
-                : "md:col-span-9 xl:col-span-10"
+              hideLayout ? "col-span-12" : "md:col-span-9 xl:col-span-10"
             }
           >
             {!hideLayout && <Navbar />}
