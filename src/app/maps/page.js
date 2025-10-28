@@ -1,13 +1,22 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { GoogleMap, Marker, InfoWindow, useLoadScript } from "@react-google-maps/api";
+import {
+  GoogleMap,
+  Marker,
+  InfoWindow,
+  useLoadScript,
+} from "@react-google-maps/api";
 import ProtectedRoute from "../components/ProtectedRoute";
 import { apiRequest } from "../utils/api";
 
 const libraries = ["places"];
 const defaultCenter = { lat: 39.8283, lng: -98.5795 };
-const mapContainerStyle = { width: "100%", height: "520px", borderRadius: "0.5rem" };
+const mapContainerStyle = {
+  width: "100%",
+  height: "520px",
+  borderRadius: "0.5rem",
+};
 
 export default function ServiceLocations() {
   const { isLoaded, loadError } = useLoadScript({
@@ -43,13 +52,34 @@ export default function ServiceLocations() {
 
   // Fetch locations
   async function fetchLocations(specialityIds = []) {
+    // Clear map before fetching
+    setLocations([]);
+    setSelected(null);
     setLoadingLocations(true);
+
     try {
       const res = await apiRequest("service_locations.php", {
         method: "POST",
         body: { speciality_ids: specialityIds },
       });
-      if (res?.locations) setLocations(res.locations);
+
+      if (res?.locations) {
+        setLocations(res.locations);
+
+        // Fit map bounds to new markers
+        if (mapRef.current && res.locations.length > 0) {
+          const bounds = new window.google.maps.LatLngBounds();
+          res.locations.forEach((loc) => {
+            bounds.extend({
+              lat: parseFloat(loc.lat),
+              lng: parseFloat(loc.lng),
+            });
+          });
+          mapRef.current.fitBounds(bounds);
+        }
+      } else {
+        setLocations([]);
+      }
     } catch (err) {
       console.error("Failed to fetch locations:", err);
     } finally {
@@ -75,12 +105,14 @@ export default function ServiceLocations() {
   // Google Places Autocomplete
   useEffect(() => {
     if (isLoaded && addressInputRef.current) {
-      const autocomplete = new window.google.maps.places.Autocomplete(addressInputRef.current, {
-        types: ["address"],
-      });
+      const autocomplete = new window.google.maps.places.Autocomplete(
+        addressInputRef.current,
+        { types: ["address"] }
+      );
       autocomplete.addListener("place_changed", () => {
         const place = autocomplete.getPlace();
-        if (!place.geometry) return alert("No details available for this address.");
+        if (!place.geometry)
+          return alert("No details available for this address.");
         const coords = {
           lat: place.geometry.location.lat(),
           lng: place.geometry.location.lng(),
@@ -142,12 +174,10 @@ export default function ServiceLocations() {
   const handleListClick = (loc) => {
     if (mapRef.current) {
       if (patientCoords) {
-        // Center between patient and facility
         const midLat = (parseFloat(loc.lat) + patientCoords.lat) / 2;
         const midLng = (parseFloat(loc.lng) + patientCoords.lng) / 2;
         mapRef.current.panTo({ lat: midLat, lng: midLng });
 
-        // Optional zoom based on distance
         const distance = getDistance(
           patientCoords.lat,
           patientCoords.lng,
@@ -157,7 +187,10 @@ export default function ServiceLocations() {
         const zoomLevel = distance > 50 ? 5 : distance > 20 ? 7 : 10;
         mapRef.current.setZoom(zoomLevel);
       } else {
-        mapRef.current.panTo({ lat: parseFloat(loc.lat), lng: parseFloat(loc.lng) });
+        mapRef.current.panTo({
+          lat: parseFloat(loc.lat),
+          lng: parseFloat(loc.lng),
+        });
         mapRef.current.setZoom(14);
       }
     }
@@ -173,13 +206,17 @@ export default function ServiceLocations() {
         <section className="card p-5">
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-semibold">Maps</h3>
-            <div className="flex gap-2">
-            </div>
           </div>
 
           <div className="grid lg:grid-cols-12 gap-6">
             {/* Map Section */}
-            <div className="lg:col-span-9">
+            <div className="lg:col-span-9 relative">
+              {loadingLocations && (
+                <div className="absolute inset-0 bg-black/30 flex items-center justify-center text-white text-sm z-10 rounded-lg">
+                  Loading locations...
+                </div>
+              )}
+
               <div className="flex flex-wrap gap-2 mb-4">
                 <input
                   ref={addressInputRef}
@@ -255,7 +292,9 @@ export default function ServiceLocations() {
                     options={{ pixelOffset: new window.google.maps.Size(0, -30) }}
                   >
                     <div className="text-xs text-black max-w-xs">
-                      <h4 className="text-blue-600 text-sm font-semibold">{selected.name}</h4>
+                      <h4 className="text-blue-600 text-sm font-semibold">
+                        {selected.name}
+                      </h4>
                       <div>
                         📍 <strong>Address:</strong> {selected.address}
                       </div>
@@ -266,7 +305,8 @@ export default function ServiceLocations() {
                       )}
                       {selected.distance !== null && (
                         <div>
-                          📏 <strong>Distance:</strong> {selected.distance.toFixed(2)} miles
+                          📏 <strong>Distance:</strong>{" "}
+                          {selected.distance.toFixed(2)} miles
                         </div>
                       )}
                     </div>
@@ -286,11 +326,14 @@ export default function ServiceLocations() {
                         : ""
                     }`}
                   >
-                    <span className="dot" style={{ background: s.color }}></span>
+                    <span
+                      className="dot"
+                      style={{ background: s.color }}
+                    ></span>
                     {s.description}
                   </button>
                 ))}
-                
+
                 {activeSpecialities.length > 0 && (
                   <button
                     className="badge px-2 py-1 text-xs bg-[#1a1f2e] border border-stroke text-gray-300 hover:bg-[#23293a] transition-all"
@@ -315,7 +358,9 @@ export default function ServiceLocations() {
                 filteredLocations.map((loc) => (
                   <div key={loc.id} className="card p-3">
                     <div className="font-medium">{loc.name}</div>
-                    <div className="text-xs text-mute line-clamp-2">{loc.address}</div>
+                    <div className="text-xs text-mute line-clamp-2">
+                      {loc.address}
+                    </div>
                     {loc.distance !== null && (
                       <div className="text-xs text-gray-500 mt-1">
                         📏 {loc.distance.toFixed(2)} miles
