@@ -7,8 +7,12 @@ import { apiRequest } from "../../utils/api";
 
 export default function NewPatient() {
   const router = useRouter();
-  const searchParams = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
+  const searchParams =
+    typeof window !== "undefined"
+      ? new URLSearchParams(window.location.search)
+      : null;
   const from = searchParams?.get("from") || null;
+
   const [form, setForm] = useState({
     fname: "",
     lname: "",
@@ -17,10 +21,14 @@ export default function NewPatient() {
     gender: "",
     lawyer_id: "",
     phone: "",
+    case_type_id: "",
   });
+
   const [lawyers, setLawyers] = useState([]);
+  const [caseTypes, setCaseTypes] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Fetch lawyers
   useEffect(() => {
     async function fetchLawyers() {
       try {
@@ -31,6 +39,19 @@ export default function NewPatient() {
       }
     }
     fetchLawyers();
+  }, []);
+
+  // Fetch case types
+  useEffect(() => {
+    async function fetchCaseTypes() {
+      try {
+        const caseData = await apiRequest("getCaseTypeOptions.php");
+        setCaseTypes(caseData.options || []);
+      } catch (err) {
+        console.error("Failed to load case types", err);
+      }
+    }
+    fetchCaseTypes();
   }, []);
 
   const handleChange = (e) => {
@@ -57,7 +78,10 @@ export default function NewPatient() {
         formData.append(key, value);
       });
 
-      const response = await apiRequest("create_patient.php", { method: "POST", body: formData });
+      const response = await apiRequest("create_patient.php", {
+        method: "POST",
+        body: formData,
+      });
       alert("Patient created successfully!");
 
       if (from === "referral") {
@@ -78,10 +102,15 @@ export default function NewPatient() {
         <section className="card p-6">
           <h3 className="text-xl font-semibold mb-6">New Patient</h3>
 
-          <form className="grid grid-cols-1 md:grid-cols-2 gap-4" onSubmit={handleSubmit}>
+          <form
+            className="grid grid-cols-1 md:grid-cols-2 gap-4"
+            onSubmit={handleSubmit}
+          >
             {/* First Name */}
             <div>
-              <label className="block mb-1 text-sm font-medium text-gray-300">First Name *</label>
+              <label className="block mb-1 text-sm font-medium text-gray-300">
+                First Name *
+              </label>
               <input
                 type="text"
                 name="fname"
@@ -95,7 +124,9 @@ export default function NewPatient() {
 
             {/* Last Name */}
             <div>
-              <label className="block mb-1 text-sm font-medium text-gray-300">Last Name *</label>
+              <label className="block mb-1 text-sm font-medium text-gray-300">
+                Last Name *
+              </label>
               <input
                 type="text"
                 name="lname"
@@ -109,7 +140,9 @@ export default function NewPatient() {
 
             {/* DOB */}
             <div>
-              <label className="block mb-1 text-sm font-medium text-gray-300">Date of Birth *</label>
+              <label className="block mb-1 text-sm font-medium text-gray-300">
+                Date of Birth *
+              </label>
               <input
                 type="date"
                 name="dob"
@@ -122,7 +155,9 @@ export default function NewPatient() {
 
             {/* DOI */}
             <div>
-              <label className="block mb-1 text-sm font-medium text-gray-300">Date of Injury *</label>
+              <label className="block mb-1 text-sm font-medium text-gray-300">
+                Date of Injury *
+              </label>
               <input
                 type="date"
                 name="doi"
@@ -135,7 +170,9 @@ export default function NewPatient() {
 
             {/* Gender */}
             <div>
-              <label className="block mb-1 text-sm font-medium text-gray-300">Gender *</label>
+              <label className="block mb-1 text-sm font-medium text-gray-300">
+                Gender *
+              </label>
               <select
                 name="gender"
                 value={form.gender}
@@ -151,7 +188,9 @@ export default function NewPatient() {
 
             {/* Lawyer */}
             <div>
-              <label className="block mb-1 text-sm font-medium text-gray-300">Law Firm *</label>
+              <label className="block mb-1 text-sm font-medium text-gray-300">
+                Law Firm *
+              </label>
               <select
                 name="lawyer_id"
                 value={form.lawyer_id}
@@ -168,34 +207,58 @@ export default function NewPatient() {
               </select>
             </div>
 
-            {/* Phone Number */}
-            <div className="md:col-span-2">
-              <label className="block mb-1 text-sm font-medium text-gray-300">Phone Number *</label>
-              <input
-                type="tel"
-                name="phone"
-                value={form.phone}
-                onChange={handleChange}
-                required
-                placeholder="Enter phone number"
-                className="w-full border rounded px-3 py-2 bg-black text-white"
-              />
+            {/* Case Type + Phone */}
+            <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Case Type */}
+              <div>
+                <label className="block mb-1 text-sm font-medium text-gray-300">
+                  Case Type *
+                </label>
+                <select
+                  name="case_type_id"
+                  value={form.case_type_id}
+                  onChange={handleChange}
+                  required
+                  className="w-full border rounded px-3 py-2 bg-black text-white"
+                >
+                  <option value="">Select Case Type</option>
+                  {caseTypes.map((type) => (
+                    <option key={type.option_id} value={type.option_id}>
+                      {type.title}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Phone Number */}
+              <div>
+                <label className="block mb-1 text-sm font-medium text-gray-300">
+                  Phone Number *
+                </label>
+                <input
+                  type="tel"
+                  name="phone"
+                  value={form.phone}
+                  onChange={handleChange}
+                  required
+                  placeholder="Enter phone number"
+                  className="w-full border rounded px-3 py-2 bg-black text-white"
+                />
+              </div>
             </div>
 
             {/* Buttons */}
             <div className="col-span-1 md:col-span-2 flex justify-end gap-2 mt-4">
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className={`btn btn-primary px-4 py-2 ${
-                isSubmitting ? "cursor-not-allowed opacity-75" : ""
-              }`}
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className={`btn btn-primary px-4 py-2 ${
+                  isSubmitting ? "cursor-not-allowed opacity-75" : ""
+                }`}
               >
-              {isSubmitting
-                ? from === "referral"
-                  ? "Sending Referral..."
-                  : "Creating..."
-                : from === "referral"
+                {isSubmitting
+                  ? "Creating..."
+                  : from === "referral"
                   ? "Create & Send Referral"
                   : "Create"}
               </button>
