@@ -290,6 +290,18 @@ export default function ServiceLocations() {
                     {s.description}
                   </button>
                 ))}
+                
+                {activeSpecialities.length > 0 && (
+                  <button
+                    className="badge px-2 py-1 text-xs bg-[#1a1f2e] border border-stroke text-gray-300 hover:bg-[#23293a] transition-all"
+                    onClick={() => {
+                      setActiveSpecialities([]);
+                      fetchLocations([]);
+                    }}
+                  >
+                    ✖ Clear All
+                  </button>
+                )}
               </div>
             </div>
 
