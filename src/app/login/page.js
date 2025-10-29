@@ -33,47 +33,80 @@ export default function LoginPage() {
 
   return (
     <GuestRoute>
-      <main className="flex items-center justify-center min-h-screen bg-gray-900 px-4">
-        <div className="w-full max-w-md bg-[#0b0f16] rounded-xl p-8 shadow-lg text-center space-y-4">
-          <div className="login-logo text-4xl font-bold text-white mb-2">PI</div>
-          <h1 className="text-2xl font-semibold text-white">Welcome Back</h1>
-          <p className="text-gray-400 mb-6">Sign in to continue to PI360</p>
+      <main
+        className="min-h-screen flex items-center justify-center text-slate-200 px-4"
+        style={{
+          background:
+            "radial-gradient(1200px 600px at 20% -10%, rgba(56,189,248,.12), transparent 60%), radial-gradient(1000px 600px at 120% 10%, rgba(167,139,250,.10), transparent 60%), #0b0f16",
+        }}
+      >
+        <div className="w-full max-w-md card p-8 text-center rounded-2xl"
+          style={{
+            background: "#0f1726",
+            border: "1px solid #1b2534",
+            boxShadow: "0 15px 40px rgba(0,0,0,.4)",
+          }}
+        >
+          <div className="mb-6">
+            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-sky-500 grid place-items-center font-black text-xl">
+              PI
+            </div>
+            <h1 className="text-3xl font-bold mb-1">Welcome to PI 360</h1>
+            <p className="text-slate-400 text-sm tracking-wide">
+              Everything Personal Injury
+            </p>
+          </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <input
-              type="text"
-              name="username"
-              placeholder="Username"
-              value={form.username}
-              onChange={handleChange}
-              required
-              className="w-full px-4 py-3 rounded-lg bg-gray-800 border border-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            <input
-              type="password"
-              name="password"
-              placeholder="Password"
-              value={form.password}
-              onChange={handleChange}
-              required
-              className="w-full px-4 py-3 rounded-lg bg-gray-800 border border-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
+          <form onSubmit={handleSubmit} className="space-y-4 mt-6">
+            <div>
+              <input
+                type="text"
+                name="username"
+                placeholder="Email"
+                value={form.username}
+                onChange={handleChange}
+                required
+                className="w-full px-4 py-3 rounded-lg bg-[#0b0f16] border border-slate-800 placeholder-slate-500 text-slate-200 focus:outline-none focus:ring-2 focus:ring-sky-500"
+              />
+            </div>
+            <div>
+              <input
+                type="password"
+                name="password"
+                placeholder="Password"
+                value={form.password}
+                onChange={handleChange}
+                required
+                className="w-full px-4 py-3 rounded-lg bg-[#0b0f16] border border-slate-800 placeholder-slate-500 text-slate-200 focus:outline-none focus:ring-2 focus:ring-sky-500"
+              />
+            </div>
 
             <button
               type="submit"
-              className="w-full py-3 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold transition"
+              className="btn btn-primary w-full transition"
+              style={{
+                background: "linear-gradient(90deg,#38bdf8,#34d399)",
+                color: "#06111d",
+                fontWeight: "700",
+                borderRadius: "12px",
+                padding: ".75rem 1rem",
+                border: "1px solid #1b2534",
+              }}
             >
               Sign In
             </button>
+            
+            {error && <p className="text-red-400 text-sm">{error}</p>}
 
-            {error && (
-              <p className="text-red-400 text-sm mt-2">{error}</p>
-            )}
+            {/*<div className="flex justify-between text-xs text-slate-500 mt-3">
+              <a href="#" className="hover:text-sky-400">
+                Forgot Password?
+              </a>
+              <a href="#" className="hover:text-sky-400">
+                Create Account
+              </a>
+            </div>*/}
           </form>
-
-          <div className="text-gray-500 text-sm mt-4">
-            &copy; {new Date().getFullYear()} PI360. All rights reserved.
-          </div>
         </div>
       </main>
     </GuestRoute>
