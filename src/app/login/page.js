@@ -4,11 +4,13 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import GuestRoute from "../components/GuestRoute";
 import { apiRequest } from "../utils/api";
+import Link from "next/link";
 
 export default function LoginPage() {
   const router = useRouter();
   const [form, setForm] = useState({ username: "", password: "" });
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -16,6 +18,7 @@ export default function LoginPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    setLoading(true);
 
     try {
       const data = await apiRequest("login.php", {
@@ -28,6 +31,7 @@ export default function LoginPage() {
     } catch (err) {
       console.error("Login error:", err);
       setError(err.message || "Something went wrong. Please try again.");
+      setLoading(false);
     }
   };
 
@@ -40,7 +44,8 @@ export default function LoginPage() {
             "radial-gradient(1200px 600px at 20% -10%, rgba(56,189,248,.12), transparent 60%), radial-gradient(1000px 600px at 120% 10%, rgba(167,139,250,.10), transparent 60%), #0b0f16",
         }}
       >
-        <div className="w-full max-w-md card p-8 text-center rounded-2xl"
+        <div
+          className="w-full max-w-md card p-8 text-center rounded-2xl"
           style={{
             background: "#0f1726",
             border: "1px solid #1b2534",
@@ -66,7 +71,8 @@ export default function LoginPage() {
                 value={form.username}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-3 rounded-lg bg-[#0b0f16] border border-slate-800 placeholder-slate-500 text-slate-200 focus:outline-none focus:ring-2 focus:ring-sky-500"
+                disabled={loading}
+                className="w-full px-4 py-3 rounded-lg bg-[#0b0f16] border border-slate-800 placeholder-slate-500 text-slate-200 focus:outline-none focus:ring-2 focus:ring-sky-500 disabled:opacity-50 disabled:cursor-not-allowed"
               />
             </div>
             <div>
@@ -77,13 +83,17 @@ export default function LoginPage() {
                 value={form.password}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-3 rounded-lg bg-[#0b0f16] border border-slate-800 placeholder-slate-500 text-slate-200 focus:outline-none focus:ring-2 focus:ring-sky-500"
+                disabled={loading}
+                className="w-full px-4 py-3 rounded-lg bg-[#0b0f16] border border-slate-800 placeholder-slate-500 text-slate-200 focus:outline-none focus:ring-2 focus:ring-sky-500 disabled:opacity-50 disabled:cursor-not-allowed"
               />
             </div>
 
             <button
               type="submit"
-              className="btn btn-primary w-full transition"
+              disabled={loading}
+              className={`btn btn-primary w-full transition flex items-center justify-center gap-2 ${
+                loading ? "opacity-70 cursor-not-allowed" : ""
+              }`}
               style={{
                 background: "linear-gradient(90deg,#38bdf8,#34d399)",
                 color: "#06111d",
@@ -93,19 +103,23 @@ export default function LoginPage() {
                 border: "1px solid #1b2534",
               }}
             >
-              Sign In
+              {loading ? (
+                "Signing in..."
+              ) : (
+                "Sign In"
+              )}
             </button>
-            
+
             {error && <p className="text-red-400 text-sm">{error}</p>}
 
-            {/*<div className="flex justify-between text-xs text-slate-500 mt-3">
-              <a href="#" className="hover:text-sky-400">
+            <div className="flex justify-end text-xs text-slate-500 mt-3">
+              {/*<a href="#" className="hover:text-sky-400">
                 Forgot Password?
-              </a>
-              <a href="#" className="hover:text-sky-400">
+              </a>*/}
+              <Link href="/register" className="hover:text-sky-400">
                 Create Account
-              </a>
-            </div>*/}
+              </Link>
+            </div>
           </form>
         </div>
       </main>
