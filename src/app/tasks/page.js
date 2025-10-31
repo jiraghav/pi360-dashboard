@@ -36,7 +36,9 @@ export default function Tasks() {
       console.error("Failed to load tasks:", err);
       alert("Failed to load tasks.");
     } finally {
-      setLoading(false);
+      setTimeout(function () {
+        setLoading(false);
+      }, 500);
     }
   }
 
