@@ -64,7 +64,9 @@ export default function Cases() {
         setCases([]);
         setTotal(0);
       } finally {
-        setLoading(false);
+        setTimeout(() => {
+          setLoading(false);
+        }, 500);
       }
     }
   

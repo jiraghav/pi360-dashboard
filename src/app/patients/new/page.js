@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import ProtectedRoute from "../../components/ProtectedRoute";
 import { apiRequest } from "../../utils/api";
@@ -27,6 +27,16 @@ export default function NewPatient() {
   const [lawyers, setLawyers] = useState([]);
   const [caseTypes, setCaseTypes] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  // Ref for first name field
+  const fnameRef = useRef(null);
+
+  // Auto focus on first name when component mounts
+  useEffect(() => {
+    if (fnameRef.current) {
+      fnameRef.current.focus();
+    }
+  }, []);
 
   // Fetch lawyers
   useEffect(() => {
@@ -112,6 +122,7 @@ export default function NewPatient() {
                 First Name *
               </label>
               <input
+                ref={fnameRef}
                 type="text"
                 name="fname"
                 value={form.fname}
