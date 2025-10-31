@@ -6,7 +6,6 @@ import { apiRequest } from "../utils/api";
 import RequestRecordsModal from "./RequestRecordsModal";
 import SendMessageModal from "./SendMessageModal";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
 
 export default function Cases() {
   const [cases, setCases] = useState([]);
@@ -22,8 +21,12 @@ export default function Cases() {
   const [expandedData, setExpandedData] = useState({});
   const limit = 10;
   
-  const searchParams = useSearchParams();
-  const statusParam = searchParams.get("status") || ""; // ✅ get status from URL
+  const searchParams =
+    typeof window !== "undefined"
+      ? new URLSearchParams(window.location.search)
+      : null;
+
+  const statusParam = searchParams?.get("status") || ""; // ✅ get status from URL
 
   // Debounce search
   useEffect(() => {
