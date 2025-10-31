@@ -6,6 +6,7 @@ import { apiRequest } from "../utils/api";
 import RequestRecordsModal from "./RequestRecordsModal";
 import SendMessageModal from "./SendMessageModal";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 
 export default function Cases() {
   const [cases, setCases] = useState([]);
@@ -20,6 +21,9 @@ export default function Cases() {
   const [showSendMessageModal, setShowSendMessageModal] = useState(false);
   const [expandedData, setExpandedData] = useState({});
   const limit = 10;
+  
+  const searchParams = useSearchParams();
+  const statusParam = searchParams.get("status") || ""; // ✅ get status from URL
 
   // Debounce search
   useEffect(() => {
@@ -35,9 +39,16 @@ export default function Cases() {
     async function fetchCases() {
       setLoading(true);
       try {
-        const data = await apiRequest(
-          `/cases.php?page=${page}&limit=${limit}&search=${encodeURIComponent(search)}`
-        );
+        const query = new URLSearchParams({
+          page: page.toString(),
+          limit: limit.toString(),
+          search,
+        });
+  
+        if (statusParam) query.append("status", statusParam); // ✅ add status only if present
+  
+        const data = await apiRequest(`/cases.php?${query.toString()}`);
+  
         if (data.status && data.patients) {
           setCases(data.patients);
           setTotal(data.total || data.patients.length);
@@ -53,8 +64,9 @@ export default function Cases() {
         setLoading(false);
       }
     }
+  
     fetchCases();
-  }, [page, search]);
+  }, [page, search, statusParam]);
 
   const totalPages = Math.max(1, Math.ceil(total / limit));
 
@@ -144,6 +156,16 @@ export default function Cases() {
       alert("Error sending message. Check console for details.");
     };
   }
+  
+  const statusLabels = {
+    active: "Active Cases",
+    pending_reports: "Pending Report Cases",
+    completed: "Completed Cases",
+    all: "All Cases",
+  };
+
+  // Fallback label if status not found
+  const displayLabel = statusLabels[statusParam] || "Active Cases";
 
   return (
     <ProtectedRoute>
@@ -151,7 +173,7 @@ export default function Cases() {
         <section className="card p-5">
           {/* Header */}
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
-            <h3 className="text-lg font-semibold">Cases</h3>
+            <h3 className="text-lg font-semibold">{displayLabel}</h3>
 
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full md:w-auto">
               {/* Buttons */}
@@ -181,10 +203,10 @@ export default function Cases() {
             <div className="col-span-1">Expand</div>
             <div className="col-span-2">First</div>
             <div className="col-span-2">Last</div>
-            <div className="col-span-2">DOB</div>
-            <div className="col-span-2">DOI</div>
-            <div className="col-span-1">Status</div>
-            <div className="col-span-2 text-right">Actions</div>
+            <div className="col-span-1">DOB</div>
+            <div className="col-span-1">DOI</div>
+            <div className="col-span-2">Status</div>
+            <div className="col-span-2">Actions</div>
           </div>
 
           {/* Cases rows */}
@@ -243,25 +265,25 @@ export default function Cases() {
                   </div>
 
                   {/* DOB */}
-                  <div className="md:col-span-2">
+                  <div className="md:col-span-1">
                     <span className="md:hidden font-semibold">DOB: </span>
                     {c.dob}
                   </div>
 
                   {/* DOI */}
-                  <div className="md:col-span-2">
+                  <div className="md:col-span-1">
                     <span className="md:hidden font-semibold">DOI: </span>
                     {c.doi}
                   </div>
 
                   {/* Status */}
-                  <div className="md:col-span-1">
+                  <div className="md:col-span-2">
                     <span className="md:hidden font-semibold">Status: </span>
-                    <span className="badge text-mint-300">Active</span>
+                    <span className="badge text-mint-300">{c.status}</span>
                   </div>
 
                   {/* Actions */}
-                  <div className="md:col-span-2 flex flex-col sm:flex-row md:justify-end gap-2">
+                  <div className="md:col-span-3 flex flex-col sm:flex-row md:justify-end gap-2">
                     <button
                       onClick={() => handleRequestRecords(c)}
                       className="btn w-full sm:w-auto"

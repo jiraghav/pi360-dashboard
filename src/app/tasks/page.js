@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from "react";
 import ProtectedRoute from "../components/ProtectedRoute";
-import TaskModal from "./TaskModal"; // adjust path if needed
+import TaskModal from "./TaskModal";
 import { apiRequest } from "../utils/api";
+import { useSearchParams } from "next/navigation";
 
 export default function Tasks() {
   const [taskModalOpen, setTaskModalOpen] = useState(false);
@@ -11,15 +12,22 @@ export default function Tasks() {
   const [fromCIC, setFromCIC] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Fetch tasks from API
+  const searchParams = useSearchParams();
+  const statusParam = searchParams.get("status") || "";
+
   useEffect(() => {
     fetchTasks();
-  }, []);
+  }, [statusParam]); // refetch when status changes
 
   async function fetchTasks() {
     setLoading(true);
     try {
-      const data = await apiRequest("get_tasks.php"); // replace with your API endpoint
+      // Append ?status=value only if provided
+      const endpoint = statusParam
+        ? `get_tasks.php?status=${encodeURIComponent(statusParam)}`
+        : "get_tasks.php";
+
+      const data = await apiRequest(endpoint);
       setToCIC(data.toCIC || []);
       setFromCIC(data.fromCIC || []);
     } catch (err) {
@@ -41,14 +49,14 @@ export default function Tasks() {
         body: { task_id: taskId, status: 2 }, // 2 = done
       });
       alert("Task marked as done!");
-      fetchTasks(); // refresh the task lists
+      fetchTasks();
     } catch (err) {
       console.error("Failed to update task:", err);
       alert("Failed to mark task as done.");
     }
   };
 
-  // Map status to label and color
+  // Status badge helper
   const getStatusBadge = (status) => {
     switch (status) {
       case "1":
@@ -71,8 +79,10 @@ export default function Tasks() {
           <section className="grid lg:grid-cols-2 gap-6">
             {/* To CIC */}
             <div className="card p-5">
-              <div className="flex items-center justify-between mb-3">
-                <h4 className="font-semibold">To CIC</h4>
+              <div className="flex justify-between mb-3">
+                <h4 className="font-semibold">
+                  To CIC {statusParam && <span className="text-sm text-mute">({statusParam.charAt(0).toUpperCase() + statusParam.slice(1) + ' only'})</span>}
+                </h4>
                 <button className="btn btn-primary" onClick={() => setTaskModalOpen(true)}>
                   + Add Task
                 </button>
@@ -90,7 +100,6 @@ export default function Tasks() {
                         <div className="text-xs text-mute">{task.info}</div>
                       </div>
                       <div className="flex items-center gap-2">
-                        {/* Priority */}
                         <span
                           className={`badge text-${
                             task.priority == 3
@@ -106,8 +115,6 @@ export default function Tasks() {
                             ? "MEDIUM"
                             : "LOW"}
                         </span>
-
-                        {/* Status */}
                         {getStatusBadge(task.status)}
                       </div>
                     </li>
@@ -119,7 +126,9 @@ export default function Tasks() {
             {/* From CIC */}
             <div className="card p-5">
               <div className="flex items-center justify-between mb-3">
-                <h4 className="font-semibold">From CIC</h4>
+                <h4 className="font-semibold">
+                  From CIC {statusParam && <span className="text-sm text-mute">({statusParam.charAt(0).toUpperCase() + statusParam.slice(1) + ' only'})</span>}
+                </h4>
               </div>
               {fromCIC.length === 0 ? (
                 <div className="text-center py-4 text-gray-400">No tasks yet</div>
@@ -134,7 +143,6 @@ export default function Tasks() {
                         <div className="text-xs text-mute">{task.info}</div>
                       </div>
                       <div className="flex items-center gap-2">
-                        {/* Priority */}
                         <span
                           className={`badge text-${
                             task.priority == 3
@@ -150,11 +158,7 @@ export default function Tasks() {
                             ? "MEDIUM"
                             : "LOW"}
                         </span>
-
-                        {/* Status */}
                         {getStatusBadge(task.status)}
-
-                        {/* Mark Done button */}
                         {task.status === "1" && (
                           <button className="btn" onClick={() => markTaskDone(task.id)}>
                             Mark Done

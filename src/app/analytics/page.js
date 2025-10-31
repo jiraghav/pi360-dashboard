@@ -3,11 +3,13 @@
 import { useEffect, useState } from "react";
 import ProtectedRoute from "../components/ProtectedRoute";
 import { apiRequest } from "../utils/api";
+import { useRouter } from "next/navigation";
 
 export default function Analytics() {
   const [analyticsData, setAnalyticsData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const router = useRouter();
 
   useEffect(() => {
     const fetchAnalytics = async () => {
@@ -31,14 +33,34 @@ export default function Analytics() {
       <main className="px-4 md:px-6 py-8 max-w-7xl mx-auto space-y-8">
         {/* KPIs */}
         <section className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-          {kpis.map((kpi, i) => (
-            <div key={i} className="kpi">
-              <div className="text-3xl font-semibold">
-                {loading ? "…" : kpi.value}
+          {kpis.map((kpi, i) => {
+            // Define actions based on label
+            const actions = {
+              "Total Patients": () => router.push("/cases?status=all"),
+              "Active Patients": () => router.push("/cases?status=active"),
+              "Completed": () => router.push("/cases?status=completed"),
+            };
+        
+            const onClick = actions[kpi.label];
+            const clickable = typeof onClick === "function";
+        
+            return (
+              <div
+                key={i}
+                onClick={clickable ? onClick : undefined}
+                className={`kpi p-4 text-center rounded-xl transition-colors ${
+                  clickable
+                    ? "cursor-pointer hover:bg-slate-800 bg-slate-900/40"
+                    : "cursor-default bg-slate-900/20"
+                }`}
+              >
+                <div className="text-3xl font-semibold">
+                  {loading ? "…" : kpi.value ?? 0}
+                </div>
+                <div className="text-mute text-sm">{kpi.label}</div>
               </div>
-              <div className="text-mute text-sm">{kpi.label}</div>
-            </div>
-          ))}
+            );
+          })}
         </section>
 
         {/* Charts */}
