@@ -368,7 +368,10 @@ export default function ServiceLocations() {
             </div>
           
             {/* Speciality Filters */}
-            <div className="flex flex-wrap gap-2 mb-4">
+            <div className="flex flex-wrap gap-2 mb-2">
+              <label htmlFor="speciality" className="text-sm font-medium">
+                Choose service:
+              </label>
               {specialities.map((s) => (
                 <button
                   key={s.id}
@@ -517,7 +520,7 @@ export default function ServiceLocations() {
           ) : (
             <div className="text-center text-gray-400 py-10">
               🔍 Please enter an <strong>address</strong> <br />and select at least one{" "}
-              <strong>speciality</strong> to view nearby facilities on the map.
+              <strong>service</strong> to view nearby facilities on the map.
             </div>
           )}
         </section>
