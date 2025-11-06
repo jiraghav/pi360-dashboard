@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { apiRequest } from "../utils/api"; // adjust if needed
+import { formatDate } from "../utils/formatter"; // adjust if needed
 
 export default function ClinicalAlerts({
   alerts,
@@ -99,7 +100,7 @@ export default function ClinicalAlerts({
                         <span className="truncate">👤 {alert.patient_name}</span>
                       )}
                       {alert.created_at && (
-                        <span>🕒 {new Date(alert.created_at).toLocaleString()}</span>
+                        <span>🕒 {formatDate(alert.created_at)}</span>
                       )}
                     </div>
                   </div>

@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import ProtectedRoute from "../components/ProtectedRoute";
 import TaskModal from "./TaskModal";
 import { apiRequest } from "../utils/api";
+import { formatDate } from "../utils/formatter";
 
 export default function Tasks() {
   const [taskModalOpen, setTaskModalOpen] = useState(false);
@@ -130,7 +131,7 @@ export default function Tasks() {
                         <span className="truncate">👤 {task.patient_name}</span>
                       )}
                       {task.created_at && (
-                        <span>🕒 {new Date(task.created_at).toLocaleString()}</span>
+                        <span>🕒 {formatDate(task.created_at)}</span>
                       )}
                     </div>
                   </div>
