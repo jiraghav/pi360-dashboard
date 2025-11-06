@@ -482,14 +482,6 @@ export default function ServiceLocations() {
                         fontWeight: "bold",
                       }}
                       icon={{
-                        path: window.google.maps.SymbolPath.CIRCLE, // use a circular marker
-                        scale: 16, // marker size
-                        fillColor: loc.color || "#3b82f6", // use provided color or default blue
-                        fillOpacity: 1,
-                        strokeWeight: 1,
-                        strokeColor: "#ffffff",
-                      }}
-                      icon={{
                         url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(`
                           <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32">
                             <path fill="${loc.color}" stroke="white" stroke-width="2"
