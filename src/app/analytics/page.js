@@ -51,7 +51,7 @@ export default function Analytics() {
                 className={`kpi p-4 text-center rounded-xl transition-colors ${
                   clickable
                     ? "cursor-pointer hover:bg-slate-800 bg-slate-900/40"
-                    : "cursor-default bg-slate-900/20"
+                    : "cursor-not-allowed bg-slate-900/20 opacity-70"
                 }`}
               >
                 <div className="text-3xl font-semibold">
