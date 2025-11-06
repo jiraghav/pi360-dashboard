@@ -202,7 +202,7 @@ export default function NewReferral() {
             <h3 className="text-xl font-semibold">New Referral</h3>
             <button
               type="button"
-              onClick={() => router.push("/patients/new?from=referral")}
+              onClick={() => router.push("/patients/new")}
               className="btn btn-sm btn-primary"
             >
               + New Patient

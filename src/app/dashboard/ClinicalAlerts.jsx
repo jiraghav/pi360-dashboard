@@ -77,7 +77,7 @@ export default function ClinicalAlerts({
           <ul className="divide-y divide-stroke/70">
             {(showAllAlerts ? alertList : alertList.slice(0, 3)).map(
               (alert, i) => (
-                <li key={i} className="py-3 flex items-center justify-between">
+                <li key={i} className="py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                   <div className="flex flex-col">
                     <div className="font-medium flex items-center gap-1 flex-wrap">
                       <span>{alert.title || "Untitled Task"}</span>

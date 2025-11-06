@@ -7,11 +7,6 @@ import { apiRequest } from "../../utils/api";
 
 export default function NewPatient() {
   const router = useRouter();
-  const searchParams =
-    typeof window !== "undefined"
-      ? new URLSearchParams(window.location.search)
-      : null;
-  const from = searchParams?.get("from") || null;
 
   const [form, setForm] = useState({
     fname: "",
@@ -27,23 +22,18 @@ export default function NewPatient() {
   const [lawyers, setLawyers] = useState([]);
   const [caseTypes, setCaseTypes] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
-  // Ref for first name field
+
   const fnameRef = useRef(null);
 
-  // Auto focus on first name when component mounts
   useEffect(() => {
-    if (fnameRef.current) {
-      fnameRef.current.focus();
-    }
+    fnameRef.current?.focus();
   }, []);
 
-  // Fetch lawyers
   useEffect(() => {
     async function fetchLawyers() {
       try {
-        const lawyersData = await apiRequest("getLawyers.php");
-        setLawyers(lawyersData.lawyers || []);
+        const res = await apiRequest("getLawyers.php");
+        setLawyers(res.lawyers || []);
       } catch (err) {
         console.error("Failed to load lawyers", err);
       }
@@ -51,12 +41,11 @@ export default function NewPatient() {
     fetchLawyers();
   }, []);
 
-  // Fetch case types
   useEffect(() => {
     async function fetchCaseTypes() {
       try {
-        const caseData = await apiRequest("getCaseTypeOptions.php");
-        setCaseTypes(caseData.options || []);
+        const res = await apiRequest("getCaseTypeOptions.php");
+        setCaseTypes(res.options || []);
       } catch (err) {
         console.error("Failed to load case types", err);
       }
@@ -69,9 +58,7 @@ export default function NewPatient() {
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
+  const handleSubmit = async (redirectToReferral = false) => {
     // Validate all fields
     for (const [key, value] of Object.entries(form)) {
       if (!value.trim()) {
@@ -92,9 +79,10 @@ export default function NewPatient() {
         method: "POST",
         body: formData,
       });
+
       alert("Patient created successfully!");
 
-      if (from === "referral") {
+      if (redirectToReferral) {
         router.push(`/referrals/new?pid=${response.pid}`);
       } else {
         router.push("/cases");
@@ -114,7 +102,7 @@ export default function NewPatient() {
 
           <form
             className="grid grid-cols-1 md:grid-cols-2 gap-4"
-            onSubmit={handleSubmit}
+            onSubmit={(e) => e.preventDefault()}
           >
             {/* First Name */}
             <div>
@@ -220,7 +208,6 @@ export default function NewPatient() {
 
             {/* Case Type + Phone */}
             <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Case Type */}
               <div>
                 <label className="block mb-1 text-sm font-medium text-gray-300">
                   Case Type *
@@ -241,7 +228,6 @@ export default function NewPatient() {
                 </select>
               </div>
 
-              {/* Phone Number */}
               <div>
                 <label className="block mb-1 text-sm font-medium text-gray-300">
                   Phone Number *
@@ -259,20 +245,29 @@ export default function NewPatient() {
             </div>
 
             {/* Buttons */}
-            <div className="col-span-1 md:col-span-2 flex justify-end gap-2 mt-4">
+            <div className="col-span-1 md:col-span-2 flex justify-end gap-3 mt-6">
               <button
-                type="submit"
+                type="button"
                 disabled={isSubmitting}
+                onClick={() => handleSubmit(false)}
                 className={`btn btn-primary px-4 py-2 ${
                   isSubmitting ? "cursor-not-allowed opacity-75" : ""
                 }`}
               >
-                {isSubmitting
-                  ? "Creating..."
-                  : from === "referral"
-                  ? "Create & Send Referral"
-                  : "Create"}
+                {isSubmitting ? "Creating..." : "Create Patient"}
               </button>
+
+              <button
+                type="button"
+                disabled={isSubmitting}
+                onClick={() => handleSubmit(true)}
+                className={`btn btn-primary px-4 py-2 ${
+                  isSubmitting ? "cursor-not-allowed opacity-75" : ""
+                }`}
+              >
+                {isSubmitting ? "Processing..." : "Create & Send Referral"}
+              </button>
+
               <button
                 type="button"
                 disabled={isSubmitting}
