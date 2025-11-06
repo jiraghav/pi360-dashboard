@@ -73,7 +73,16 @@ export default function NewReferral() {
 
       const data = await apiRequest(`cases.php?${params.toString()}`);
       const newOptions = (data.patients || []).map((p) => ({
-        label: `${p.fname} ${p.lname}`,
+        label: `${p.fname} ${p.lname}${
+          p.doi || p.dob
+            ? ` — ${[
+                p.doi ? `DOI: ${p.doi}` : null,
+                p.dob ? `DOB: ${p.dob}` : null
+              ]
+                .filter(Boolean)
+                .join(" • ")}`
+            : ""
+        }`,
         value: p.pid,
       }));
 

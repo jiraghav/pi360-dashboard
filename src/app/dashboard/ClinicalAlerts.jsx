@@ -78,14 +78,30 @@ export default function ClinicalAlerts({
             {(showAllAlerts ? alertList : alertList.slice(0, 3)).map(
               (alert, i) => (
                 <li key={i} className="py-3 flex items-center justify-between">
-                  <div>
-                    <div className="font-medium">
-                      {alert.name}{" "}
-                      <span className="text-xs text-mute">
-                        · Case #{alert.caseId}
-                      </span>
+                  <div className="flex flex-col">
+                    <div className="font-medium flex items-center gap-1 flex-wrap">
+                      <span>{alert.title || "Untitled Task"}</span>
+                      {alert.caseId && (
+                        <span className="text-xs text-mute">· Case #{alert.caseId}</span>
+                      )}
                     </div>
-                    <div className="text-xs text-mute">{alert.info}</div>
+                
+                    {/* Description / info line */}
+                    {alert.description && (
+                      <div className="text-sm text-gray-400 mt-0.5">
+                        {alert.description}
+                      </div>
+                    )}
+                
+                    {/* Patient and time info */}
+                    <div className="text-xs text-mute mt-1 flex items-center gap-2 flex-wrap">
+                      {alert.patient_name && (
+                        <span className="truncate">👤 {alert.patient_name}</span>
+                      )}
+                      {alert.created_at && (
+                        <span>🕒 {new Date(alert.created_at).toLocaleString()}</span>
+                      )}
+                    </div>
                   </div>
 
                   <div className="flex items-center gap-2">

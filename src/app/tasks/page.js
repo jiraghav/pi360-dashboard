@@ -105,14 +105,36 @@ export default function Tasks() {
           <>
             <ul className="divide-y divide-stroke/70">
               {(showAll ? data : data.slice(0, 3)).map((task, i) => (
-                <li key={i} className="py-3 flex items-center justify-between">
-                  <div>
-                    <div className="font-medium">
-                      {task.name}{" "}
-                      <span className="text-xs text-mute">· Case #{task.caseId}</span>
+                <li
+                  key={i}
+                  className="py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2"
+                >
+                  <div className="flex flex-col">
+                    <div className="font-medium flex items-center gap-1 flex-wrap">
+                      <span>{task.title || "Untitled Task"}</span>
+                      {task.caseId && (
+                        <span className="text-xs text-mute">· Case #{task.caseId}</span>
+                      )}
                     </div>
-                    <div className="text-xs text-mute">{task.info}</div>
+                
+                    {/* Description / info line */}
+                    {task.description && (
+                      <div className="text-sm text-gray-400 mt-0.5">
+                        {task.description}
+                      </div>
+                    )}
+                
+                    {/* Patient and time info */}
+                    <div className="text-xs text-mute mt-1 flex items-center gap-2 flex-wrap">
+                      {task.patient_name && (
+                        <span className="truncate">👤 {task.patient_name}</span>
+                      )}
+                      {task.created_at && (
+                        <span>🕒 {new Date(task.created_at).toLocaleString()}</span>
+                      )}
+                    </div>
                   </div>
+                
                   <div className="flex items-center gap-2">
                     <span
                       className={`badge text-${
@@ -131,7 +153,7 @@ export default function Tasks() {
                     </span>
                     {getStatusBadge(task.status)}
                     {!isToCIC && task.status === "1" && (
-                      <button className="btn" onClick={() => markTaskDone(task.id)}>
+                      <button className="btn btn-sm" onClick={() => markTaskDone(task.id)}>
                         Mark Done
                       </button>
                     )}

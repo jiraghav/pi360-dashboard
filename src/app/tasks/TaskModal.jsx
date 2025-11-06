@@ -18,7 +18,16 @@ export default function TaskModal({ isOpen, onClose, onCreated }) {
 
       const data = await apiRequest(`cases.php?${params.toString()}`);
       const newOptions = (data.patients || []).map((p) => ({
-        label: `${p.fname} ${p.lname}`,
+        label: `${p.fname} ${p.lname}${
+          p.doi || p.dob
+            ? ` — ${[
+                p.doi ? `DOI: ${p.doi}` : null,
+                p.dob ? `DOB: ${p.dob}` : null
+              ]
+                .filter(Boolean)
+                .join(" • ")}`
+            : ""
+        }`,
         value: p.pid,
       }));
 
@@ -38,17 +47,13 @@ export default function TaskModal({ isOpen, onClose, onCreated }) {
       alert("Please enter a title.");
       return;
     }
-    if (!patient) {
-      alert("Please select a patient.");
-      return;
-    }
 
     setLoading(true);
     try {
       const formData = new FormData();
       formData.append("title", title);
       formData.append("description", description);
-      formData.append("pid", patient.value);
+      formData.append("pid", patient?.value);
       formData.append("priority", priority); // send numeric priority
 
       const res = await apiRequest("create_task.php", {
@@ -85,7 +90,7 @@ export default function TaskModal({ isOpen, onClose, onCreated }) {
           {/* Patient Selection */}
           <AsyncPaginate
             key={patient?.value || "patient"}
-            placeholder="Select Patient"
+            placeholder="Select Patient (optional)"
             value={patient}
             loadOptions={loadPatients}
             onChange={setPatient}
