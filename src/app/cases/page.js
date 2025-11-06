@@ -267,13 +267,25 @@ export default function Cases() {
                     </span>
                   </div>
 
-                  <div className="md:col-span-2">{c.fname}</div>
-                  <div className="md:col-span-2">{c.lname}</div>
-                  <div className="md:col-span-1">{c.dob}</div>
-                  <div className="md:col-span-1">{c.doi}</div>
+                  <div className="md:col-span-2">
+                    <span className="md:hidden font-semibold">First: </span>
+                    {c.fname}
+                  </div>
+                  <div className="md:col-span-2">
+                    <span className="md:hidden font-semibold">Last: </span>
+                    {c.lname}
+                  </div>
+                  <div className="md:col-span-1">
+                    <span className="md:hidden font-semibold">DOB: </span>
+                    {c.dob}
+                  </div>
+                  <div className="md:col-span-1">
+                    <span className="md:hidden font-semibold">DOB: </span>
+                    {c.doi}
+                  </div>
 
                   <div className="md:col-span-2">
-                    {c.status && <span className="badge text-mint-300">{c.status}</span>}
+                    {c.status && (<><span className="md:hidden font-semibold">Status: </span><span className="badge text-mint-300">{c.status}</span></>)}
                   </div>
 
                   <div className="md:col-span-3 flex flex-col sm:flex-row md:justify-end gap-2">
