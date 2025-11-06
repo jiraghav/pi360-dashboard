@@ -72,21 +72,15 @@ export default function ServiceLocations() {
       const autocomplete = new window.google.maps.places.Autocomplete(
         addressInputRef.current,
         {
-          types: ["address"],
-          fields: [
-            "formatted_address",
-            "geometry",
-            "address_components",
-            "place_id",
-            "name",
-          ],
+          types: ["geocode", "establishment"],
+          fields: ["geometry", "formatted_address", "name", "place_id"],
         }
       );
 
       autocomplete.addListener("place_changed", () => {
         const place = autocomplete.getPlace();
         if (!place.geometry)
-          return alert("No details available for this address.");
+          return;
         const coords = {
           lat: place.geometry.location.lat(),
           lng: place.geometry.location.lng(),
@@ -94,21 +88,60 @@ export default function ServiceLocations() {
         setPatientCoords(coords);
         setSearchInput(place.formatted_address || "");
         setSelected(null);
-        if (mapRef.current) {
-          const bounds = new window.google.maps.LatLngBounds();
-          bounds.extend(coords);
-          mapRef.current.fitBounds(bounds);
-          // Add a small manual zoom adjustment for balance
-          mapRef.current.setZoom(Math.min(mapRef.current.getZoom(), 14));
+        moveMapToCoords(coords);
+      });
+  
+      // 🟩 Add this block
+      addressInputRef.current.addEventListener("keydown", async (e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          const query = addressInputRef.current.value.trim();
+          if (!query) return;
+          const geocoder = new window.google.maps.Geocoder();
+          geocoder.geocode({ address: query }, (results, status) => {
+            if (status === "OK" && results[0]) {
+              const location = results[0].geometry.location;
+              const coords = { lat: location.lat(), lng: location.lng() };
+              setPatientCoords(coords);
+              setSearchInput(results[0].formatted_address || query);
+              setSelected(null);
+              moveMapToCoords(coords);
+            } else {
+              alert("Could not find that address. Try again.");
+            }
+          });
         }
       });
     }
   }, [isLoaded]);
+  
+  const moveMapToCoords = (coords) => {
+    if (mapRef.current) {
+      const bounds = new window.google.maps.LatLngBounds();
+      bounds.extend(coords);
+      mapRef.current.fitBounds(bounds);
+      mapRef.current.setZoom(Math.min(mapRef.current.getZoom(), 14));
+    } else {
+      // retry every 200ms until mapRef is ready
+      const interval = setInterval(() => {
+        if (mapRef.current) {
+          const bounds = new window.google.maps.LatLngBounds();
+          bounds.extend(coords);
+          mapRef.current.fitBounds(bounds);
+          mapRef.current.setZoom(Math.min(mapRef.current.getZoom(), 14));
+          clearInterval(interval);
+        }
+      }, 200);
+
+      // optional safety timeout
+      setTimeout(() => clearInterval(interval), 4000);
+    }
+  };
 
   // Fetch locations (only when BOTH speciality and address exist)
   useEffect(() => {
     async function fetchLocations() {
-      if (activeSpecialities.length === 0 || !patientCoords) {
+      if (!patientCoords) {
         setLocations([]);
         return;
       }
@@ -143,7 +176,7 @@ export default function ServiceLocations() {
   useEffect(() => {
     if (window.innerWidth >= 768) return; // only mobile
   
-    if (activeSpecialities.length > 0 && patientCoords) {
+    if (patientCoords) {
       const timeout = setTimeout(() => {
         setShowFilters(false);
       }, 1000); // wait a bit before hiding
@@ -310,7 +343,7 @@ export default function ServiceLocations() {
   if (loadError) return <p>Error loading map</p>;
   if (!isLoaded) return <p></p>;
 
-  const shouldShowMap = activeSpecialities.length > 0 && patientCoords;
+  const shouldShowMap = patientCoords;
 
   return (
     <ProtectedRoute>
@@ -370,7 +403,7 @@ export default function ServiceLocations() {
             {/* Speciality Filters */}
             <div className="flex flex-wrap gap-2 mb-2">
               <label htmlFor="speciality" className="text-sm font-medium">
-                Choose service:
+                Choose service (optional):
               </label>
               {specialities.map((s) => (
                 <button
@@ -419,6 +452,12 @@ export default function ServiceLocations() {
                   zoom={4}
                   center={defaultCenter}
                   onLoad={onMapLoad}
+                  options={{
+                    streetViewControl: false,
+                    mapTypeControl: false,
+                    fullscreenControl: false,
+                    zoomControl: true,
+                  }}
                 >
                   {patientCoords && (
                     <Marker
@@ -441,6 +480,23 @@ export default function ServiceLocations() {
                         text: `${idx + 1}`,
                         color: "#000",
                         fontWeight: "bold",
+                      }}
+                      icon={{
+                        path: window.google.maps.SymbolPath.CIRCLE, // use a circular marker
+                        scale: 16, // marker size
+                        fillColor: loc.color || "#3b82f6", // use provided color or default blue
+                        fillOpacity: 1,
+                        strokeWeight: 1,
+                        strokeColor: "#ffffff",
+                      }}
+                      icon={{
+                        url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(`
+                          <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32">
+                            <path fill="${loc.color}" stroke="white" stroke-width="2"
+                              d="M16 0C9 0 3 6 3 13c0 9 13 19 13 19s13-10 13-19C29 6 23 0 16 0z"/>
+                          </svg>
+                        `)}`,
+                        scaledSize: new window.google.maps.Size(36, 36),
                       }}
                       onClick={() => setSelected(loc)}
                     />
@@ -497,7 +553,15 @@ export default function ServiceLocations() {
                 ) : (
                   filteredLocations.map((loc) => (
                     <div key={loc.id} className="card p-3">
-                      <div className="font-medium">{loc.name}</div>
+                    <div className="flex items-start gap-2">
+                      <span
+                        className="inline-block w-3.5 h-3.5 rounded-full flex-shrink-0 mt-[2px]"
+                        style={{
+                          backgroundColor: loc.color || "#3b82f6",
+                        }}
+                      ></span>
+                      <div className="font-medium leading-snug">{loc.name}</div>
+                    </div>
                       <div className="text-xs text-mute line-clamp-2">
                         {loc.address}
                       </div>
@@ -519,8 +583,7 @@ export default function ServiceLocations() {
             </div>
           ) : (
             <div className="text-center text-gray-400 py-10">
-              🔍 Please enter an <strong>address</strong> <br />and select at least one{" "}
-              <strong>service</strong> to view nearby facilities on the map.
+              🔍 Please enter an <strong>address</strong> to view nearby facilities on the map.
             </div>
           )}
         </section>
