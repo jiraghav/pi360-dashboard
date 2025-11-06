@@ -19,14 +19,17 @@ export default function Cases() {
   const [showRequestRecordModal, setShowRequestRecordModal] = useState(false);
   const [showSendMessageModal, setShowSendMessageModal] = useState(false);
   const [expandedData, setExpandedData] = useState({});
+  const [statusFilter, setStatusFilter] = useState("");
+  const [initialized, setInitialized] = useState(false);
   const limit = 10;
-  
-  const searchParams =
-    typeof window !== "undefined"
-      ? new URLSearchParams(window.location.search)
-      : null;
 
-  const statusParam = searchParams?.get("status") || ""; // ✅ get status from URL
+  // ✅ Initialize from URL once
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const statusParam = params.get("status") || "";
+    setStatusFilter(statusParam);
+    setInitialized(true); // mark ready to fetch
+  }, []);
 
   // Debounce search
   useEffect(() => {
@@ -39,6 +42,7 @@ export default function Cases() {
 
   // Fetch cases
   useEffect(() => {
+    if (!initialized) return;
     async function fetchCases() {
       setLoading(true);
       try {
@@ -47,11 +51,9 @@ export default function Cases() {
           limit: limit.toString(),
           search,
         });
-  
-        if (statusParam) query.append("status", statusParam); // ✅ add status only if present
-  
+        if (statusFilter) query.append("status", statusFilter);
+
         const data = await apiRequest(`/cases.php?${query.toString()}`);
-  
         if (data.status && data.patients) {
           setCases(data.patients);
           setTotal(data.total || data.patients.length);
@@ -64,16 +66,24 @@ export default function Cases() {
         setCases([]);
         setTotal(0);
       } finally {
-        setTimeout(() => {
-          setLoading(false);
-        }, 500);
+        setLoading(false);
       }
     }
-  
+
     fetchCases();
-  }, [page, search, statusParam]);
+  }, [page, search, statusFilter, initialized])
 
   const totalPages = Math.max(1, Math.ceil(total / limit));
+
+  const handleStatusChange = (e) => {
+    const newStatus = e.target.value;
+    setStatusFilter(newStatus);
+    setPage(1);
+    const params = new URLSearchParams(window.location.search);
+    if (newStatus) params.set("status", newStatus);
+    else params.delete("status");
+    window.history.replaceState({}, "", `?${params.toString()}`);
+  };
 
   const handleRequestRecords = (caseItem) => {
     setSelectedCase(caseItem);
@@ -87,21 +97,17 @@ export default function Cases() {
 
   const toggleRow = async (pid) => {
     setExpandedRows((prev) => {
-      // If already open, close it
       if (prev[pid]) return {};
-      // Otherwise open only this pid, close others
       return { [pid]: true };
     });
-  
-    // Fetch data only the first time it's expanded
+
     if (!expandedData[pid]) {
       try {
         const details = await apiRequest(`/case_details.php?pid=${pid}`);
         if (details.status) {
-          console.log(details);
           setExpandedData((prev) => ({
             ...prev,
-            [pid]: details.data, // whatever your API returns
+            [pid]: details.data,
           }));
         }
       } catch (err) {
@@ -135,7 +141,7 @@ export default function Cases() {
       alert("Error requesting records. Check console for details.");
     }
   };
-    
+
   const sendBackOfficeMessage = async () => {
     if (!selectedCase) return;
 
@@ -159,9 +165,9 @@ export default function Cases() {
     } catch (err) {
       console.error("Error sending message:", err);
       alert("Error sending message. Check console for details.");
-    };
-  }
-  
+    }
+  };
+
   const statusLabels = {
     active: "Active Cases",
     pending_reports: "Pending Report Cases",
@@ -169,8 +175,7 @@ export default function Cases() {
     all: "All Cases",
   };
 
-  // Fallback label if status not found
-  const displayLabel = statusLabels[statusParam] || "Active Cases";
+  const displayLabel = statusLabels[statusFilter] || "All Cases";
 
   return (
     <ProtectedRoute>
@@ -183,7 +188,6 @@ export default function Cases() {
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full md:w-auto">
               {/* Buttons */}
               <div className="flex flex-row flex-wrap gap-2">
-                {/* <button className="btn">Export</button> */}
                 <Link href="/referrals/new" className="btn btn-primary whitespace-nowrap">
                   New Referral
                 </Link>
@@ -191,6 +195,18 @@ export default function Cases() {
                   New Patient
                 </Link>
               </div>
+
+              {/* ✅ Status Filter */}
+              <select
+                value={statusFilter}
+                onChange={handleStatusChange}
+                className="border rounded px-3 py-2 bg-black text-white"
+              >
+                <option value="">All Cases</option>
+                <option value="active">Active</option>
+                <option value="pending_reports">Pending Reports</option>
+                <option value="completed">Completed</option>
+              </select>
 
               {/* Search Input */}
               <input
@@ -214,7 +230,7 @@ export default function Cases() {
             <div className="col-span-2">Actions</div>
           </div>
 
-          {/* Cases rows */}
+          {/* Case rows */}
           {loading ? (
             <div className="py-4 text-center text-mute">Loading cases...</div>
           ) : cases.length === 0 ? (
@@ -225,20 +241,14 @@ export default function Cases() {
                 key={c.pid}
                 className="mb-4 border border-stroke/30 rounded-xl md:border-0 md:rounded-none md:border-b md:border-stroke/50"
               >
-                {/* Main row */}
                 <div className="grid grid-cols-1 md:grid-cols-12 items-start md:items-center gap-2 md:gap-0 p-4 md:p-0">
                   {/* Expand */}
                   <div className="flex items-center md:col-span-1">
-                    {
-                      c.super_facilities && (
-                        <button
-                          className="badge"
-                          onClick={() => toggleRow(c.pid)}
-                        >
-                          {expandedRows[c.pid] ? "-" : "+"}
-                        </button>
-                      )
-                    }
+                    {c.super_facilities && (
+                      <button className="badge" onClick={() => toggleRow(c.pid)}>
+                        {expandedRows[c.pid] ? "-" : "+"}
+                      </button>
+                    )}
                     <span className="ml-2 flex gap-1">
                       {c.super_facilities?.split(",").map((facility, i) => {
                         const trimmed = facility.trim();
@@ -257,76 +267,44 @@ export default function Cases() {
                     </span>
                   </div>
 
-                  {/* First name */}
+                  <div className="md:col-span-2">{c.fname}</div>
+                  <div className="md:col-span-2">{c.lname}</div>
+                  <div className="md:col-span-1">{c.dob}</div>
+                  <div className="md:col-span-1">{c.doi}</div>
+
                   <div className="md:col-span-2">
-                    <span className="md:hidden font-semibold">First: </span>
-                    {c.fname}
+                    {c.status && <span className="badge text-mint-300">{c.status}</span>}
                   </div>
 
-                  {/* Last name */}
-                  <div className="md:col-span-2">
-                    <span className="md:hidden font-semibold">Last: </span>
-                    {c.lname}
-                  </div>
-
-                  {/* DOB */}
-                  <div className="md:col-span-1">
-                    <span className="md:hidden font-semibold">DOB: </span>
-                    {c.dob}
-                  </div>
-
-                  {/* DOI */}
-                  <div className="md:col-span-1">
-                    <span className="md:hidden font-semibold">DOI: </span>
-                    {c.doi}
-                  </div>
-
-                  {/* Status */}
-                  <div className="md:col-span-2">
-                    <span className="md:hidden font-semibold">Status: </span>
-                    <span className="badge text-mint-300">{c.status}</span>
-                  </div>
-
-                  {/* Actions */}
                   <div className="md:col-span-3 flex flex-col sm:flex-row md:justify-end gap-2">
-                    <button
-                      onClick={() => handleRequestRecords(c)}
-                      className="btn w-full sm:w-auto"
-                    >
+                    <button onClick={() => handleRequestRecords(c)} className="btn w-full sm:w-auto">
                       Request Records
                     </button>
-                    <button
-                      onClick={() => handleSendMessage(c)}
-                      className="btn w-full sm:w-auto"
-                    >
+                    <button onClick={() => handleSendMessage(c)} className="btn w-full sm:w-auto">
                       Back Office Msg
                     </button>
                   </div>
                 </div>
 
-                {/* Expanded row */}
+                {/* Expanded section */}
                 {expandedRows[c.pid] && (
                   <div className="mt-2 md:mt-4 p-3 md:p-4 rounded-xl border border-stroke bg-card">
                     {expandedData[c.pid] ? (
-                      <>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 mt-2">
-                          {expandedData[c.pid].sections?.map((section, i) => (
-                            <div key={i} className="card p-3">
-                              <div className="text-mute text-xs">{section.title}</div>
-                              <div className="font-semibold">{section.status}</div>
-                              {section.last_visit && (
-                                <div className="text-xs text-mute mt-1">
-                                  Last Visit: {section.last_visit}
-                                </div>
-                              )}
-                            </div>
-                          ))}
-                        </div>
-                      </>
-                    ) : (
-                      <div className="py-3 text-center text-mute text-sm">
-                        Loading details...
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 mt-2">
+                        {expandedData[c.pid].sections?.map((section, i) => (
+                          <div key={i} className="card p-3">
+                            <div className="text-mute text-xs">{section.title}</div>
+                            <div className="font-semibold">{section.status}</div>
+                            {section.last_visit && (
+                              <div className="text-xs text-mute mt-1">
+                                Last Visit: {section.last_visit}
+                              </div>
+                            )}
+                          </div>
+                        ))}
                       </div>
+                    ) : (
+                      <div className="py-3 text-center text-mute text-sm">Loading details...</div>
                     )}
                   </div>
                 )}
@@ -339,23 +317,34 @@ export default function Cases() {
             <button
               onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={page === 1 || loading}
-              className="btn"
+              className={`btn ${
+                page === 1 || loading
+                  ? "opacity-50 cursor-not-allowed bg-gray-700 text-gray-400 hover:bg-gray-700"
+                  : ""
+              }`}
             >
               Previous
             </button>
+            
             <span>
               Page {page} of {totalPages} ({total} cases)
             </span>
+            
             <button
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
               disabled={page === totalPages || loading}
-              className="btn"
+              className={`btn ${
+                page === totalPages || loading
+                  ? "opacity-50 cursor-not-allowed bg-gray-700 text-gray-400 hover:bg-gray-700"
+                  : ""
+              }`}
             >
               Next
             </button>
           </div>
         </section>
       </main>
+
       {/* Modals */}
       {showRequestRecordModal && selectedCase && (
         <RequestRecordsModal
