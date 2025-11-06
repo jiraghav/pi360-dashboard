@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AsyncPaginate } from "react-select-async-paginate";
 import { apiRequest } from "../utils/api"; // adjust path
 
@@ -10,6 +10,19 @@ export default function TaskModal({ isOpen, onClose, onCreated }) {
   const [patient, setPatient] = useState(null);
   const [priority, setPriority] = useState(2); // default medium
   const [loading, setLoading] = useState(false);
+  
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+
+    // Cleanup on unmount or close
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isOpen]);
 
   const loadPatients = async (inputValue, loadedOptions, { page }) => {
     try {

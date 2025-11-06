@@ -26,6 +26,19 @@ export default function NewReferralModal({ isOpen, onClose }) {
 
     fetchReferrals();
   }, [isOpen]);
+  
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+
+    // Cleanup on unmount or close
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isOpen]);
 
   if (!isOpen) return null;
 

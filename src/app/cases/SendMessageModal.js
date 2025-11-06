@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function SendMessageModal({
   selectedCase,
@@ -9,6 +9,18 @@ export default function SendMessageModal({
   setSelectedCase,
 }) {
   const [loading, setLoading] = useState(false);
+  
+  useEffect(() => {
+    if (selectedCase) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [selectedCase]);
 
   if (!selectedCase) return null;
 

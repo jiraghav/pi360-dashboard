@@ -27,6 +27,19 @@ export default function ReviewNotesModal({ isOpen, onClose }) {
     fetchNotes();
   }, [isOpen]);
 
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+
+    // Cleanup on unmount or close
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   return (
@@ -34,7 +47,9 @@ export default function ReviewNotesModal({ isOpen, onClose }) {
       <div className="card max-w-2xl w-full p-6 relative">
         <div className="flex items-center justify-between mb-4">
           <h4 className="font-semibold">Review Notes</h4>
-          <button className="badge" onClick={onClose}>Close</button>
+          <button className="badge" onClick={onClose}>
+            Close
+          </button>
         </div>
 
         {loading ? (
