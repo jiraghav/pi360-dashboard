@@ -35,7 +35,7 @@ export default function Sidebar() {
   return (
     <aside
       id="sidebar"
-      className="hidden md:block md:col-span-3 xl:col-span-2 h-screen sticky top-0 p-4 glass border-r border-stroke/70"
+      className="hidden md:block md:col-span-3 xl:col-span-2 h-screen sticky top-0 p-4 glass border-r border-stroke/70 z-10"
     >
       {/* Branding */}
       <div className="flex items-center gap-3 mb-6">
