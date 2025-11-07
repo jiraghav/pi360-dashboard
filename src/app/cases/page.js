@@ -280,7 +280,7 @@ export default function Cases() {
                     {c.dob}
                   </div>
                   <div className="md:col-span-1">
-                    <span className="md:hidden font-semibold">DOB: </span>
+                    <span className="md:hidden font-semibold">DOI: </span>
                     {c.doi}
                   </div>
 
