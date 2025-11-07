@@ -1,13 +1,13 @@
 "use client";
 
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import ProtectedRoute from "../../components/ProtectedRoute";
 import ReferralForm from "./ReferralForm";
 
 export default function NewReferralPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const pid = searchParams.get("pid");
+  const searchParams = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
+  const pid = searchParams?.get("pid");
 
   return (
     <ProtectedRoute>
