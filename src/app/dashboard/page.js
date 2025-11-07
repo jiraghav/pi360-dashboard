@@ -10,6 +10,7 @@ import QuickActions from "./QuickActions";
 import KPIs from "./KPIs";
 import ClinicalAlerts from "./ClinicalAlerts";
 import ActivityFeed from "./ActivityFeed";
+import GreetingHeader from "./GreetingHeader";
 
 export default function Dashboard() {
   const [dashboardData, setDashboardData] = useState(null);
@@ -36,10 +37,13 @@ export default function Dashboard() {
   const kpis = dashboardData || {};
   const alerts = dashboardData?.clincalAlerts || [];
   const activities = dashboardData?.submittedToLawyers || [];
+  const userName = dashboardData?.lawyer_name || "Personal Injury Lawyer";
 
   return (
     <ProtectedRoute>
       <main className="px-4 md:px-6 py-8 max-w-7xl mx-auto space-y-8">
+        <GreetingHeader userName={dashboardData?.lawyer_name} loading={loading} />
+
         <section className="grid grid-cols-12 gap-4">
           <QuickActions
             kpis={kpis}

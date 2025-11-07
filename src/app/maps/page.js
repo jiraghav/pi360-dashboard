@@ -9,6 +9,7 @@ import {
 } from "@react-google-maps/api";
 import ProtectedRoute from "../components/ProtectedRoute";
 import { apiRequest } from "../utils/api";
+import { useRouter } from "next/navigation";
 
 const libraries = ["places"];
 const defaultCenter = { lat: 39.8283, lng: -98.5795 };
@@ -21,6 +22,8 @@ export default function ServiceLocations() {
 
   const mapRef = useRef();
   const addressInputRef = useRef();
+  
+  const router = useRouter();
 
   const [locations, setLocations] = useState([]);
   const [selected, setSelected] = useState(null);
@@ -344,6 +347,21 @@ export default function ServiceLocations() {
   if (!isLoaded) return <p></p>;
 
   const shouldShowMap = patientCoords;
+  
+  const handleSendReferral = (loc) => {
+    if (!loc?.id) return;
+
+    localStorage.setItem(
+      "selectedReferralFacility",
+      JSON.stringify({
+        id: loc.id,
+        name: loc.name,
+        address: loc.address || "",
+      })
+    );
+
+    router.push(`/referrals/new?facility_id=${loc.id}&facility_name=${encodeURIComponent(loc.name)}`);
+  };
 
   return (
     <ProtectedRoute>
@@ -524,6 +542,30 @@ export default function ServiceLocations() {
                             {selected.distance.toFixed(2)} miles
                           </div>
                         )}
+                        <div className="mt-3 flex justify-center">
+                          <button
+                            onClick={() => handleSendReferral(selected)}
+                            className="inline-flex items-center gap-1 bg-gradient-to-r from-sky-600 to-blue-600 
+                                       text-white font-medium px-3 py-1.5 rounded-lg text-xs shadow-sm 
+                                       hover:from-sky-700 hover:to-blue-700 active:scale-[0.98] transition-all"
+                          >
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              className="h-3.5 w-3.5"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M8 7V3m8 4V3m-9 8h10m-7 4h4m-9 4h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                              />
+                            </svg>
+                            Send Referral
+                          </button>
+                        </div>
                       </div>
                     </InfoWindow>
                   )}
@@ -562,12 +604,55 @@ export default function ServiceLocations() {
                           📏 {loc.distance.toFixed(2)} miles
                         </div>
                       )}
-                      <button
-                        className="btn mt-2 w-full"
-                        onClick={() => handleListClick(loc)}
-                      >
-                        View on Map
-                      </button>
+                      <div className="flex flex-col sm:flex-row gap-2 mt-3">
+                        <button
+                          onClick={() => handleListClick(loc)}
+                          className="flex-1 inline-flex items-center justify-center gap-1 
+                                     px-3 py-2 rounded-lg text-sm font-medium border border-stroke 
+                                     bg-[#1a1f2e] hover:bg-[#23293a] text-gray-200 transition-all"
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-4 w-4"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M17.657 16.657L13.414 12.414a4 4 0 10-5.657 5.657l4.243 4.243a8 8 0 1011.314-11.314l-4.243-4.243"
+                            />
+                          </svg>
+                          View on Map
+                        </button>
+                      
+                        <button
+                          onClick={() => handleSendReferral(loc)}
+                          className="flex-1 inline-flex items-center justify-center gap-1 
+                                     px-3 py-2 rounded-lg text-sm font-medium 
+                                     bg-gradient-to-r from-sky-600 to-blue-600 text-white 
+                                     hover:from-sky-700 hover:to-blue-700 shadow-sm 
+                                     active:scale-[0.98] transition-all"
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-4 w-4"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M8 7V3m8 4V3m-9 8h10m-7 4h4m-9 4h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                            />
+                          </svg>
+                          Send Referral
+                        </button>
+                      </div>
                     </div>
                   ))
                 )}
