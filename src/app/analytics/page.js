@@ -5,6 +5,16 @@ import ProtectedRoute from "../components/ProtectedRoute";
 import { apiRequest } from "../utils/api";
 import { useRouter } from "next/navigation";
 
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  CartesianGrid,
+} from "recharts";
+
 export default function Analytics() {
   const [analyticsData, setAnalyticsData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -84,6 +94,7 @@ export default function Analytics() {
           </div>
 
           {/* Line Chart */}
+          {/* Line Chart */}
           <div className="col-span-12 lg:col-span-6 card p-5">
             <h4 className="font-semibold mb-3">Average Case Duration</h4>
             {loading ? (
@@ -94,9 +105,36 @@ export default function Analytics() {
               <div className="h-72 grid place-items-center text-rose-500">
                 {error}
               </div>
+            ) : analyticsData?.avgCaseDuration?.length ? (
+              <ResponsiveContainer width="100%" height={280}>
+                <LineChart data={analyticsData.avgCaseDuration}>
+                  <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
+                  <XAxis dataKey="month" tick={{ fill: "#9ca3af" }} />
+                  <YAxis
+                    tick={{ fill: "#9ca3af" }}
+                    label={{
+                      value: "Days",
+                      angle: -90,
+                      position: "insideLeft",
+                      fill: "#9ca3af",
+                    }}
+                  />
+                  <Tooltip
+                    contentStyle={{ backgroundColor: "#111827", border: "none" }}
+                    labelStyle={{ color: "#fff" }}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="avgDuration"
+                    stroke="#3b82f6"
+                    strokeWidth={2}
+                    dot={{ r: 4 }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
             ) : (
               <div className="h-72 grid place-items-center text-mute">
-                Line chart coming soon
+                No case duration data available
               </div>
             )}
           </div>
