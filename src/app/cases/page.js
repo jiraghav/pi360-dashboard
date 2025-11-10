@@ -307,11 +307,28 @@ export default function Cases() {
                           <div key={i} className="card p-3">
                             <div className="text-mute text-xs">{section.title}</div>
                             <div className="font-semibold">{section.status}</div>
-                            {section.last_visit && (
-                              <div className="text-xs text-mute mt-1">
-                                Last Visit: {section.last_visit}
-                              </div>
-                            )}
+                              {(section.last_visit || section.visits || section.balance) && (
+                                <div className="mt-2 flex flex-col sm:flex-row sm:flex-wrap sm:gap-x-6 gap-y-1 text-xs text-gray-400">
+                                  {section.visits && (
+                                    <div className="flex items-center gap-1">
+                                      <span className="font-medium text-gray-300">Visits:</span>
+                                      <span>{section.visits}</span>
+                                    </div>
+                                  )}
+                                  {section.last_visit && (
+                                    <div className="flex items-center gap-1">
+                                      <span className="font-medium text-gray-300">Last Visit:</span>
+                                      <span className="truncate">{section.last_visit}</span>
+                                    </div>
+                                  )}
+                                  {section.balance && (
+                                    <div className="flex items-center gap-1">
+                                      <span className="font-medium text-gray-300">Bill:</span>
+                                      <span>${section.balance}</span>
+                                    </div>
+                                  )}
+                                </div>
+                              )}
                           </div>
                         ))}
                       </div>
