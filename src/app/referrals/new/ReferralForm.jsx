@@ -73,8 +73,15 @@ export default function ReferralForm({ router, pid }) {
       const data = await apiRequest(`cases.php?${params.toString()}`);
       return {
         options: (data.patients || []).map((p) => ({
-          label: `${p.fname} ${p.lname} ${
-            p.doi ? `• DOI: ${p.doi}` : p.dob ? `• DOB: ${p.dob}` : ""
+          label: `${p.fname} ${p.lname}${
+            p.doi || p.dob
+              ? ` — ${[
+                  p.doi ? `DOI: ${p.doi}` : null,
+                  p.dob ? `DOB: ${p.dob}` : null
+                ]
+                  .filter(Boolean)
+                  .join(" • ")}`
+              : ""
           }`,
           value: p.pid,
         })),
