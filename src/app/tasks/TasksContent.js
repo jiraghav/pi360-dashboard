@@ -11,35 +11,54 @@ export default function TasksContent() {
   const [taskModalOpen, setTaskModalOpen] = useState(false);
   const [toCIC, setToCIC] = useState([]);
   const [fromCIC, setFromCIC] = useState([]);
+  const [loadingToCIC, setLoadingToCIC] = useState(true);
+  const [loadingFromCIC, setLoadingFromCIC] = useState(true);
   const [showAllToCIC, setShowAllToCIC] = useState(false);
   const [showAllFromCIC, setShowAllFromCIC] = useState(false);
-  const [loading, setLoading] = useState(true);
   const [mobileTab, setMobileTab] = useState("to");
 
   const searchParams = useSearchParams();
   const statusParam = searchParams?.get("status") || "";
 
   useEffect(() => {
-    fetchTasks();
+    fetchToCIC();
+    fetchFromCIC();
   }, [statusParam]);
 
-  async function fetchTasks() {
-    setLoading(true);
+  // ---- Separate Fetch Functions ----
+  async function fetchToCIC() {
+    setLoadingToCIC(true);
     try {
       const endpoint = statusParam
-        ? `get_tasks.php?status=${encodeURIComponent(statusParam)}`
-        : "get_tasks.php";
+        ? `get_tasks_to_cic.php?status=${encodeURIComponent(statusParam)}`
+        : "get_tasks_to_cic.php";
       const data = await apiRequest(endpoint);
-      setToCIC(data.toCIC || []);
-      setFromCIC(data.fromCIC || []);
+      setToCIC(data.data || []);
     } catch (err) {
-      console.error("Failed to load tasks:", err);
-      alert("Failed to load tasks.");
+      console.error("Failed to load To CIC tasks:", err);
+      alert("Failed to load To CIC tasks.");
     } finally {
-      setTimeout(() => setLoading(false), 500);
+      setTimeout(() => setLoadingToCIC(false), 400);
     }
   }
 
+  async function fetchFromCIC() {
+    setLoadingFromCIC(true);
+    try {
+      const endpoint = statusParam
+        ? `get_tasks_from_cic.php?status=${encodeURIComponent(statusParam)}`
+        : "get_tasks_from_cic.php";
+      const data = await apiRequest(endpoint);
+      setFromCIC(data.data || []);
+    } catch (err) {
+      console.error("Failed to load From CIC tasks:", err);
+      alert("Failed to load From CIC tasks.");
+    } finally {
+      setTimeout(() => setLoadingFromCIC(false), 400);
+    }
+  }
+
+  // ---- Update Status ----
   const markTaskDone = async (taskId) => {
     if (!confirm("Are you sure you want to mark this task as done?")) return;
     try {
@@ -48,7 +67,7 @@ export default function TasksContent() {
         body: { task_id: taskId, status: 2 },
       });
       alert("Task marked as done!");
-      fetchTasks();
+      fetchFromCIC(); // only refresh fromCIC list
     } catch (err) {
       console.error("Failed to update task:", err);
       alert("Failed to mark task as done.");
@@ -68,16 +87,19 @@ export default function TasksContent() {
     }
   };
 
+  // ---- Render Shared UI ----
   function renderTaskList(type) {
     const isToCIC = type === "to";
     const data = isToCIC ? toCIC : fromCIC;
+    const loading = isToCIC ? loadingToCIC : loadingFromCIC;
     const showAll = isToCIC ? showAllToCIC : showAllFromCIC;
     const toggleShowAll = isToCIC ? setShowAllToCIC : setShowAllFromCIC;
     const title = isToCIC ? "To CIC" : "From CIC";
+    const refresh = isToCIC ? fetchToCIC : fetchFromCIC;
 
     return (
       <>
-        <div className="flex justify-between mb-3">
+        <div className="flex justify-between items-center mb-3">
           <h4 className="font-semibold">
             {title}{" "}
             {statusParam && (
@@ -86,14 +108,31 @@ export default function TasksContent() {
               </span>
             )}
           </h4>
-          {isToCIC && (
-            <button className="btn btn-primary" onClick={() => setTaskModalOpen(true)}>
-              + Add Task
+
+          <div className="flex items-center gap-2">
+            <button
+              onClick={refresh}
+              className="btn btn-sm btn-outline flex items-center gap-1"
+              title="Refresh tasks"
+            >
+              🔄 <span className="hidden sm:inline">Refresh</span>
             </button>
-          )}
+            {isToCIC && (
+              <button
+                className="btn btn-primary btn-sm flex items-center gap-1"
+                onClick={() => setTaskModalOpen(true)}
+              >
+                + Add Task
+              </button>
+            )}
+          </div>
         </div>
 
-        {data.length === 0 ? (
+        {loading ? (
+          <div className="text-center py-6 text-gray-400 animate-pulse">
+            Loading tasks...
+          </div>
+        ) : data.length === 0 ? (
           <div className="text-center py-4 text-gray-400">No tasks yet</div>
         ) : (
           <>
@@ -142,7 +181,10 @@ export default function TasksContent() {
                     </span>
                     {getStatusBadge(task.status)}
                     {!isToCIC && task.status === "1" && (
-                      <button className="btn btn-sm" onClick={() => markTaskDone(task.id)}>
+                      <button
+                        className="btn btn-sm"
+                        onClick={() => markTaskDone(task.id)}
+                      >
                         Mark Done
                       </button>
                     )}
@@ -170,48 +212,42 @@ export default function TasksContent() {
   return (
     <ProtectedRoute>
       <main className="px-4 md:px-6 py-8 max-w-7xl mx-auto space-y-8">
-        {loading ? (
-          <div className="text-center py-10">Loading tasks...</div>
-        ) : (
-          <>
-            {/* Mobile Tabs */}
-            <div className="md:hidden">
-              <div className="flex justify-center gap-4 mb-4">
-                <button
-                  className={`px-4 py-2 rounded-md text-sm font-medium btn ${
-                    mobileTab === "to" ? "btn-primary" : "btn-outline"
-                  }`}
-                  onClick={() => setMobileTab("to")}
-                >
-                  To CIC
-                </button>
-                <button
-                  className={`px-4 py-2 rounded-md text-sm font-medium btn ${
-                    mobileTab === "from" ? "btn-primary" : "btn-outline"
-                  }`}
-                  onClick={() => setMobileTab("from")}
-                >
-                  From CIC
-                </button>
-              </div>
-              <div className="card p-5">
-                {mobileTab === "to" ? renderTaskList("to") : renderTaskList("from")}
-              </div>
-            </div>
+        {/* Mobile Tabs */}
+        <div className="md:hidden">
+          <div className="flex justify-center gap-4 mb-4">
+            <button
+              className={`px-4 py-2 rounded-md text-sm font-medium btn ${
+                mobileTab === "to" ? "btn-primary" : "btn-outline"
+              }`}
+              onClick={() => setMobileTab("to")}
+            >
+              To CIC
+            </button>
+            <button
+              className={`px-4 py-2 rounded-md text-sm font-medium btn ${
+                mobileTab === "from" ? "btn-primary" : "btn-outline"
+              }`}
+              onClick={() => setMobileTab("from")}
+            >
+              From CIC
+            </button>
+          </div>
+          <div className="card p-5">
+            {mobileTab === "to" ? renderTaskList("to") : renderTaskList("from")}
+          </div>
+        </div>
 
-            {/* Desktop Layout */}
-            <section className="hidden md:grid lg:grid-cols-2 gap-6">
-              <div className="card p-5">{renderTaskList("to")}</div>
-              <div className="card p-5">{renderTaskList("from")}</div>
-            </section>
-          </>
-        )}
+        {/* Desktop Layout */}
+        <section className="hidden md:grid lg:grid-cols-2 gap-6">
+          <div className="card p-5">{renderTaskList("to")}</div>
+          <div className="card p-5">{renderTaskList("from")}</div>
+        </section>
       </main>
 
       <TaskModal
         isOpen={taskModalOpen}
         onClose={() => setTaskModalOpen(false)}
-        onCreated={fetchTasks}
+        onCreated={fetchToCIC} // refresh only To CIC when new task added
       />
     </ProtectedRoute>
   );
