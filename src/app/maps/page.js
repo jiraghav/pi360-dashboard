@@ -224,7 +224,7 @@ export default function ServiceLocations() {
       if (b.distance === null) return -1;
       return a.distance - b.distance;
     });
-    
+
     useEffect(() => {
       if (!mapRef.current || !window.google) return;
       if (!patientCoords) return;
@@ -355,12 +355,12 @@ export default function ServiceLocations() {
       "selectedReferralFacility",
       JSON.stringify({
         id: loc.id,
-        name: loc.name,
+        name: loc.description,
         address: loc.address || "",
       })
     );
 
-    router.push(`/referrals/new?facility_id=${loc.id}&facility_name=${encodeURIComponent(loc.name)}`);
+    router.push(`/referrals/new`);
   };
 
   return (
@@ -521,12 +521,10 @@ export default function ServiceLocations() {
                       onCloseClick={() => setSelected(null)}
                       options={{
                         pixelOffset: new window.google.maps.Size(0, -30),
+                        headerContent: `${selected.description}`,
                       }}
                     >
                       <div className="text-xs text-black max-w-xs">
-                        <h4 className="text-blue-600 text-sm font-semibold">
-                          {selected.name}
-                        </h4>
                         <div>
                           📍 <strong>Address:</strong> {selected.address}
                         </div>
@@ -594,7 +592,7 @@ export default function ServiceLocations() {
                           backgroundColor: loc.color || "#3b82f6",
                         }}
                       ></span>
-                      <div className="font-medium leading-snug">{loc.name}</div>
+                      <div className="font-medium leading-snug">{loc.description}</div>
                     </div>
                       <div className="text-xs text-mute line-clamp-2">
                         {loc.address}
