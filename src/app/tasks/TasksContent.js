@@ -6,6 +6,7 @@ import TaskModal from "./TaskModal";
 import { apiRequest } from "../utils/api";
 import { formatDate } from "../utils/formatter";
 import { useSearchParams } from "next/navigation";
+import { useToast } from "../hooks/ToastContext";
 
 export default function TasksContent() {
   const [taskModalOpen, setTaskModalOpen] = useState(false);
@@ -16,6 +17,8 @@ export default function TasksContent() {
   const [showAllToCIC, setShowAllToCIC] = useState(false);
   const [showAllFromCIC, setShowAllFromCIC] = useState(false);
   const [mobileTab, setMobileTab] = useState("to");
+  
+  const { showToast } = useToast();
 
   const searchParams = useSearchParams();
   const statusParam = searchParams?.get("status") || "";
@@ -36,7 +39,6 @@ export default function TasksContent() {
       setToCIC(data.data || []);
     } catch (err) {
       console.error("Failed to load To CIC tasks:", err);
-      alert("Failed to load To CIC tasks.");
     } finally {
       setTimeout(() => setLoadingToCIC(false), 400);
     }
@@ -52,7 +54,6 @@ export default function TasksContent() {
       setFromCIC(data.data || []);
     } catch (err) {
       console.error("Failed to load From CIC tasks:", err);
-      alert("Failed to load From CIC tasks.");
     } finally {
       setTimeout(() => setLoadingFromCIC(false), 400);
     }
@@ -66,11 +67,11 @@ export default function TasksContent() {
         method: "POST",
         body: { task_id: taskId, status: 2 },
       });
-      alert("Task marked as done!");
+      showToast("success", "Task marked as done!");
       fetchFromCIC(); // only refresh fromCIC list
     } catch (err) {
       console.error("Failed to update task:", err);
-      alert("Failed to mark task as done.");
+      showToast("error", "Failed to mark task as done.");
     }
   };
 

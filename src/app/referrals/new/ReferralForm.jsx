@@ -4,8 +4,10 @@ import { useState, useEffect } from "react";
 import { AsyncPaginate } from "react-select-async-paginate";
 import { apiRequest } from "../../utils/api";
 import FacilityInfo from "./FacilityInfo";
+import { useToast } from "../../hooks/ToastContext";
 
 export default function ReferralForm({ router, pid }) {
+  const { showToast } = useToast();
   const [form, setForm] = useState({
     patient: null,
     refer_to: "",
@@ -126,7 +128,7 @@ export default function ReferralForm({ router, pid }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.patient) return alert("Please select a patient.");
+    if (!form.patient) return showToast("error", "Please select a patient.");
 
     setIsSubmitting(true);
     try {
@@ -145,11 +147,11 @@ export default function ReferralForm({ router, pid }) {
       }
 
       await apiRequest("create_referral.php", { method: "POST", body: fd });
-      alert("Referral created successfully!");
+      showToast("success", "Referral created successfully!");
       localStorage.removeItem("selectedReferralFacility");
       router.push("/dashboard");
     } catch (err) {
-      alert("Failed to create referral: " + err.message);
+      showToast("error", "Failed to create referral: " + err.message);
     } finally {
       setIsSubmitting(false);
     }

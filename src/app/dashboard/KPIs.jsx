@@ -1,19 +1,48 @@
-export default function KPIs({ kpis, loading, router, setReferralModalOpen }) {
+"use client";
+
+import { PlusCircle, MapPin } from "lucide-react";
+
+export default function KPIs({
+  kpis,
+  loading,
+  router,
+  setReferralModalOpen,
+  setNewLocationRequestModalOpen,
+}) {
   const items = [
     { label: "Total Cases", value: kpis?.totalCases, path: "/cases" },
     { label: "Active Cases", value: kpis?.activeCases, path: "/cases?status=active" },
-    { label: "Pending Reports", value: kpis?.pendingReports, path: "/cases?status=pending_reports", description: "means requested records" },
-    { label: "Open Tasks", value: kpis?.openTasks, path: "/tasks?status=open", description: "Not completed tasks" },
-    { label: "New Referrals", value: kpis?.newReferrals, action: () => setReferralModalOpen(true) },
+    {
+      label: "Pending Reports",
+      value: kpis?.pendingReports,
+      path: "/cases?status=pending_reports",
+      description: "Means requested records",
+    },
+    {
+      label: "Open Tasks",
+      value: kpis?.openTasks,
+      path: "/tasks?status=open",
+      description: "Not completed tasks",
+    },
+    {
+      label: "New Referrals",
+      value: kpis?.newReferrals,
+      action: () => setReferralModalOpen(true),
+    },
+    {
+      label: "New Location Request",
+      value: <MapPin className="w-7 h-7 inline text-blue-400" />,
+      action: () => setNewLocationRequestModalOpen(true),
+    },
     { label: "Today’s Patients", value: "-", comingSoon: true },
     { label: "Messages", value: "-", comingSoon: true },
   ];
 
   return (
-    <div className="col-span-12 xl:col-span-8 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+    <div className="col-span-12 xl:col-span-8 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
       {items.map(({ label, value, path, action, comingSoon, description }, i) => {
         const handleClick = () => {
-          if (comingSoon) return; // disable clicks
+          if (comingSoon) return;
           if (action) action();
           else if (path) router.push(path);
         };
@@ -22,26 +51,26 @@ export default function KPIs({ kpis, loading, router, setReferralModalOpen }) {
           <div
             key={i}
             onClick={handleClick}
-            className={`kpi p-4 text-center rounded-xl transition-colors ${
+            className={`kpi flex flex-col items-center justify-center p-3 text-center rounded-lg transition-colors min-h-[100px] ${
               comingSoon
                 ? "cursor-not-allowed bg-slate-900/50 opacity-70"
                 : "cursor-pointer hover:bg-slate-800"
             }`}
           >
-            <div className="text-3xl font-semibold">
+            <div className="text-2xl font-semibold flex justify-center items-center gap-1 mb-1">
               {loading ? "…" : value || 0}
             </div>
             <div className="text-mute text-sm">
               {label}
               {comingSoon && (
-                <span className="block text-xs text-slate-400 mt-1">
+                <span className="block text-[11px] text-slate-400 mt-0.5">
                   (Coming Soon)
                 </span>
               )}
               {description && (
                 <>
-                  <div className="border-t border-slate-700 mt-2 mb-1 mx-auto" />
-                  <span className="block text-xs text-slate-400">
+                  <div className="border-t border-slate-700 mt-1.5 mb-0.5 mx-auto w-3/4" />
+                  <span className="block text-[11px] text-slate-400">
                     {description}
                   </span>
                 </>

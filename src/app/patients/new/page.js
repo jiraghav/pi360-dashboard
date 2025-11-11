@@ -4,25 +4,17 @@ import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import ProtectedRoute from "../../components/ProtectedRoute";
 import { apiRequest } from "../../utils/api";
+import { useToast } from "../../hooks/ToastContext";
 
 export default function NewPatient() {
   const router = useRouter();
-
-  const [form, setForm] = useState({
-    fname: "",
-    lname: "",
-    dob: "",
-    doi: "",
-    gender: "",
-    lawyer_id: "",
-    phone: "",
-    case_type_id: "",
-  });
+  const { showToast } = useToast();
 
   const [lawyers, setLawyers] = useState([]);
   const [caseTypes, setCaseTypes] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const formRef = useRef(null);
   const fnameRef = useRef(null);
 
   useEffect(() => {
@@ -53,34 +45,26 @@ export default function NewPatient() {
     fetchCaseTypes();
   }, []);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
-  };
-
   const handleSubmit = async (redirectToReferral = false) => {
-    // Validate all fields
-    for (const [key, value] of Object.entries(form)) {
-      if (!value.trim()) {
-        alert(`Please fill in the ${key.replace("_", " ")} field.`);
-        return;
-      }
+    const formEl = formRef.current;
+
+    // ✅ Use built-in browser validation
+    if (!formEl.checkValidity()) {
+      formEl.reportValidity();
+      return;
     }
 
     setIsSubmitting(true);
 
     try {
-      const formData = new FormData();
-      Object.entries(form).forEach(([key, value]) => {
-        formData.append(key, value);
-      });
+      const formData = new FormData(formEl);
 
       const response = await apiRequest("create_patient.php", {
         method: "POST",
         body: formData,
       });
 
-      alert("Patient created successfully!");
+      showToast("success", "Patient created successfully!");
 
       if (redirectToReferral) {
         router.push(`/referrals/new?pid=${response.pid}`);
@@ -88,7 +72,7 @@ export default function NewPatient() {
         router.push("/cases");
       }
     } catch (err) {
-      alert("Failed to create patient: " + err.message);
+      showToast("error", err.message || "Failed to create patient");
     } finally {
       setIsSubmitting(false);
     }
@@ -101,8 +85,10 @@ export default function NewPatient() {
           <h3 className="text-xl font-semibold mb-6">New Patient</h3>
 
           <form
+            ref={formRef}
             className="grid grid-cols-1 md:grid-cols-2 gap-4"
             onSubmit={(e) => e.preventDefault()}
+            noValidate
           >
             {/* First Name */}
             <div>
@@ -113,8 +99,6 @@ export default function NewPatient() {
                 ref={fnameRef}
                 type="text"
                 name="fname"
-                value={form.fname}
-                onChange={handleChange}
                 required
                 placeholder="Enter First Name"
                 className="w-full border rounded px-3 py-2 bg-black text-white"
@@ -129,8 +113,6 @@ export default function NewPatient() {
               <input
                 type="text"
                 name="lname"
-                value={form.lname}
-                onChange={handleChange}
                 required
                 placeholder="Enter Last Name"
                 className="w-full border rounded px-3 py-2 bg-black text-white"
@@ -145,8 +127,6 @@ export default function NewPatient() {
               <input
                 type="date"
                 name="dob"
-                value={form.dob}
-                onChange={handleChange}
                 required
                 className="w-full border rounded px-3 py-2 bg-black text-white"
               />
@@ -160,8 +140,6 @@ export default function NewPatient() {
               <input
                 type="date"
                 name="doi"
-                value={form.doi}
-                onChange={handleChange}
                 required
                 className="w-full border rounded px-3 py-2 bg-black text-white"
               />
@@ -174,8 +152,6 @@ export default function NewPatient() {
               </label>
               <select
                 name="gender"
-                value={form.gender}
-                onChange={handleChange}
                 required
                 className="w-full border rounded px-3 py-2 bg-black text-white"
               >
@@ -192,8 +168,6 @@ export default function NewPatient() {
               </label>
               <select
                 name="lawyer_id"
-                value={form.lawyer_id}
-                onChange={handleChange}
                 required
                 className="w-full border rounded px-3 py-2 bg-black text-white"
               >
@@ -214,8 +188,6 @@ export default function NewPatient() {
                 </label>
                 <select
                   name="case_type_id"
-                  value={form.case_type_id}
-                  onChange={handleChange}
                   required
                   className="w-full border rounded px-3 py-2 bg-black text-white"
                 >
@@ -235,8 +207,6 @@ export default function NewPatient() {
                 <input
                   type="tel"
                   name="phone"
-                  value={form.phone}
-                  onChange={handleChange}
                   required
                   placeholder="Enter phone number"
                   className="w-full border rounded px-3 py-2 bg-black text-white"
@@ -256,7 +226,7 @@ export default function NewPatient() {
               >
                 {isSubmitting ? "Creating..." : "Create Patient"}
               </button>
-            
+
               <button
                 type="button"
                 disabled={isSubmitting}
@@ -267,7 +237,7 @@ export default function NewPatient() {
               >
                 {isSubmitting ? "Processing..." : "Create & Send Referral"}
               </button>
-            
+
               <button
                 type="button"
                 disabled={isSubmitting}

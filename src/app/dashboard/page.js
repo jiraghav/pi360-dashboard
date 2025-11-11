@@ -11,6 +11,7 @@ import KPIs from "./KPIs";
 import ClinicalAlerts from "./ClinicalAlerts";
 import ActivityFeed from "./ActivityFeed";
 import GreetingHeader from "./GreetingHeader";
+import NewLocationRequestModal from "./NewLocationRequestModal";
 
 export default function Dashboard() {
   const [dashboardData, setDashboardData] = useState(null);
@@ -18,6 +19,7 @@ export default function Dashboard() {
   const [error, setError] = useState("");
   const [reviewModalOpen, setReviewModalOpen] = useState(false);
   const [referralModalOpen, setReferralModalOpen] = useState(false);
+  const [newLocationRequestModalOpen, setNewLocationRequestModalOpen] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -52,7 +54,7 @@ export default function Dashboard() {
             setReviewModalOpen={setReviewModalOpen}
             setReferralModalOpen={setReferralModalOpen}
           />
-          <KPIs kpis={kpis} loading={loading} router={router} setReferralModalOpen={setReferralModalOpen} />
+          <KPIs kpis={kpis} loading={loading} router={router} setReferralModalOpen={setReferralModalOpen} setNewLocationRequestModalOpen={setNewLocationRequestModalOpen} />
         </section>
 
         <section className="grid grid-cols-12 gap-4">
@@ -73,6 +75,11 @@ export default function Dashboard() {
         isOpen={referralModalOpen}
         onClose={() => setReferralModalOpen(false)}
       />
+      <NewLocationRequestModal
+        isOpen={newLocationRequestModalOpen}
+        onClose={() => setNewLocationRequestModalOpen(false)}
+      />
+
     </ProtectedRoute>
   );
 }

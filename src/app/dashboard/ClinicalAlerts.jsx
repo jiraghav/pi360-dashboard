@@ -54,7 +54,6 @@ export default function ClinicalAlerts({
       );
     } catch (err) {
       console.error("Failed to update task:", err);
-      alert("Failed to mark task as done.");
     }
   };
 

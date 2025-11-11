@@ -6,6 +6,7 @@ import { apiRequest } from "../utils/api";
 import RequestRecordsModal from "./RequestRecordsModal";
 import SendMessageModal from "./SendMessageModal";
 import Link from "next/link";
+import { useToast } from "../hooks/ToastContext";
 
 export default function Cases() {
   const [cases, setCases] = useState([]);
@@ -22,6 +23,8 @@ export default function Cases() {
   const [statusFilter, setStatusFilter] = useState("");
   const [initialized, setInitialized] = useState(false);
   const limit = 10;
+  
+  const { showToast } = useToast();
 
   // ✅ Initialize from URL once
   useEffect(() => {
@@ -130,15 +133,13 @@ export default function Cases() {
       });
 
       if (response.status) {
-        alert(`Records requested for ${selectedCase.fname} ${selectedCase.lname}`);
+        showToast("success", `Records requested for ${selectedCase.fname} ${selectedCase.lname}`);
         setShowRequestRecordModal(false);
         setSelectedCase(null);
       } else {
-        alert("Failed to request records. Please try again.");
       }
     } catch (err) {
       console.error("Error requesting records:", err);
-      alert("Error requesting records. Check console for details.");
     }
   };
 
@@ -156,15 +157,13 @@ export default function Cases() {
       });
 
       if (response.status) {
-        alert(response.message);
+        showToast("success", response.message);
         setShowSendMessageModal(false);
         setSelectedCase(null);
       } else {
-        alert("Failed to send message. Please try again.");
       }
     } catch (err) {
       console.error("Error sending message:", err);
-      alert("Error sending message. Check console for details.");
     }
   };
 

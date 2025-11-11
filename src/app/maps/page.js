@@ -10,7 +10,7 @@ import {
 import ProtectedRoute from "../components/ProtectedRoute";
 import { apiRequest } from "../utils/api";
 import { useRouter } from "next/navigation";
-
+import { useToast } from "../hooks/ToastContext";
 const libraries = ["places"];
 const defaultCenter = { lat: 39.8283, lng: -98.5795 };
 
@@ -43,6 +43,8 @@ export default function ServiceLocations() {
     height: "520px",
     borderRadius: "0.5rem",
   });
+  
+  const { showToast } = useToast();
 
   useEffect(() => {
     (async () => {
@@ -110,7 +112,7 @@ export default function ServiceLocations() {
               setSelected(null);
               moveMapToCoords(coords);
             } else {
-              alert("Could not find that address. Try again.");
+              showToast("error", `Could not find that address. Try again.`);
             }
           });
         }

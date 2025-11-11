@@ -7,16 +7,19 @@ import Navbar from "./components/Navbar";
 import Sidebar from "./components/Sidebar";
 import Link from "next/link";
 import { routeMap } from "./config/routes";
+import Toast from "./components/Toast";
+import { ToastProvider, useToast } from "./hooks/ToastContext";
 
-export default function RootLayout({ children }) {
+function LayoutContent({ children }) {
   const pathname = usePathname();
   const route = routeMap[pathname] || { title: "Dashboard" };
   const [pageTitle, setPageTitle] = useState(route.title);
+  const { toast, hideToast } = useToast();
 
   useEffect(() => {
     const route = routeMap[pathname] || { title: "Dashboard" };
-    setPageTitle(`${route.title}`);
-    document.title = `${route.title}`;
+    setPageTitle(route.title);
+    document.title = route.title;
   }, [pathname]);
 
   const hideLayout =
@@ -25,11 +28,70 @@ export default function RootLayout({ children }) {
     pathname === "/forgot-password";
 
   return (
+    <>
+      {!hideLayout && (
+        <div className="md:hidden flex items-center justify-between px-4 py-3 glass border-b border-stroke/70 sticky top-0 z-50">
+          <button
+            id="openNav"
+            className="btn"
+            onClick={() => {
+              const sidebar = document.getElementById("sidebar");
+              if (sidebar) sidebar.classList.toggle("hidden");
+            }}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="w-5 h-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M4 6h16M4 12h16M4 18h16"
+              />
+            </svg>
+          </button>
+          <div className="text-sm font-semibold">
+            Complete Injury Centers — PI360
+          </div>
+          <Link href="/referrals/new" className="btn btn-primary">
+            New Referral
+          </Link>
+        </div>
+      )}
+
+      <div className="min-h-screen grid md:grid-cols-12">
+        {!hideLayout && <Sidebar />}
+
+        <section
+          className={hideLayout ? "col-span-12" : "md:col-span-9 xl:col-span-10"}
+        >
+          {!hideLayout && <Navbar />}
+          <main className="main">{children}</main>
+
+          {/* ✅ Toast stays globally mounted */}
+          {toast && (
+            <Toast
+              type={toast.type}
+              message={toast.message}
+              onClose={hideToast}
+            />
+          )}
+        </section>
+      </div>
+    </>
+  );
+}
+
+export default function RootLayout({ children }) {
+  return (
     <html lang="en">
       <head>
-        <title>{pageTitle}</title>
-
-        {/* Tailwind via CDN */}
+        <title>PI360</title>
+        {/* ✅ Keep Tailwind setup for global styling */}
         <script src="https://cdn.tailwindcss.com"></script>
         <script
           dangerouslySetInnerHTML={{
@@ -58,50 +120,9 @@ export default function RootLayout({ children }) {
       </head>
 
       <body className="bg-bg text-ink">
-        {/* Mobile top bar */}
-        {!hideLayout && (
-          <div className="md:hidden flex items-center justify-between px-4 py-3 glass border-b border-stroke/70 sticky top-0 z-50">
-            <button
-              id="openNav"
-              className="btn"
-              onClick={() => {
-                const sidebar = document.getElementById("sidebar");
-                if (sidebar) sidebar.classList.toggle("hidden");
-              }}
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="w-5 h-5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M4 6h16M4 12h16M4 18h16"
-                />
-              </svg>
-            </button>
-            <div className="text-sm font-semibold">Complete Injury Centers — PI360</div>
-            <Link href="/referrals/new" className="btn btn-primary">New Referral</Link>
-          </div>
-        )}
-
-        <div className="min-h-screen grid md:grid-cols-12">
-          {!hideLayout && <Sidebar />}
-
-          <section
-            className={
-              hideLayout ? "col-span-12" : "md:col-span-9 xl:col-span-10"
-            }
-          >
-            {!hideLayout && <Navbar />}
-
-            <main className="main">{children}</main>
-          </section>
-        </div>
+        <ToastProvider>
+          <LayoutContent>{children}</LayoutContent>
+        </ToastProvider>
       </body>
     </html>
   );
