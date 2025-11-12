@@ -23,11 +23,16 @@ export default function Toast({ type = "info", message, onClose }) {
 
   return (
     <div
-      className={`fixed bottom-8 left-1/2 -translate-x-1/2 px-5 py-3 rounded-xl shadow-xl text-sm font-medium z-[60]
+      className={`fixed 
+      bottom-6 left-1/2 -translate-x-1/2
+      sm:bottom-6 sm:top-auto sm:left-1/2
+      w-[90%] sm:w-auto sm:min-w-[300px] max-w-md 
+      px-5 py-3 rounded-xl shadow-xl text-sm font-medium z-[60]
       transition-all transform duration-300 animate-slide-up flex items-center gap-3
-      ${toastStyle}`}
+      ${toastStyle}
+      mobile-toast`}
     >
-      <span className="flex-1 text-center px-2">{message}</span>
+      <span className="flex-1 text-center px-2 break-words">{message}</span>
 
       <button
         onClick={onClose}
@@ -50,6 +55,14 @@ export default function Toast({ type = "info", message, onClose }) {
         }
         .animate-slide-up {
           animation: slide-up 0.3s ease-out;
+        }
+
+        /* Move toast to top on small screens */
+        @media (max-width: 640px) {
+          .mobile-toast {
+            top: 1rem;
+            bottom: auto;
+          }
         }
       `}</style>
     </div>

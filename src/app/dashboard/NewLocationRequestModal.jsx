@@ -39,6 +39,19 @@ export default function NewLocationRequestModal({ isOpen, onClose }) {
       setLoading(false);
     }
   };
+  
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+
+    // Cleanup on unmount or close
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isOpen]);
 
   if (!isOpen) return null;
 

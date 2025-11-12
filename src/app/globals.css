@@ -16,3 +16,9 @@ body { background: radial-gradient(1200px 600px at 20% -10%, rgba(56,189,248,.12
 .dot { width:.5rem; height:.5rem; border-radius:9999px; display:inline-block; margin-right:.4rem; }
 .gm-ui-hover-effect>span{background: black !important;}
 .gm-style-iw-ch {font-weight: bold; color: #2563eb;}
+@media (max-width: 640px) {
+  .mobile-toast {
+    top: 1rem;
+    bottom: auto;
+  }
+}
