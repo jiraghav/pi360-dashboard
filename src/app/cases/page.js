@@ -8,6 +8,7 @@ import CasesHeader from "./CasesHeader";
 import CasesTable from "./CasesTable";
 import RequestRecordsModal from "./RequestRecordsModal";
 import SendMessageModal from "./SendMessageModal";
+import SendTelemedLinkModal from "./SendTelemedLinkModal";
 
 export default function Cases() {
   const [cases, setCases] = useState([]);
@@ -20,6 +21,7 @@ export default function Cases() {
   const [selectedCase, setSelectedCase] = useState(null);
   const [showRequestRecordModal, setShowRequestRecordModal] = useState(false);
   const [showSendMessageModal, setShowSendMessageModal] = useState(false);
+  const [showSendTelemedLinkModal, setShowSendTelemedLinkModal] = useState(false);
   const limit = 10;
   const { showToast } = useToast();
 
@@ -91,6 +93,32 @@ export default function Cases() {
       console.error(e);
     }
   };
+  
+  // Send Telemed Link
+  const sendTelemedLink = async () => {
+    if (!selectedCase) return;
+    try {
+      const formData = new FormData();
+      formData.append("pid", selectedCase.pid);
+      formData.append("phone", selectedCase.phone_home || "");
+      formData.append("telemed_link", selectedCase.telemedLink || "");
+
+      const res = await apiRequest("send_telemed_link.php", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (res.status) {
+        showToast("success", res.message || "Telemed link sent successfully");
+        setShowSendTelemedLinkModal(false);
+      } else {
+        showToast("error", res.message || "Failed to send telemed link");
+      }
+    } catch (e) {
+      console.error(e);
+      showToast("error", "Something went wrong while sending the telemed link");
+    }
+  };
 
   return (
     <ProtectedRoute>
@@ -112,6 +140,7 @@ export default function Cases() {
             setSelectedCase={setSelectedCase}
             setShowRequestRecordModal={setShowRequestRecordModal}
             setShowSendMessageModal={setShowSendMessageModal}
+            setShowSendTelemedLinkModal={setShowSendTelemedLinkModal}
           />
         </section>
       </main>
@@ -129,6 +158,14 @@ export default function Cases() {
           selectedCase={selectedCase}
           onClose={() => setShowSendMessageModal(false)}
           onConfirm={sendBackOfficeMessage}
+          setSelectedCase={setSelectedCase}
+        />
+      )}
+      {showSendTelemedLinkModal && selectedCase && (
+        <SendTelemedLinkModal
+          selectedCase={selectedCase}
+          onClose={() => setShowSendTelemedLinkModal(false)}
+          onConfirm={sendTelemedLink}
           setSelectedCase={setSelectedCase}
         />
       )}

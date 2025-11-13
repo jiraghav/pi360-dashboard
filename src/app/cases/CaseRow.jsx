@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { apiRequest } from "../utils/api";
 import ExpandedCaseDetails from "./ExpandedCaseDetails";
 
@@ -11,9 +11,23 @@ export default function CaseRow({
   setSelectedCase,
   setShowRequestRecordModal,
   setShowSendMessageModal,
+  setShowSendTelemedLinkModal,
 }) {
   const [expandedData, setExpandedData] = useState({});
   const isExpanded = expandedRows[caseItem.pid];
+  
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (menuRef.current && !menuRef.current.contains(e.target)) {
+        setMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const toggleRow = async () => {
     setExpandedRows((prev) => {
@@ -79,7 +93,7 @@ export default function CaseRow({
           <span className="md:hidden font-semibold">Last: </span>
           {caseItem.lname}
         </div>
-        <div className="md:col-span-1">
+        <div className="md:col-span-2">
           <span className="md:hidden font-semibold">DOB: </span>
           {caseItem.dob}
         </div>
@@ -97,25 +111,56 @@ export default function CaseRow({
           )}
         </div>
 
-        <div className="md:col-span-3 flex flex-col sm:flex-row md:justify-end gap-2">
-          <button
-            onClick={() => {
-              setSelectedCase(caseItem);
-              setShowRequestRecordModal(true);
-            }}
-            className="btn w-full sm:w-auto"
-          >
-            Request Records
-          </button>
-          <button
-            onClick={() => {
-              setSelectedCase(caseItem);
-              setShowSendMessageModal(true);
-            }}
-            className="btn w-full sm:w-auto"
-          >
-            Back Office Msg
-          </button>
+        <div className="md:col-span-2 flex flex-col sm:flex-row">
+          <div ref={menuRef} className="relative inline-block text-left w-full sm:w-auto">
+            {/* Toggle Button */}
+            <button
+              className="btn btn-sm flex items-center justify-center gap-1 w-full sm:w-auto"
+              onClick={(e) => {
+                e.stopPropagation();
+                setMenuOpen((prev) => !prev);
+              }}
+            >
+              View Actions ▾
+            </button>
+    
+            {menuOpen && (
+              <div className="absolute right-0 mt-1 w-44 bg-slate-800 border border-stroke/30 rounded-md shadow-lg z-20">
+                <button
+                  onClick={() => {
+                    setSelectedCase(caseItem);
+                    setShowRequestRecordModal(true);
+                    setMenuOpen(false);
+                  }}
+                  className="block w-full text-left px-3 py-2 text-sm text-slate-100 hover:bg-slate-700 hover:text-mint-300 transition"
+                >
+                  Request Records
+                </button>
+    
+                <button
+                  onClick={() => {
+                    setSelectedCase(caseItem);
+                    setShowSendMessageModal(true);
+                    setMenuOpen(false);
+                  }}
+                  className="block w-full text-left px-3 py-2 text-sm text-slate-100 hover:bg-slate-700 hover:text-mint-300 transition"
+                >
+                  Back Office Msg
+                </button>
+    
+                {/*<button
+                  onClick={() => {
+                    setSelectedCase(caseItem);
+                    setShowSendTelemedLinkModal(true);
+                    setMenuOpen(false);
+                  }}
+                  className="block w-full text-left px-3 py-2 text-sm text-slate-100 hover:bg-slate-700 hover:text-mint-300 transition"
+                >
+                  Schedule Telemed
+                </button>*/}
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
