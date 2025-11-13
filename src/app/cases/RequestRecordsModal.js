@@ -43,7 +43,7 @@ export default function RequestRecordsModal({
   return (
     <div
       id="requestRecordsModal"
-      className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50 animate-fadeIn"
+      className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50 animate-fadeIn backdrop-blur-sm flex"
       onClick={(e) => {
         if (e.target.id === "requestRecordsModal") onClose();
       }}

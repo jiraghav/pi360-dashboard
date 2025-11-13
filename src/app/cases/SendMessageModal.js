@@ -37,7 +37,7 @@ export default function SendMessageModal({
   return (
     <div
       id="sendMessageModal"
-      className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50"
+      className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50 backdrop-blur-sm flex"
     >
       <div className="card max-w-lg w-full p-6">
         {/* Header */}

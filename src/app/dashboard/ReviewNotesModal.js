@@ -43,7 +43,7 @@ export default function ReviewNotesModal({ isOpen, onClose }) {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
+    <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50 backdrop-blur-sm flex">
       <div className="card max-w-2xl w-full p-6 relative">
         <div className="flex items-center justify-between mb-4">
           <h4 className="font-semibold">Review Notes</h4>
