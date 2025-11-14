@@ -38,7 +38,7 @@ export default function GreetingHeader({ userName, loading }) {
           onClick={() => setShowModal(true)}
           className="btn btn-sm px-4 py-2 font-medium rounded-md transition"
         >
-          View Patients Sent to CIC
+          Referrals Reference
         </button>
       </div>
 

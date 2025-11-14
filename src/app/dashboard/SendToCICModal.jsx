@@ -72,7 +72,7 @@ export default function SendToCICModal({ open, onClose }) {
       <div className="card max-w-2xl w-full p-6 relative">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
-          <h4 className="font-semibold text-white">Patients Sent to CIC</h4>
+          <h4 className="font-semibold text-white">Referrals Reference</h4>
           <button className="badge" onClick={onClose}>
             Close
           </button>
@@ -80,9 +80,6 @@ export default function SendToCICModal({ open, onClose }) {
 
         {/* Collapsible Date Picker */}
         <div className="mb-6">
-          <label className="block text-slate-400 mb-2 font-medium">
-            Referral Date
-          </label>
 
           <button
             onClick={() => setDatePickerOpen(!datePickerOpen)}
@@ -91,6 +88,7 @@ export default function SendToCICModal({ open, onClose }) {
             <div className="flex items-center gap-2">
               <Calendar className="w-5 h-5 text-mint-400" />
               <span className="font-medium">
+                Referral Date - {' '}
                 {moment(referralDate).format("MM/DD/YYYY")}
               </span>
             </div>
