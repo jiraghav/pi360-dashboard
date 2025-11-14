@@ -13,7 +13,7 @@ export default function SendToCICModal({ open, onClose }) {
   const [highlightedDates, setHighlightedDates] = useState([]); // 👈 added
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [datePickerOpen, setDatePickerOpen] = useState(false);
+  const [datePickerOpen, setDatePickerOpen] = useState(true);
 
   useEffect(() => {
     if (open) {
