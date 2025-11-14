@@ -6,6 +6,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import { apiRequest } from "../utils/api";
 import { Calendar, UserRound, ChevronDown, ChevronUp } from "lucide-react";
 import moment from "moment";
+import { useRouter } from "next/navigation";
 
 export default function SendToCICModal({ open, onClose }) {
   const [referralDate, setReferralDate] = useState(new Date());
@@ -14,6 +15,7 @@ export default function SendToCICModal({ open, onClose }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [datePickerOpen, setDatePickerOpen] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
     if (open) {
@@ -49,7 +51,6 @@ export default function SendToCICModal({ open, onClose }) {
       const year = date.getFullYear();
       const month = date.getMonth() + 1;
       const res = await apiRequest(`referral_dates.php?year=${year}&month=${month}`);
-      console.log(res);
       if (Array.isArray(res.dates)) {
         const parsed = res.dates.map((d) => new Date(d)); // must be JS Date
         setHighlightedDates(parsed);
@@ -63,6 +64,13 @@ export default function SendToCICModal({ open, onClose }) {
     setReferralDate(date);
     setDatePickerOpen(false);
     fetchPatients(date);
+  };
+  
+  const onViewProfile = (p) => {
+    if (!p?.patient_name) return;
+
+    const query = encodeURIComponent(p.patient_name);
+    router.push(`/cases?search=${query}`);
   };
 
   if (!open) return null;
@@ -133,25 +141,35 @@ export default function SendToCICModal({ open, onClose }) {
             <ul className="space-y-2">
               {patients.map((p) => (
                 <li
-                  key={p.id}
+                  key={p.pid}
                   className="bg-slate-800 hover:bg-slate-700 rounded-lg px-4 py-3 text-sm text-slate-200 transition"
                 >
                   <div className="flex items-start gap-2">
                     <UserRound className="w-4 h-4 mt-0.5 text-mint-400 flex-shrink-0" />
-                    <div>
-                      <span className="font-medium text-slate-100">
-                        {p.patient_name}
-                      </span>
-                      <div className="text-xs text-slate-400 mt-1 space-y-0.5">
-                        <p>
-                          <span className="text-slate-500">DOB:</span>{" "}
-                          {p.dob || "N/A"}
-                        </p>
-                        <p>
-                          <span className="text-slate-500">DOI:</span>{" "}
-                          {p.doi || "N/A"}
-                        </p>
+                    <div className="flex items-start justify-between w-full">
+                      <div>
+                        <span className="font-medium text-slate-100">
+                          {p.patient_name}
+                        </span>
+                  
+                        <div className="text-xs text-slate-400 mt-1 space-y-0.5">
+                          <p>
+                            <span className="text-slate-500">DOB:</span>{" "}
+                            {p.dob || "N/A"}
+                          </p>
+                          <p>
+                            <span className="text-slate-500">DOI:</span>{" "}
+                            {p.doi || "N/A"}
+                          </p>
+                        </div>
                       </div>
+                  
+                      <button
+                        onClick={() => onViewProfile(p)}
+                        className="btn"
+                      >
+                        View
+                      </button>
                     </div>
                   </div>
                 </li>

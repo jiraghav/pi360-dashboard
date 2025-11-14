@@ -3,13 +3,17 @@
 import Link from "next/link";
 import { useState, useEffect } from "react";
 
-export default function CasesHeader({ statusFilter, setStatusFilter, setSearch }) {
-  const [searchInput, setSearchInput] = useState("");
+export default function CasesHeader({ statusFilter, setStatusFilter, setSearch, search }) {
+  const [searchInput, setSearchInput] = useState(search || "");
 
   useEffect(() => {
     const t = setTimeout(() => setSearch(searchInput), 500);
     return () => clearTimeout(t);
   }, [searchInput]);
+  
+  useEffect(() => {
+    setSearchInput(search || "");
+  }, [search]);
 
   const handleStatusChange = (e) => {
     const newStatus = e.target.value;

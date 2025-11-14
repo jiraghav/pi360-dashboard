@@ -32,6 +32,7 @@ export default function Cases() {
   // Initialize filter from URL
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
+    setSearch(params.get("search") || "");
     setStatusFilter(params.get("status") || "");
     setInitialized(true);
   }, []);
@@ -178,6 +179,7 @@ export default function Cases() {
             statusFilter={statusFilter}
             setStatusFilter={setStatusFilter}
             setSearch={setSearch}
+            search={search}
           />
 
           <CasesTable
