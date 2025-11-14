@@ -12,6 +12,7 @@ export default function CaseRow({
   setShowRequestRecordModal,
   setShowSendMessageModal,
   setShowSendTelemedLinkModal,
+  setShowSendTeleneuroLinkModal,
 }) {
   const [expandedData, setExpandedData] = useState({});
   const isExpanded = expandedRows[caseItem.pid];
@@ -148,7 +149,7 @@ export default function CaseRow({
                   Back Office Msg
                 </button>
     
-                {/*<button
+                <button
                   onClick={() => {
                     setSelectedCase(caseItem);
                     setShowSendTelemedLinkModal(true);
@@ -157,7 +158,18 @@ export default function CaseRow({
                   className="block w-full text-left px-3 py-2 text-sm text-slate-100 hover:bg-slate-700 hover:text-mint-300 transition"
                 >
                   Schedule Telemed
-                </button>*/}
+                </button>
+    
+                <button
+                  onClick={() => {
+                    setSelectedCase(caseItem);
+                    setShowSendTeleneuroLinkModal(true);
+                    setMenuOpen(false);
+                  }}
+                  className="block w-full text-left px-3 py-2 text-sm text-slate-100 hover:bg-slate-700 hover:text-mint-300 transition"
+                >
+                  Schedule Teleneuro
+                </button>
               </div>
             )}
           </div>

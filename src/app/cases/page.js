@@ -9,6 +9,7 @@ import CasesTable from "./CasesTable";
 import RequestRecordsModal from "./RequestRecordsModal";
 import SendMessageModal from "./SendMessageModal";
 import SendTelemedLinkModal from "./SendTelemedLinkModal";
+import SendTeleneuroLinkModal from "./SendTeleneuroLinkModal";
 
 export default function Cases() {
   const [cases, setCases] = useState([]);
@@ -22,6 +23,7 @@ export default function Cases() {
   const [showRequestRecordModal, setShowRequestRecordModal] = useState(false);
   const [showSendMessageModal, setShowSendMessageModal] = useState(false);
   const [showSendTelemedLinkModal, setShowSendTelemedLinkModal] = useState(false);
+  const [showSendTeleneuroLinkModal, setShowSendTeleneuroLinkModal] = useState(false);
   const limit = 10;
   const { showToast } = useToast();
 
@@ -94,14 +96,12 @@ export default function Cases() {
     }
   };
   
-  // Send Telemed Link
   const sendTelemedLink = async () => {
     if (!selectedCase) return;
     try {
       const formData = new FormData();
       formData.append("pid", selectedCase.pid);
       formData.append("phone", selectedCase.phone_home || "");
-      formData.append("telemed_link", selectedCase.telemedLink || "");
 
       const res = await apiRequest("send_telemed_link.php", {
         method: "POST",
@@ -117,6 +117,30 @@ export default function Cases() {
     } catch (e) {
       console.error(e);
       showToast("error", "Something went wrong while sending the telemed link");
+    }
+  };
+  
+  const sendTeleneuroLink = async () => {
+    if (!selectedCase) return;
+    try {
+      const formData = new FormData();
+      formData.append("pid", selectedCase.pid);
+      formData.append("phone", selectedCase.phone_home || "");
+
+      const res = await apiRequest("send_teleneuro_link.php", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (res.status) {
+        showToast("success", res.message || "Teleneuro link sent successfully");
+        setShowSendTeleneuroLinkModal(false);
+      } else {
+        showToast("error", res.message || "Failed to send teleneuro link");
+      }
+    } catch (e) {
+      console.error(e);
+      showToast("error", "Something went wrong while sending the teleneuro link");
     }
   };
 
@@ -141,6 +165,7 @@ export default function Cases() {
             setShowRequestRecordModal={setShowRequestRecordModal}
             setShowSendMessageModal={setShowSendMessageModal}
             setShowSendTelemedLinkModal={setShowSendTelemedLinkModal}
+            setShowSendTeleneuroLinkModal={setShowSendTeleneuroLinkModal}
           />
         </section>
       </main>
@@ -166,6 +191,14 @@ export default function Cases() {
           selectedCase={selectedCase}
           onClose={() => setShowSendTelemedLinkModal(false)}
           onConfirm={sendTelemedLink}
+          setSelectedCase={setSelectedCase}
+        />
+      )}
+      {showSendTeleneuroLinkModal && selectedCase && (
+        <SendTeleneuroLinkModal
+          selectedCase={selectedCase}
+          onClose={() => setShowSendTeleneuroLinkModal(false)}
+          onConfirm={sendTeleneuroLink}
           setSelectedCase={setSelectedCase}
         />
       )}

@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { apiRequest } from "../utils/api";
 
-export default function SendTelemedLinkModal({
+export default function SendTeleneuroLinkModal({
   selectedCase,
   onClose,
   onConfirm,
@@ -60,13 +60,13 @@ export default function SendTelemedLinkModal({
 
   return (
     <div
-      id="sendTelemedLinkModal"
+      id="sendTeleneuroLinkModal"
       className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50 backdrop-blur-sm flex"
     >
       <div className="card max-w-lg w-full p-6">
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
-          <h4 className="font-semibold text-lg">Send Telemed Link</h4>
+          <h4 className="font-semibold text-lg">Send Teleneuro Link</h4>
           <button
             onClick={onClose}
             className="badge cursor-pointer hover:bg-stroke/40"
@@ -77,7 +77,7 @@ export default function SendTelemedLinkModal({
   
         {/* Case Info */}
         <p className="text-sm text-mute mb-4">
-          Sending telemedicine schedule link for:
+          Sending teleneuro schedule link for:
           <br />
           <strong className="text-white">
             {selectedCase.fname} {selectedCase.mname} {selectedCase.lname}
