@@ -15,6 +15,7 @@ export default function CasesTable({
   setShowSendMessageModal,
   setShowSendTelemedLinkModal,
   setShowSendTeleneuroLinkModal,
+  setShowSendIntakeLinkModal,
 }) {
   const [expandedRows, setExpandedRows] = useState({});
   const totalPages = Math.max(1, Math.ceil(total / limit));
@@ -48,6 +49,7 @@ export default function CasesTable({
             setShowSendMessageModal={setShowSendMessageModal}
             setShowSendTelemedLinkModal={setShowSendTelemedLinkModal}
             setShowSendTeleneuroLinkModal={setShowSendTeleneuroLinkModal}
+            setShowSendIntakeLinkModal={setShowSendIntakeLinkModal}
           />
         ))
       )}

@@ -10,6 +10,7 @@ import RequestRecordsModal from "./RequestRecordsModal";
 import SendMessageModal from "./SendMessageModal";
 import SendTelemedLinkModal from "./SendTelemedLinkModal";
 import SendTeleneuroLinkModal from "./SendTeleneuroLinkModal";
+import SendIntakeLinkModal from "./SendIntakeLinkModal";
 
 export default function Cases() {
   const [cases, setCases] = useState([]);
@@ -24,6 +25,7 @@ export default function Cases() {
   const [showSendMessageModal, setShowSendMessageModal] = useState(false);
   const [showSendTelemedLinkModal, setShowSendTelemedLinkModal] = useState(false);
   const [showSendTeleneuroLinkModal, setShowSendTeleneuroLinkModal] = useState(false);
+  const [showSendIntakeLinkModal, setShowSendIntakeLinkModal] = useState(false);
   const limit = 10;
   const { showToast } = useToast();
 
@@ -143,6 +145,30 @@ export default function Cases() {
       showToast("error", "Something went wrong while sending the teleneuro link");
     }
   };
+  
+  const sendIntakeLink = async () => {
+    if (!selectedCase) return;
+    try {
+      const formData = new FormData();
+      formData.append("pid", selectedCase.pid);
+      formData.append("phone", selectedCase.phone_home || "");
+
+      const res = await apiRequest("send_intake_link.php", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (res.status) {
+        showToast("success", res.message || "Intake link sent successfully");
+        setShowSendIntakeLinkModal(false);
+      } else {
+        showToast("error", res.message || "Failed to send intake link");
+      }
+    } catch (e) {
+      console.error(e);
+      showToast("error", "Something went wrong while sending the intake link");
+    }
+  };
 
   return (
     <ProtectedRoute>
@@ -166,6 +192,7 @@ export default function Cases() {
             setShowSendMessageModal={setShowSendMessageModal}
             setShowSendTelemedLinkModal={setShowSendTelemedLinkModal}
             setShowSendTeleneuroLinkModal={setShowSendTeleneuroLinkModal}
+            setShowSendIntakeLinkModal={setShowSendIntakeLinkModal}
           />
         </section>
       </main>
@@ -199,6 +226,14 @@ export default function Cases() {
           selectedCase={selectedCase}
           onClose={() => setShowSendTeleneuroLinkModal(false)}
           onConfirm={sendTeleneuroLink}
+          setSelectedCase={setSelectedCase}
+        />
+      )}
+      {showSendIntakeLinkModal && selectedCase && (
+        <SendIntakeLinkModal
+          selectedCase={selectedCase}
+          onClose={() => setShowSendIntakeLinkModal(false)}
+          onConfirm={sendIntakeLink}
           setSelectedCase={setSelectedCase}
         />
       )}
