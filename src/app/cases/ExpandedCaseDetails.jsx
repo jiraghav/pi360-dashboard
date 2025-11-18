@@ -1,11 +1,11 @@
 "use client";
 
-export default function ExpandedCaseDetails({ data }) {
+export default function ExpandedCaseDetails({ data, setSelectedCase, setShowUploadLOPModal, updateSectionLOP, markCaseHasLOP }) {
   return (
     <div className="mt-2 md:mt-4 p-3 md:p-4 rounded-xl border border-stroke bg-card">
       {data ? (
         <>
-          <div class="text-sm text-mute mb-2">Case Details:</div>
+          <div className="text-sm text-mute mb-2">Case Details:</div>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 mt-2">
           {/* Case Info Card */}
           <div className="card p-3">
@@ -47,7 +47,37 @@ export default function ExpandedCaseDetails({ data }) {
             </div>
             {data.sections?.map((section, i) => (
               <div key={i} className="card p-3">
-                <div className="text-mute text-xs">{section.title}</div>
+                <div className="flex items-center justify-between text-mute text-xs">
+                  {/* Title on left */}
+                  <span>{section.title}</span>
+                
+                  {/* Button on right */}
+                  {section.has_lop === '0' ? (
+                    <button 
+                      onClick={() => {
+                        setSelectedCase({
+                          ...data.detail,
+                          pid: section.pid,
+                          case_pid: data.detail.pid,
+                          onSuccess: () => {
+                            updateSectionLOP(section.pid);       // updates section
+                            markCaseHasLOP(data.detail.pid);     // updates main case
+                          }
+                        });
+                        setShowUploadLOPModal(true);
+                      }}
+                      className="text-xs px-2 py-1 rounded btn cursor-default"
+                    >
+                      Upload LOP
+                    </button>
+                  ) : (
+                    <button
+                      className="text-xs px-2 py-1 rounded btn cursor-default"
+                    >
+                      LOP Uploaded
+                    </button>
+                  )}
+                </div>
                 <div className="font-semibold">{section.status}</div>
 
                 {(section.last_visit || section.visits || section.balance) && (

@@ -1,33 +1,49 @@
 "use client";
 
-import { useState } from "react";
+import {
+  useState,
+  useImperativeHandle,
+  forwardRef,
+} from "react";
 import CaseRow from "./CaseRow";
 
-export default function CasesTable({
-  cases,
-  loading,
-  page,
-  total,
-  limit,
-  setPage,
-  setSelectedCase,
-  setShowRequestRecordModal,
-  setShowSendMessageModal,
-  setShowSendTelemedLinkModal,
-  setShowSendTeleneuroLinkModal,
-  setShowSendIntakeLinkModal,
-}) {
+const CasesTable = forwardRef(function CasesTable(
+  {
+    cases,
+    loading,
+    page,
+    total,
+    limit,
+    setPage,
+    setSelectedCase,
+    setShowRequestRecordModal,
+    setShowSendMessageModal,
+    setShowSendTelemedLinkModal,
+    setShowSendTeleneuroLinkModal,
+    setShowSendIntakeLinkModal,
+    setShowUploadLOPModal,
+    markCaseHasLOP
+  },
+  ref
+) {
   const [expandedRows, setExpandedRows] = useState({});
   const totalPages = Math.max(1, Math.ceil(total / limit));
+
+  // ⭐ Expose function to parent
+  useImperativeHandle(ref, () => ({
+    clearExpanded() {
+      setExpandedRows({});
+    },
+  }));
 
   return (
     <>
       {/* Header */}
       <div className="hidden md:grid grid-cols-12 text-mute text-xs uppercase tracking-wide pb-3 border-b border-stroke">
-        <div className="col-span-1">Expand</div>
+        <div className="col-span-2">Expand</div>
         <div className="col-span-2">First</div>
         <div className="col-span-2">Last</div>
-        <div className="col-span-2">DOB</div>
+        <div className="col-span-1">DOB</div>
         <div className="col-span-1">DOI</div>
         <div className="col-span-2">Status</div>
         <div className="col-span-2">Actions</div>
@@ -50,6 +66,8 @@ export default function CasesTable({
             setShowSendTelemedLinkModal={setShowSendTelemedLinkModal}
             setShowSendTeleneuroLinkModal={setShowSendTeleneuroLinkModal}
             setShowSendIntakeLinkModal={setShowSendIntakeLinkModal}
+            setShowUploadLOPModal={setShowUploadLOPModal}
+            markCaseHasLOP={markCaseHasLOP}
           />
         ))
       )}
@@ -78,4 +96,6 @@ export default function CasesTable({
       </div>
     </>
   );
-}
+});
+
+export default CasesTable;

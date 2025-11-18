@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import ProtectedRoute from "../components/ProtectedRoute";
 import { apiRequest } from "../utils/api";
 import { useToast } from "../hooks/ToastContext";
@@ -11,6 +11,7 @@ import SendMessageModal from "./SendMessageModal";
 import SendTelemedLinkModal from "./SendTelemedLinkModal";
 import SendTeleneuroLinkModal from "./SendTeleneuroLinkModal";
 import SendIntakeLinkModal from "./SendIntakeLinkModal";
+import UploadLOPModal from "./UploadLOPModal";
 
 export default function Cases() {
   const [cases, setCases] = useState([]);
@@ -26,8 +27,11 @@ export default function Cases() {
   const [showSendTelemedLinkModal, setShowSendTelemedLinkModal] = useState(false);
   const [showSendTeleneuroLinkModal, setShowSendTeleneuroLinkModal] = useState(false);
   const [showSendIntakeLinkModal, setShowSendIntakeLinkModal] = useState(false);
+  const [showUploadLOPModal, setShowUploadLOPModal] = useState(false);
   const limit = 10;
   const { showToast } = useToast();
+  
+  const casesTableRef = useRef(null);
 
   // Initialize filter from URL
   useEffect(() => {
@@ -56,6 +60,10 @@ export default function Cases() {
         } else {
           setCases([]);
           setTotal(0);
+        }
+        
+        if (casesTableRef.current) {
+          casesTableRef.current.clearExpanded(); // 🔥 collapse expanded rows
         }
       } catch (e) {
         console.error("Fetch failed:", e);
@@ -171,6 +179,36 @@ export default function Cases() {
     }
   };
 
+  const uploadLOP = async (formData) => {
+    try {
+      const res = await apiRequest("upload_lop.php", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (res.status) {
+        showToast("success", res.message || "LOP uploaded successfully");
+        if (selectedCase.onSuccess) {
+          selectedCase.onSuccess();
+        }
+        setShowUploadLOPModal(false);
+      } else {
+        showToast("error", res.message || "Failed to upload LOP");
+      }
+    } catch (e) {
+      console.error(e);
+      showToast("error", "Something went wrong");
+    }
+  };
+  
+  const markCaseHasLOP = (pid) => {
+    setCases((prev) =>
+      prev.map((c) =>
+        c.pid === pid ? { ...c, has_lop: "1" } : c
+      )
+    );
+  };
+
   return (
     <ProtectedRoute>
       <main className="px-4 md:px-6 py-8 max-w-7xl mx-auto space-y-8">
@@ -185,6 +223,7 @@ export default function Cases() {
           <CasesTable
             cases={cases}
             loading={loading}
+            ref={casesTableRef}
             page={page}
             total={total}
             limit={limit}
@@ -195,6 +234,8 @@ export default function Cases() {
             setShowSendTelemedLinkModal={setShowSendTelemedLinkModal}
             setShowSendTeleneuroLinkModal={setShowSendTeleneuroLinkModal}
             setShowSendIntakeLinkModal={setShowSendIntakeLinkModal}
+            setShowUploadLOPModal={setShowUploadLOPModal}
+            markCaseHasLOP={markCaseHasLOP}
           />
         </section>
       </main>
@@ -237,6 +278,13 @@ export default function Cases() {
           onClose={() => setShowSendIntakeLinkModal(false)}
           onConfirm={sendIntakeLink}
           setSelectedCase={setSelectedCase}
+        />
+      )}
+      {showUploadLOPModal && selectedCase && (
+        <UploadLOPModal
+          selectedCase={selectedCase}
+          onClose={() => setShowUploadLOPModal(false)}
+          onConfirm={uploadLOP}
         />
       )}
     </ProtectedRoute>

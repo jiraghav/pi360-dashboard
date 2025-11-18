@@ -16,7 +16,7 @@ export default function KPIs({
       label: "Pending Reports",
       value: kpis?.pendingReports,
       path: "/cases?status=pending_reports",
-      description: "Means requested records",
+      description: "Requested records",
     },
     {
       label: "Open Tasks",

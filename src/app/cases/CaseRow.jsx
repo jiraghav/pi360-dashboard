@@ -14,10 +14,12 @@ export default function CaseRow({
   setShowSendTelemedLinkModal,
   setShowSendTeleneuroLinkModal,
   setShowSendIntakeLinkModal,
+  setShowUploadLOPModal,
+  markCaseHasLOP
 }) {
   const [expandedData, setExpandedData] = useState({});
   const isExpanded = expandedRows[caseItem.pid];
-  
+
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef(null);
 
@@ -58,6 +60,24 @@ export default function CaseRow({
       }
     }
   };
+  
+  const updateSectionLOP = (sectionPid) => {
+    setExpandedData((prev) => {
+      const updated = { ...prev };
+      const entry = updated[caseItem.pid];
+  
+      if (!entry) return prev;
+  
+      updated[caseItem.pid] = {
+        ...entry,
+        sections: entry.sections.map((sec) =>
+          sec.pid === sectionPid ? { ...sec, has_lop: "1" } : sec
+        ),
+      };
+  
+      return updated;
+    });
+  };
 
   return (
     <div
@@ -65,7 +85,14 @@ export default function CaseRow({
     >
       <div className="grid grid-cols-1 md:grid-cols-12 items-start md:items-center gap-2 md:gap-0 p-4 md:p-0">
         {/* Expand */}
-        <div className="flex items-center md:col-span-1">
+        <div className="flex items-center md:col-span-2">
+          {caseItem.has_lop !== "0" && (
+            <button
+              className="badge w-16 cursor-default"
+            >
+              LOP
+            </button>
+          )}
           <button className="badge" onClick={toggleRow}>
             {isExpanded ? "-" : "+"}
           </button>
@@ -95,7 +122,7 @@ export default function CaseRow({
           <span className="md:hidden font-semibold">Last: </span>
           {caseItem.lname}
         </div>
-        <div className="md:col-span-2">
+        <div className="md:col-span-1">
           <span className="md:hidden font-semibold">DOB: </span>
           {caseItem.dob}
         </div>
@@ -190,7 +217,12 @@ export default function CaseRow({
 
       {/* Expanded details */}
       {isExpanded && (
-        <ExpandedCaseDetails data={expandedData[caseItem.pid]} />
+        <ExpandedCaseDetails
+          data={expandedData[caseItem.pid]}
+          setSelectedCase={setSelectedCase}
+          setShowUploadLOPModal={setShowUploadLOPModal}
+          updateSectionLOP={updateSectionLOP}
+          markCaseHasLOP={markCaseHasLOP} />
       )}
     </div>
   );
