@@ -26,10 +26,10 @@ export default function Navbar() {
             <span>
               Text <span className="font-semibold text-white">
                 <a
-                  href="sms:214666661"
+                  href="sms:2146666651"
                   className="underline text-white hover:text-primary transition"
                 >
-                214-666-661
+                214-666-6651
                 </a>
               </span> 24/7 for instant help
             </span>
