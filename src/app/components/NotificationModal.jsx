@@ -1,0 +1,141 @@
+"use client";
+
+import { useState } from "react";
+import moment from "moment-timezone";
+
+export default function NotificationModal({
+  open,
+  onClose,
+  notification,
+  onMarkDone,
+}) {
+  const [loading, setLoading] = useState(false);
+
+  if (!open || !notification) return null;
+
+  const getStatusBadge = (status) => {
+    switch (status) {
+      case "1":
+        return <span className="badge text-blue-500">Pending</span>;
+      case "2":
+        return <span className="badge text-green-500">Done</span>;
+      case "3":
+        return <span className="badge text-yellow-400">In Progress</span>;
+      default:
+        return <span className="badge text-gray-400">Unknown</span>;
+    }
+  };
+
+  const getPriorityBadge = (priority) => {
+    return (
+      <span
+        className={`badge text-${
+          priority == 3
+            ? "rose-500"
+            : priority == 2
+            ? "amber-300"
+            : "green-400"
+        }`}
+      >
+        {priority == 3
+          ? "HIGH"
+          : priority == 2
+          ? "MEDIUM"
+          : "LOW"}
+      </span>
+    );
+  };
+
+  // --- ADD: mark as done inside modal ---
+  const handleMarkDone = async () => {
+    if (!confirm("Are you sure you want to mark this task as done?")) return;
+
+    setLoading(true);
+
+    try {
+      await onMarkDone(notification.task_id);
+      onClose(); // close modal afterward
+    } catch (e) {
+      console.error("Failed to mark done:", e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50 backdrop-blur-sm">
+      <div className="card max-w-lg w-full p-6 relative">
+
+        {/* Header */}
+        <div className="flex items-center justify-between mb-4">
+          <h4 className="font-semibold">Notification Details</h4>
+
+          <button type="button" className="badge" onClick={onClose}>
+            Close
+          </button>
+        </div>
+
+        {/* Patient Info */}
+        <div className="mb-4 p-3 rounded-lg bg-white/5 border border-white/10">
+          <div className="text-xs text-gray-400 mb-1">Patient</div>
+
+          <div className="font-semibold text-white text-base">
+            {notification.patient_name || "Unknown Patient"}
+          </div>
+
+          {notification.case_id && (
+            <div className="text-xs text-gray-500">
+              Case ID: {notification.case_id}
+            </div>
+          )}
+        </div>
+
+        {/* Title */}
+        <div className="mb-3">
+          <div className="text-xs text-gray-400 mb-1">Title</div>
+          <div className="text-lg font-semibold text-white">
+            {notification.task_title}
+          </div>
+        </div>
+
+        {/* Description */}
+        <div className="mb-4">
+          <div className="text-xs text-gray-400 mb-1">Description</div>
+          <div className="text-lg font-semibold text-white">
+            {notification.task_description || "No description provided."}
+          </div>
+        </div>
+
+        {/* Status & Priority */}
+        <div className="flex items-center gap-6 mb-4">
+          <div>
+            <div className="text-xs text-gray-400 mb-1">Status</div>
+            {getStatusBadge(notification.status)}
+          </div>
+
+          <div>
+            <div className="text-xs text-gray-400 mb-1">Priority</div>
+            {getPriorityBadge(notification.priority)}
+          </div>
+        </div>
+
+        {/* Created Time */}
+        <div className="text-xs text-gray-500 border-t border-stroke pt-3 mb-4">
+          Created:{" "}
+          {moment(notification.created_at).format("MMM DD, YYYY · hh:mm A")}
+        </div>
+
+        {/* Mark as Done */}
+        {notification.status !== "2" && (
+          <button
+            className="btn btn-primary w-full mt-2"
+            onClick={handleMarkDone}
+            disabled={loading}
+          >
+            {loading ? "Processing..." : "Mark as Done"}
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
