@@ -13,7 +13,7 @@ import { useToast } from "../hooks/ToastContext";
 export default function Navbar() {
   const pathname = usePathname();
   const page = routeMap[pathname] || { title: "PI360", sub: "" };
-  
+
   const { showToast } = useToast();
 
   const [open, setOpen] = useState(false);
@@ -24,8 +24,6 @@ export default function Navbar() {
   const [selectedNotification, setSelectedNotification] = useState(null);
 
   const dropdownRef = useRef(null);
-
-  const unreadCount = notifications.length;
 
   // -------------------------------
   // FETCH NOTIFICATIONS FROM API
@@ -47,7 +45,7 @@ export default function Navbar() {
 
   useEffect(() => {
     fetchNotifications();
-    const interval = setInterval(fetchNotifications, 20000);
+    const interval = setInterval(fetchNotifications, 10000); // reload every 10 seconds
     return () => clearInterval(interval);
   }, []);
 
@@ -61,7 +59,7 @@ export default function Navbar() {
     document.addEventListener("mousedown", handleClick);
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
-  
+
   const onMarkDone = async (taskId) => {
     try {
       const res = await apiRequest("update_task_status.php", {
@@ -83,6 +81,14 @@ export default function Navbar() {
       return false;
     }
   };
+
+  // -------------------------------
+  // SPLIT READ & UNREAD
+  // -------------------------------
+  const unreadNotifications = notifications.filter((n) => n.is_read == 0);
+  const readNotifications = notifications.filter((n) => n.is_read == 1);
+
+  const unreadCount = unreadNotifications.length;
 
   // -------------------------------
   return (
@@ -133,14 +139,19 @@ export default function Navbar() {
                     Notifications
                   </div>
 
-                  <div className="max-h-80 overflow-y-auto">
+                  <div className="max-h-96 overflow-y-auto">
+
+                    {/* UNREAD SECTION */}
+                    <div className="px-4 py-2 text-xs font-semibold text-green-400 bg-white/5">
+                      Unread ({unreadNotifications.length})
+                    </div>
 
                     {loading ? (
                       <div className="px-4 py-4 text-sm text-gray-400">Loading...</div>
-                    ) : notifications.length === 0 ? (
-                      <div className="px-4 py-4 text-sm text-gray-400">No notifications</div>
+                    ) : unreadNotifications.length === 0 ? (
+                      <div className="px-4 py-3 text-sm text-gray-500">No unread notifications</div>
                     ) : (
-                      notifications.map((n) => (
+                      unreadNotifications.map((n) => (
                         <div
                           key={n.id}
                           onClick={() => {
@@ -149,18 +160,39 @@ export default function Navbar() {
                           }}
                           className="px-4 py-3 text-sm hover:bg-white/5 cursor-pointer border-b border-white/5"
                         >
-                          <div className="text-gray-100">{n.title}</div>
+                          <div className="text-white">{n.title}</div>
                           <div className="text-xs text-gray-500">
-                            {moment(n.created_at).fromNow()}
+                            {moment.tz(n.created_at, "America/Chicago").fromNow()}
                           </div>
                         </div>
                       ))
                     )}
 
-                  </div>
+                    {/* READ SECTION */}
+                    <div className="px-4 py-2 text-xs font-semibold text-blue-400 bg-white/5 mt-2">
+                      Read ({readNotifications.length})
+                    </div>
 
-                  <div className="p-3 text-center text-primary text-sm hover:bg-white/5 cursor-pointer">
-                    View all
+                    {readNotifications.length === 0 ? (
+                      <div className="px-4 py-3 text-sm text-gray-500">No read notifications</div>
+                    ) : (
+                      readNotifications.map((n) => (
+                        <div
+                          key={n.id}
+                          onClick={() => {
+                            setSelectedNotification(n);
+                            setModalOpen(true);
+                          }}
+                          className="px-4 py-3 text-sm hover:bg-white/5 cursor-pointer border-b border-white/5 opacity-50"
+                        >
+                          <div className="text-gray-300">{n.title}</div>
+                          <div className="text-xs text-gray-600">
+                            {moment.tz(n.created_at, "America/Chicago").fromNow()}
+                          </div>
+                        </div>
+                      ))
+                    )}
+
                   </div>
 
                 </div>
@@ -178,9 +210,8 @@ export default function Navbar() {
           </div>
         </div>
 
-        {/* MODAL */}
-
       </header>
+
       <NotificationModal
         open={modalOpen}
         onClose={() => setModalOpen(false)}
