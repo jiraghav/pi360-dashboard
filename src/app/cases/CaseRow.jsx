@@ -15,7 +15,8 @@ export default function CaseRow({
   setShowSendTeleneuroLinkModal,
   setShowSendIntakeLinkModal,
   setShowUploadLOPModal,
-  markCaseHasLOP
+  markCaseHasLOP,
+  setShowDroppedCaseModal,
 }) {
   const [expandedData, setExpandedData] = useState({});
   const isExpanded = expandedRows[caseItem.pid];
@@ -208,6 +209,17 @@ export default function CaseRow({
                   className="block w-full text-left px-3 py-2 text-sm text-slate-100 hover:bg-slate-700 hover:text-mint-300 transition"
                 >
                   Send Intake
+                </button>
+                
+                <button
+                  onClick={() => {
+                    setSelectedCase(caseItem);
+                    setShowDroppedCaseModal(true);
+                    setMenuOpen(false);
+                  }}
+                  className="block w-full text-left px-3 py-2 text-sm text-slate-100 hover:bg-slate-700 hover:text-mint-300 transition"
+                >
+                  Request Drop
                 </button>
               </div>
             )}

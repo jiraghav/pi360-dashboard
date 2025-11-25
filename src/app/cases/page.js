@@ -12,6 +12,7 @@ import SendTelemedLinkModal from "./SendTelemedLinkModal";
 import SendTeleneuroLinkModal from "./SendTeleneuroLinkModal";
 import SendIntakeLinkModal from "./SendIntakeLinkModal";
 import UploadLOPModal from "./UploadLOPModal";
+import DroppedCaseModal from "./DroppedCaseModal";
 
 export default function Cases() {
   const [cases, setCases] = useState([]);
@@ -23,6 +24,7 @@ export default function Cases() {
   const [initialized, setInitialized] = useState(false);
   const [selectedCase, setSelectedCase] = useState(null);
   const [showRequestRecordModal, setShowRequestRecordModal] = useState(false);
+  const [showDroppedCaseModal, setShowDroppedCaseModal] = useState(false);
   const [showSendMessageModal, setShowSendMessageModal] = useState(false);
   const [showSendTelemedLinkModal, setShowSendTelemedLinkModal] = useState(false);
   const [showSendTeleneuroLinkModal, setShowSendTeleneuroLinkModal] = useState(false);
@@ -84,6 +86,22 @@ export default function Cases() {
       if (res.status) {
         showToast("success", `Records requested for ${selectedCase.fname} ${selectedCase.lname}`);
         setShowRequestRecordModal(false);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+  
+  const confirmDroppedCaseRequest = async () => {
+    if (!selectedCase) return;
+    try {
+      const formData = new FormData();
+      formData.append("pid", selectedCase.pid);
+      formData.append("note", selectedCase.description || "");
+      const res = await apiRequest("dropped_request.php", { method: "POST", body: formData });
+      if (res.status) {
+        showToast("success", `Drop requested for ${selectedCase.fname} ${selectedCase.lname}`);
+        setShowDroppedCaseModal(false);
       }
     } catch (e) {
       console.error(e);
@@ -235,6 +253,7 @@ export default function Cases() {
             setShowSendTeleneuroLinkModal={setShowSendTeleneuroLinkModal}
             setShowSendIntakeLinkModal={setShowSendIntakeLinkModal}
             setShowUploadLOPModal={setShowUploadLOPModal}
+            setShowDroppedCaseModal={setShowDroppedCaseModal}
             markCaseHasLOP={markCaseHasLOP}
           />
         </section>
@@ -285,6 +304,14 @@ export default function Cases() {
           selectedCase={selectedCase}
           onClose={() => setShowUploadLOPModal(false)}
           onConfirm={uploadLOP}
+        />
+      )}
+      {showDroppedCaseModal && selectedCase && (
+        <DroppedCaseModal
+          selectedCase={selectedCase}
+          onClose={() => setShowDroppedCaseModal(false)}
+          onConfirm={confirmDroppedCaseRequest}
+          setSelectedCase={setSelectedCase}
         />
       )}
     </ProtectedRoute>
