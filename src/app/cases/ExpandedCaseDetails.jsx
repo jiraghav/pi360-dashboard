@@ -1,11 +1,33 @@
 "use client";
 
+import { useState } from "react";
+import TaskModal from "../tasks/TaskModal";
+
 export default function ExpandedCaseDetails({ data, setSelectedCase, setShowUploadLOPModal, updateSectionLOP, markCaseHasLOP }) {
+  const [showTaskModal, setShowTaskModal] = useState(false);
+  const [selectedCase, setSelectedCaseNewTask] = useState(null);
+
   return (
     <div className="mt-2 md:mt-4 p-3 md:p-4 rounded-xl border border-stroke bg-card">
       {data ? (
         <>
-          <div className="text-sm text-mute mb-2">Case Details:</div>
+          <div className="flex items-center justify-between mb-1">
+            <div className="text-xs text-slate-500 font-medium">Case Info</div>
+        
+            <button
+              className="text-xs px-2 py-1 rounded btn cursor-pointer"
+              onClick={() => {
+                setSelectedCaseNewTask({
+                  pid: data.detail.pid,
+                  fname: data.detail.fname,
+                  lname: data.detail.lname,
+                  case_pid: data.detail.pid,
+                });
+                setShowTaskModal(true);
+              }}            >
+              Add Task
+            </button>
+          </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 mt-2">
           {/* Case Info Card */}
           <div className="card p-3">
@@ -105,6 +127,13 @@ export default function ExpandedCaseDetails({ data, setSelectedCase, setShowUplo
               </div>
             ))}
           </div>
+          <TaskModal
+            isOpen={showTaskModal}
+            onClose={() => setShowTaskModal(false)}
+            selectedCase={selectedCase}   // <-- send case here
+            onCreated={(task) => {
+            }}
+          />
         </>
       ) : (
         <div className="py-3 text-center text-mute text-sm">Loading details...</div>

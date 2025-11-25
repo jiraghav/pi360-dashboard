@@ -5,7 +5,7 @@ import { AsyncPaginate } from "react-select-async-paginate";
 import { apiRequest } from "../utils/api"; // adjust path
 import { useToast } from "../hooks/ToastContext";
 
-export default function TaskModal({ isOpen, onClose, onCreated }) {
+export default function TaskModal({ isOpen, onClose, onCreated, selectedCase }) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [patient, setPatient] = useState(null);
@@ -61,7 +61,7 @@ export default function TaskModal({ isOpen, onClose, onCreated }) {
       const formData = new FormData();
       formData.append("title", title);
       formData.append("description", description);
-      formData.append("pid", patient?.value || "");
+      formData.append("pid", selectedCase ? selectedCase.pid : patient?.value || "");
       formData.append("priority", priority);
 
       const res = await apiRequest("create_task.php", {
@@ -100,30 +100,36 @@ export default function TaskModal({ isOpen, onClose, onCreated }) {
 
         <form onSubmit={handleSubmit} className="space-y-3">
           {/* Patient Selection */}
-          <AsyncPaginate
-            key={patient?.value || "patient"}
-            placeholder="Select Patient (optional)"
-            value={patient}
-            loadOptions={loadPatients}
-            onChange={setPatient}
-            isClearable
-            additional={{ page: 1 }}
-            styles={{
-              option: (provided) => ({
-                ...provided,
-                color: "white",
-                backgroundColor: "black",
-              }),
-              singleValue: (provided) => ({ ...provided, color: "white" }),
-              input: (provided) => ({ ...provided, color: "white" }),
-              placeholder: (provided) => ({ ...provided, color: "#eee" }),
-              control: (provided) => ({
-                ...provided,
-                backgroundColor: "black",
-                color: "white",
-              }),
-            }}
-          />
+          {selectedCase ? (
+            <div className="px-3 py-2 rounded-lg bg-[#0b0f16] border border-stroke text-white text-sm">
+              Patient: {selectedCase.fname} {selectedCase.lname}
+            </div>
+          ) : (
+            <AsyncPaginate
+              key={patient?.value || "patient"}
+              placeholder="Select Patient (optional)"
+              value={patient}
+              loadOptions={loadPatients}
+              onChange={setPatient}
+              isClearable
+              additional={{ page: 1 }}
+              styles={{
+                option: (provided) => ({
+                  ...provided,
+                  color: "white",
+                  backgroundColor: "black",
+                }),
+                singleValue: (provided) => ({ ...provided, color: "white" }),
+                input: (provided) => ({ ...provided, color: "white" }),
+                placeholder: (provided) => ({ ...provided, color: "#eee" }),
+                control: (provided) => ({
+                  ...provided,
+                  backgroundColor: "black",
+                  color: "white",
+                }),
+              }}
+            />
+          )}
 
           {/* Title */}
           <input
