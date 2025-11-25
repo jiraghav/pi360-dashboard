@@ -1,6 +1,6 @@
 "use client";
 
-import { PlusCircle, MapPin } from "lucide-react";
+import { PlusCircle, MapPin, CarFront } from "lucide-react";
 
 export default function KPIs({
   kpis,
@@ -36,6 +36,11 @@ export default function KPIs({
     },
     { label: "Today’s Patients", value: "-", comingSoon: true },
     { label: "Messages", value: "-", comingSoon: true },
+    {
+      label: "Request Ride",
+      value: <CarFront className="w-7 h-7 inline text-blue-400" />,
+      comingSoon: true,
+    },
   ];
 
   return (
