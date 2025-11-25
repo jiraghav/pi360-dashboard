@@ -98,8 +98,15 @@ export default function Navbar() {
 
           {/* Page Title */}
           <div>
-            <div className="text-xs uppercase tracking-wide text-mute">Section</div>
-            <h1 className="text-xl font-bold">{page.title}</h1>
+            <div className="text-xl tracking-wide font-bold">Complete Injury Centers</div>
+            <h1 className="text-xs text-mute">Powered by PI360</h1>
+          </div>
+          
+          <div>
+            <div className="font-semibold leading-tight">
+              
+            </div>
+            <div className="text-xs text-mute -mt-0.5"></div>
           </div>
 
           {/* Actions */}

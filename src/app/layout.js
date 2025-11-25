@@ -54,8 +54,9 @@ function LayoutContent({ children }) {
               />
             </svg>
           </button>
-          <div className="text-sm font-semibold">
-            Complete Injury Centers — PI360
+          <div>
+            <div className="text-xs font-semibold">Complete Injury Centers</div>
+            <div className="text-[10px] text-gray-400">Powered by PI360</div>
           </div>
           <Link href="/referrals/new" className="btn btn-primary">
             New Referral

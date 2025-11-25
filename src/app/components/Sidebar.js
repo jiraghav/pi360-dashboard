@@ -38,15 +38,13 @@ export default function Sidebar() {
       className="hidden md:block md:col-span-3 xl:col-span-2 h-screen sticky top-0 p-4 glass border-r border-stroke/70 z-10"
     >
       {/* Branding */}
-      <div className="flex items-center gap-3 mb-6">
-        <div className="w-10 h-10 rounded-full bg-sky-500 grid place-items-center font-black">
-          PI
-        </div>
-        <div>
-          <div className="font-semibold leading-tight">
-            Complete Injury Centers
-          </div>
-          <div className="text-xs text-mute -mt-0.5">Powered by PI360</div>
+      <div className="flex justify-center mb-6">
+        <div className="w-16 h-16 grid place-items-center">
+          <img
+            src="/logo.png"
+            alt="CIC Logo"
+            className="w-full h-full object-contain"
+          />
         </div>
       </div>
 
