@@ -92,12 +92,9 @@ export default function Cases() {
     }
   };
   
-  const confirmDroppedCaseRequest = async () => {
+  const confirmDroppedCaseRequest = async (formData) => {
     if (!selectedCase) return;
     try {
-      const formData = new FormData();
-      formData.append("pid", selectedCase.pid);
-      formData.append("note", selectedCase.description || "");
       const res = await apiRequest("dropped_request.php", { method: "POST", body: formData });
       if (res.status) {
         showToast("success", `Drop requested for ${selectedCase.fname} ${selectedCase.lname}`);
