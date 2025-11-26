@@ -219,7 +219,7 @@ export default function CaseRow({
                   }}
                   className="block w-full text-left px-3 py-2 text-sm text-slate-100 hover:bg-slate-700 hover:text-mint-300 transition"
                 >
-                  Request Drop
+                  Dropped Case
                 </button>
               </div>
             )}
