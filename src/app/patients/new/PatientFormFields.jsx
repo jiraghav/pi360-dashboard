@@ -246,6 +246,22 @@ export default function PatientFormFields({
           className="w-full border rounded px-3 py-2 bg-black text-white min-h-[100px]"
         ></textarea>
       </div>
+      
+      {/* Upload LOP */}
+      <div className="md:col-span-2">
+        <label className="block mb-1 text-sm font-medium text-gray-300">
+          Upload LOP
+        </label>
+        <input
+          type="file"
+          name="lop_file"
+          accept="application/pdf"
+          className="w-full border rounded px-3 py-2 bg-black text-white"
+        />
+        <p className="text-xs text-gray-500 mt-1">
+          Allowed: PDF
+        </p>
+      </div>
     </>
   );
 }
