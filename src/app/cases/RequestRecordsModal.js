@@ -54,7 +54,7 @@ export default function RequestRecordsModal({
           <h4 className="font-semibold text-lg text-white">Request Records</h4>
           <button
             onClick={onClose}
-            className="badge cursor-pointer hover:bg-red-500 hover:text-white transition"
+            className="badge cursor-pointer transition"
           >
             Close
           </button>
