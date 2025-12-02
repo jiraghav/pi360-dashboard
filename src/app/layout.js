@@ -92,6 +92,9 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <head>
         <title>PI360</title>
+
+        <link rel="icon" href="/favicon.ico" sizes="any" />
+
         {/* ✅ Keep Tailwind setup for global styling */}
         <script src="https://cdn.tailwindcss.com"></script>
         <script

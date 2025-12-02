@@ -2,19 +2,43 @@ import { useState, useEffect } from "react";
 
 export default function PatientFormFields({
   fnameRef,
+  selectedCase,
+  setSelectedCase,
   lawyers,
   caseTypes,
   languages,
   states,
 }) {
-  const [selectedLanguage, setSelectedLanguage] = useState("");
 
+  // Set default language only ONCE when creating a new patient
   useEffect(() => {
-    if (languages.length > 0) {
+    if (!selectedCase?.pid && languages.length > 0 && !selectedCase.preferred_language) {
       const defaultLang = languages.find(l => l.is_default == 1)?.option_id || "";
-      setSelectedLanguage(defaultLang);
+      setSelectedCase(prev => ({
+        ...prev,
+        preferred_language: defaultLang
+      }));
     }
   }, [languages]);
+
+  // Helper to update form fields
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+
+    setSelectedCase(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  // File upload handler
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    setSelectedCase(prev => ({
+      ...prev,
+      lop_file: file
+    }));
+  };
 
   return (
     <>
@@ -28,6 +52,8 @@ export default function PatientFormFields({
           type="text"
           name="fname"
           required
+          value={selectedCase.fname || ""}
+          onChange={handleChange}
           placeholder="Enter First Name"
           className="w-full border rounded px-3 py-2 bg-black text-white"
         />
@@ -42,6 +68,8 @@ export default function PatientFormFields({
           type="text"
           name="lname"
           required
+          value={selectedCase.lname || ""}
+          onChange={handleChange}
           placeholder="Enter Last Name"
           className="w-full border rounded px-3 py-2 bg-black text-white"
         />
@@ -49,38 +77,38 @@ export default function PatientFormFields({
 
       {/* DOB */}
       <div>
-        <label className="block mb-1 text-sm font-medium text-gray-300">
-          DOB *
-        </label>
+        <label className="block mb-1 text-sm font-medium text-gray-300">DOB *</label>
         <input
           type="date"
           name="dob"
           required
+          value={selectedCase.dob || ""}
+          onChange={handleChange}
           className="w-full border rounded px-3 py-2 bg-black text-white"
         />
       </div>
 
       {/* DOI */}
       <div>
-        <label className="block mb-1 text-sm font-medium text-gray-300">
-          Date of Injury *
-        </label>
+        <label className="block mb-1 text-sm font-medium text-gray-300">Date of Injury *</label>
         <input
           type="date"
           name="doi"
           required
+          value={selectedCase.doi || ""}
+          onChange={handleChange}
           className="w-full border rounded px-3 py-2 bg-black text-white"
         />
       </div>
 
       {/* Gender */}
       <div>
-        <label className="block mb-1 text-sm font-medium text-gray-300">
-          Gender *
-        </label>
+        <label className="block mb-1 text-sm font-medium text-gray-300">Gender *</label>
         <select
           name="gender"
           required
+          value={selectedCase.gender || ""}
+          onChange={handleChange}
           className="w-full border rounded px-3 py-2 bg-black text-white"
         >
           <option value="">Select Gender</option>
@@ -92,12 +120,12 @@ export default function PatientFormFields({
 
       {/* Law Firm */}
       <div>
-        <label className="block mb-1 text-sm font-medium text-gray-300">
-          Law Firm *
-        </label>
+        <label className="block mb-1 text-sm font-medium text-gray-300">Law Firm *</label>
         <select
           name="lawyer_id"
           required
+          value={selectedCase.lawyer_id || ""}
+          onChange={handleChange}
           className="w-full border rounded px-3 py-2 bg-black text-white"
         >
           <option value="">Select Law Firm</option>
@@ -111,12 +139,12 @@ export default function PatientFormFields({
 
       {/* Address */}
       <div className="md:col-span-2">
-        <label className="block mb-1 text-sm font-medium text-gray-300">
-          Address
-        </label>
+        <label className="block mb-1 text-sm font-medium text-gray-300">Address</label>
         <input
           type="text"
           name="address"
+          value={selectedCase.address || ""}
+          onChange={handleChange}
           placeholder="Street address"
           className="w-full border rounded px-3 py-2 bg-black text-white"
         />
@@ -124,24 +152,24 @@ export default function PatientFormFields({
 
       {/* City */}
       <div>
-        <label className="block mb-1 text-sm font-medium text-gray-300">
-          City
-        </label>
+        <label className="block mb-1 text-sm font-medium text-gray-300">City</label>
         <input
           type="text"
           name="city"
+          value={selectedCase.city || ""}
+          onChange={handleChange}
           placeholder="City"
           className="w-full border rounded px-3 py-2 bg-black text-white"
         />
       </div>
 
-      {/* State (Dropdown from API) */}
+      {/* State */}
       <div>
-        <label className="block mb-1 text-sm font-medium text-gray-300">
-          State
-        </label>
+        <label className="block mb-1 text-sm font-medium text-gray-300">State</label>
         <select
           name="state"
+          value={selectedCase.state || ""}
+          onChange={handleChange}
           className="w-full border rounded px-3 py-2 bg-black text-white"
         >
           <option value="">Select State</option>
@@ -155,54 +183,54 @@ export default function PatientFormFields({
 
       {/* ZIP */}
       <div>
-        <label className="block mb-1 text-sm font-medium text-gray-300">
-          ZIP
-        </label>
+        <label className="block mb-1 text-sm font-medium text-gray-300">ZIP</label>
         <input
           type="text"
           name="zip"
+          value={selectedCase.zip || ""}
+          onChange={handleChange}
           placeholder="ZIP Code"
           className="w-full border rounded px-3 py-2 bg-black text-white"
         />
       </div>
 
-      {/* Email + Phone in one line */}
+      {/* Email + Phone */}
       <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label className="block mb-1 text-sm font-medium text-gray-300">
-            Email
-          </label>
+          <label className="block mb-1 text-sm font-medium text-gray-300">Email</label>
           <input
             type="email"
             name="email"
+            value={selectedCase.email || ""}
+            onChange={handleChange}
             placeholder="Email"
             className="w-full border rounded px-3 py-2 bg-black text-white"
           />
         </div>
 
         <div>
-          <label className="block mb-1 text-sm font-medium text-gray-300">
-            Phone *
-          </label>
+          <label className="block mb-1 text-sm font-medium text-gray-300">Phone *</label>
           <input
             type="tel"
             name="phone"
             required
+            value={selectedCase.phone || ""}
+            onChange={handleChange}
             placeholder="Phone number"
             className="w-full border rounded px-3 py-2 bg-black text-white"
           />
         </div>
       </div>
 
-      {/* Case Type + Preferred Language in one line */}
+      {/* Case Type + Language */}
       <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label className="block mb-1 text-sm font-medium text-gray-300">
-            Case Type *
-          </label>
+          <label className="block mb-1 text-sm font-medium text-gray-300">Case Type *</label>
           <select
             name="case_type_id"
             required
+            value={selectedCase.case_type_id || ""}
+            onChange={handleChange}
             className="w-full border rounded px-3 py-2 bg-black text-white"
           >
             <option value="">Select Case Type</option>
@@ -215,14 +243,12 @@ export default function PatientFormFields({
         </div>
 
         <div>
-          <label className="block mb-1 text-sm font-medium text-gray-300">
-            Preferred Language
-          </label>
+          <label className="block mb-1 text-sm font-medium text-gray-300">Preferred Language *</label>
           <select
             name="preferred_language"
+            value={selectedCase.preferred_language || ""}
+            onChange={handleChange}
             className="w-full border rounded px-3 py-2 bg-black text-white"
-            value={selectedLanguage}
-            onChange={(e) => setSelectedLanguage(e.target.value)}
             required
           >
             <option value="">Select Language</option>
@@ -237,31 +263,30 @@ export default function PatientFormFields({
 
       {/* Notes */}
       <div className="md:col-span-2">
-        <label className="block mb-1 text-sm font-medium text-gray-300">
-          Notes
-        </label>
+        <label className="block mb-1 text-sm font-medium text-gray-300">Notes</label>
         <textarea
           name="notes"
+          value={selectedCase.notes || ""}
+          onChange={handleChange}
           placeholder="Additional notes"
           className="w-full border rounded px-3 py-2 bg-black text-white min-h-[100px]"
         ></textarea>
       </div>
-      
-      {/* Upload LOP */}
-      <div className="md:col-span-2">
-        <label className="block mb-1 text-sm font-medium text-gray-300">
-          Upload LOP
-        </label>
-        <input
-          type="file"
-          name="lop_file"
-          accept="application/pdf"
-          className="w-full border rounded px-3 py-2 bg-black text-white"
-        />
-        <p className="text-xs text-gray-500 mt-1">
-          Allowed: PDF
-        </p>
-      </div>
+
+      {/* LOP Upload */}
+      {!selectedCase?.pid && (
+        <div className="md:col-span-2">
+          <label className="block mb-1 text-sm font-medium text-gray-300">Upload LOP</label>
+          <input
+            type="file"
+            name="lop_file"
+            accept="application/pdf"
+            onChange={handleFileChange}
+            className="w-full border rounded px-3 py-2 bg-black text-white"
+          />
+          <p className="text-xs text-gray-500 mt-1">Allowed: PDF</p>
+        </div>
+      )}
     </>
   );
 }

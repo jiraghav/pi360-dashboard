@@ -13,6 +13,7 @@ import SendTeleneuroLinkModal from "./SendTeleneuroLinkModal";
 import SendIntakeLinkModal from "./SendIntakeLinkModal";
 import UploadLOPModal from "./UploadLOPModal";
 import DroppedCaseModal from "./DroppedCaseModal";
+import EditDemographicsModal from "./EditDemographicsModal";
 
 export default function Cases() {
   const [cases, setCases] = useState([]);
@@ -30,6 +31,7 @@ export default function Cases() {
   const [showSendTeleneuroLinkModal, setShowSendTeleneuroLinkModal] = useState(false);
   const [showSendIntakeLinkModal, setShowSendIntakeLinkModal] = useState(false);
   const [showUploadLOPModal, setShowUploadLOPModal] = useState(false);
+  const [showEditDemographicsModal, setShowEditDemographicsModal] = useState(false);
   const limit = 10;
   const { showToast } = useToast();
   
@@ -46,34 +48,38 @@ export default function Cases() {
   // Fetch cases
   useEffect(() => {
     if (!initialized) return;
-    (async () => {
-      setLoading(true);
-      try {
-        const query = new URLSearchParams({
-          page: page.toString(),
-          limit: limit.toString(),
-          search,
-        });
-        if (statusFilter) query.append("status", statusFilter);
-        const data = await apiRequest(`/cases.php?${query.toString()}`);
-        if (data.status && data.patients) {
-          setCases(data.patients);
-          setTotal(data.total || data.patients.length);
-        } else {
-          setCases([]);
-          setTotal(0);
-        }
-        
-        if (casesTableRef.current) {
-          casesTableRef.current.clearExpanded(); // 🔥 collapse expanded rows
-        }
-      } catch (e) {
-        console.error("Fetch failed:", e);
-      } finally {
-        setLoading(false);
-      }
-    })();
+    loadCases();
   }, [page, search, statusFilter, initialized]);
+  
+  const loadCases = async () => {
+    setLoading(true);
+    try {
+      const query = new URLSearchParams({
+        page: page.toString(),
+        limit: limit.toString(),
+        search,
+      });
+      if (statusFilter) query.append("status", statusFilter);
+
+      const data = await apiRequest(`/cases.php?${query.toString()}`);
+      if (data.status && data.patients) {
+        setCases(data.patients);
+        setTotal(data.total || data.patients.length);
+      } else {
+        setCases([]);
+        setTotal(0);
+      }
+
+      if (casesTableRef.current) {
+        casesTableRef.current.clearExpanded();
+      }
+
+    } catch (e) {
+      console.error("Fetch failed:", e);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Request Records
   const confirmRequestRecord = async () => {
@@ -252,6 +258,7 @@ export default function Cases() {
             setShowUploadLOPModal={setShowUploadLOPModal}
             setShowDroppedCaseModal={setShowDroppedCaseModal}
             markCaseHasLOP={markCaseHasLOP}
+            setShowEditDemographicsModal={setShowEditDemographicsModal}
           />
         </section>
       </main>
@@ -308,6 +315,17 @@ export default function Cases() {
           selectedCase={selectedCase}
           onClose={() => setShowDroppedCaseModal(false)}
           onConfirm={confirmDroppedCaseRequest}
+          setSelectedCase={setSelectedCase}
+        />
+      )}
+      {showEditDemographicsModal && selectedCase && (
+        <EditDemographicsModal
+          selectedCase={selectedCase}
+          onClose={() => setShowEditDemographicsModal(false)}
+          onConfirm={async () => {
+            setShowEditDemographicsModal(false);
+            await loadCases();
+          }}
           setSelectedCase={setSelectedCase}
         />
       )}

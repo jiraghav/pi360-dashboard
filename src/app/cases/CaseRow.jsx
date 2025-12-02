@@ -17,6 +17,7 @@ export default function CaseRow({
   setShowUploadLOPModal,
   markCaseHasLOP,
   setShowDroppedCaseModal,
+  setShowEditDemographicsModal
 }) {
   const [expandedData, setExpandedData] = useState({});
   const isExpanded = expandedRows[caseItem.pid];
@@ -156,6 +157,17 @@ export default function CaseRow({
     
             {menuOpen && (
               <div className="absolute right-0 mt-1 w-44 bg-slate-800 border border-stroke/30 rounded-md shadow-lg z-20">
+                <button
+                  onClick={() => {
+                    setSelectedCase(caseItem);
+                    setShowEditDemographicsModal(true);
+                    setMenuOpen(false);
+                  }}
+                  className="block w-full text-left px-3 py-2 text-sm text-slate-100 hover:bg-slate-700 hover:text-mint-300 transition"
+                >
+                  Edit Demographics
+                </button>
+
                 <button
                   onClick={() => {
                     setSelectedCase(caseItem);

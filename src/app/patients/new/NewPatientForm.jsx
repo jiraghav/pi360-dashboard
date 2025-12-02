@@ -14,6 +14,7 @@ export default function NewPatientForm() {
   const { lawyers, caseTypes, languages, states } = useFetchOptions();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [selectedCase, setSelectedCase] = useState({});
 
   const formRef = useRef(null);
   const fnameRef = useRef(null);
@@ -66,6 +67,8 @@ export default function NewPatientForm() {
       >
       <PatientFormFields
         fnameRef={fnameRef}
+        selectedCase={selectedCase}
+        setSelectedCase={setSelectedCase}
         lawyers={lawyers}
         caseTypes={caseTypes}
         languages={languages}
