@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { apiRequest } from "../utils/api";
 import ExpandedCaseDetails from "./ExpandedCaseDetails";
+import { Phone, Mail } from "lucide-react";
 
 export default function CaseRow({
   caseItem,
@@ -88,12 +89,75 @@ export default function CaseRow({
       <div className="grid grid-cols-1 md:grid-cols-12 items-start md:items-center gap-2 md:gap-0 p-4 md:p-0">
         {/* Expand */}
         <div className="flex items-center md:col-span-2">
-          {caseItem.has_lop !== "0" && (
-            <button
-              className="badge w-16 cursor-default"
-            >
-              LOP
-            </button>
+          <button
+            className={`badge w-10 cursor-default ${
+              caseItem.has_lop !== "0" ? "bg-green-500" : "bg-red-500"
+            }`}
+          >
+            LOP
+          </button>
+          {caseItem.email && (
+            <div className="ml-1 relative group">
+              <button
+                className="badge w-8 cursor-default flex items-center justify-center bg-blue-500"
+              >
+                <Mail className="w-4 h-4" />
+              </button>
+          
+              {/* Tooltip */}
+              <div
+                className="
+                  absolute 
+                  left-1/2 
+                  -translate-x-1/2 
+                  mt-1
+                  px-2 py-1 
+                  text-xs 
+                  bg-black text-white 
+                  rounded 
+                  shadow-lg 
+                  whitespace-nowrap
+                  opacity-0
+                  group-hover:opacity-100
+                  pointer-events-none
+                  transition
+                "
+              >
+                {caseItem.email}
+              </div>
+            </div>
+          )}
+          
+          {caseItem.phone_home && (
+            <div className="ml-1 relative group">
+              <button
+                className="badge w-8 cursor-default flex items-center justify-center bg-blue-500"
+              >
+                <Phone className="w-4 h-4" />
+              </button>
+          
+              {/* Tooltip */}
+              <div
+                className="
+                  absolute 
+                  left-1/2 
+                  -translate-x-1/2 
+                  mt-1
+                  px-2 py-1 
+                  text-xs 
+                  bg-black text-white 
+                  rounded 
+                  shadow-lg 
+                  whitespace-nowrap
+                  opacity-0
+                  group-hover:opacity-100
+                  pointer-events-none
+                  transition
+                "
+              >
+                {caseItem.phone_home}
+              </div>
+            </div>
           )}
           <button className="badge" onClick={toggleRow}>
             {isExpanded ? "-" : "+"}
