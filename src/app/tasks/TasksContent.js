@@ -7,6 +7,7 @@ import { apiRequest } from "../utils/api";
 import { formatDate } from "../utils/formatter";
 import { useSearchParams } from "next/navigation";
 import { useToast } from "../hooks/ToastContext";
+import { useRouter } from "next/navigation";
 
 export default function TasksContent() {
   const [taskModalOpen, setTaskModalOpen] = useState(false);
@@ -17,6 +18,7 @@ export default function TasksContent() {
   const [showAllToCIC, setShowAllToCIC] = useState(false);
   const [showAllFromCIC, setShowAllFromCIC] = useState(false);
   const [mobileTab, setMobileTab] = useState("to");
+  const router = useRouter();
   
   const { showToast } = useToast();
 
@@ -86,6 +88,13 @@ export default function TasksContent() {
       default:
         return <span className="badge text-gray-400">Unknown</span>;
     }
+  };
+  
+  const onViewProfile = (p) => {
+    if (!p?.patient_name) return;
+
+    const query = encodeURIComponent(p.patient_name);
+    router.push(`/cases?search=${query}`);
   };
 
   // ---- Render Shared UI ----
@@ -157,7 +166,12 @@ export default function TasksContent() {
                     )}
                     <div className="text-xs text-mute mt-1 flex items-center gap-2 flex-wrap">
                       {task.patient_name && (
-                        <span className="truncate">👤 {task.patient_name}</span>
+                        <span
+                          onClick={() => onViewProfile(task)}
+                          className="truncate text-blue-600 hover:underline cursor-pointer flex items-center"
+                        >
+                          👤 {task.patient_name}
+                        </span>
                       )}
                       {task.created_at && (
                         <span>🕒 {formatDate(task.created_at)}</span>

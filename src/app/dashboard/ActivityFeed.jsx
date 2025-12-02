@@ -1,9 +1,11 @@
 "use client";
 import { useState, useEffect } from "react";
 import moment from "moment";
+import { useRouter } from "next/navigation";
 
 export default function ActivityFeed({ activities, loading, error }) {
   const [activityList, setActivityList] = useState([]);
+  const router = useRouter();
 
   // ✅ Convert submittedToLawyers into formatted activities
   useEffect(() => {
@@ -20,6 +22,13 @@ export default function ActivityFeed({ activities, loading, error }) {
   }, [activities]);
 
   const [showAll, setShowAll] = useState(false);
+  
+  const onViewProfile = (a) => {
+    if (!a?.name) return;
+
+    const query = encodeURIComponent(a.name);
+    router.push(`/cases?search=${query}`);
+  };
 
   return (
     <div className="col-span-12 lg:col-span-6 card p-5">
@@ -47,7 +56,14 @@ export default function ActivityFeed({ activities, loading, error }) {
                 >
                   <div>
                     <div className="font-medium">
-                      {activity.name}{" "}
+                      {activity.name && (
+                        <span
+                          onClick={() => onViewProfile(activity)}
+                          className="truncate text-blue-600 hover:underline cursor-pointer items-center"
+                        >
+                          {activity.name}{" "}
+                        </span>
+                      )}
                       <span className="text-xs text-mute">
                         · Case #{activity.caseId}
                       </span>

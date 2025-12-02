@@ -159,7 +159,7 @@ export default function CaseRow({
               </div>
             </div>
           )}
-          <button className="badge" onClick={toggleRow}>
+          <button className="badge ml-2" onClick={toggleRow}>
             {isExpanded ? "-" : "+"}
           </button>
           <span className="ml-2 flex gap-1">

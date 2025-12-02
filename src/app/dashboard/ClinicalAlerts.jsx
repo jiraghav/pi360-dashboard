@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { apiRequest } from "../utils/api"; // adjust if needed
 import { formatDate } from "../utils/formatter"; // adjust if needed
+import { useRouter } from "next/navigation";
 
 export default function ClinicalAlerts({
   alerts,
@@ -10,6 +11,7 @@ export default function ClinicalAlerts({
 }) {
   const [alertList, setAlertList] = useState(alerts || []);
   const [showAllAlerts, setShowAllAlerts] = useState(false);
+  const router = useRouter();
 
   // ✅ Keep alertList in sync with latest alerts prop
   useEffect(() => {
@@ -56,6 +58,13 @@ export default function ClinicalAlerts({
       console.error("Failed to update task:", err);
     }
   };
+  
+  const onViewProfile = (a) => {
+    if (!a?.patient_name) return;
+
+    const query = encodeURIComponent(a.patient_name);
+    router.push(`/cases?search=${query}`);
+  };
 
   return (
     <div className="col-span-12 lg:col-span-6 card p-5">
@@ -96,7 +105,12 @@ export default function ClinicalAlerts({
                     {/* Patient and time info */}
                     <div className="text-xs text-mute mt-1 flex items-center gap-2 flex-wrap">
                       {alert.patient_name && (
-                        <span className="truncate">👤 {alert.patient_name}</span>
+                        <span
+                          onClick={() => onViewProfile(alert)}
+                          className="truncate text-blue-600 hover:underline cursor-pointer flex items-center"
+                        >
+                          👤 {alert.patient_name}
+                        </span>
                       )}
                       {alert.created_at && (
                         <span>🕒 {formatDate(alert.created_at)}</span>
