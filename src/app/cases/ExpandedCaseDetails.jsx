@@ -34,7 +34,7 @@ export default function ExpandedCaseDetails({ data, setSelectedCase, setShowUplo
             <div className="text-xs text-slate-500 mb-1 font-medium">Case Info</div>
               <ul className="text-sm space-y-1">
                 <li className="flex justify-between">
-                  <span className="text-slate-500">CMVA:</span>
+                  <span className="text-slate-500">MVA:</span>
                   <span className="font-medium">
                     {data.detail.casetype || "—"}
                   </span>
