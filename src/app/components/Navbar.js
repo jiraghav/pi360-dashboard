@@ -10,8 +10,10 @@ import moment from "moment-timezone";
 
 import { routeMap } from "../config/routes";
 import { apiRequest } from "../utils/api";
-import NotificationModal from "./NotificationModal";
 import { useToast } from "../hooks/ToastContext";
+
+import TaskNotificationModal from "./TaskNotificationModal";
+import NoteNotificationModal from "./NoteNotificationModal";
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -23,7 +25,8 @@ export default function Navbar() {
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  const [modalOpen, setModalOpen] = useState(false);
+  const [taskModalOpen, setTaskModalOpen] = useState(false);
+  const [noteModalOpen, setNoteModalOpen] = useState(false);
   const [selectedNotification, setSelectedNotification] = useState(null);
 
   const dropdownRef = useRef(null);
@@ -148,6 +151,25 @@ export default function Navbar() {
       return false;
     }
   };
+  
+  function handleNotificationClick(n) {
+    setSelectedNotification(n);
+
+    switch (n.notification_type) {
+
+      case "task":
+        setTaskModalOpen(true);
+        break;
+
+      case "note":
+        setNoteModalOpen(true);
+        break;
+
+      default:
+        console.warn("Unknown notification type:", n.notification_type);
+        break;
+    }
+  }
 
   // SPLIT READ/UNREAD
   const unread = notifications.filter((n) => n.is_read == 0);
@@ -215,13 +237,10 @@ export default function Navbar() {
                       unread.map((n) => (
                         <div
                           key={n.id}
-                          onClick={() => {
-                            setSelectedNotification(n);
-                            setModalOpen(true);
-                          }}
+                          onClick={() => handleNotificationClick(n)}
                           className="px-4 py-3 text-sm hover:bg-white/5 cursor-pointer border-b border-white/5"
                         >
-                          <div className="text-white">#{n.task_id} - {n.title}</div>
+                          <div className="text-white">{n.title}</div>
                           <div className="text-xs text-gray-400 mt-1">{n.message}</div>
                           <div className="text-xs text-gray-500 mt-1">
                             {moment.tz(n.created_at, "America/Chicago").fromNow()}
@@ -241,13 +260,10 @@ export default function Navbar() {
                       read.map((n) => (
                         <div
                           key={n.id}
-                          onClick={() => {
-                            setSelectedNotification(n);
-                            setModalOpen(true);
-                          }}
+                          onClick={() => handleNotificationClick(n)}
                           className="px-4 py-3 text-sm hover:bg-white/5 cursor-pointer border-b border-white/5 opacity-50"
                         >
-                          <div className="text-white">#{n.task_id} - {n.title}</div>
+                          <div className="text-white">{n.title}</div>
                           <div className="text-xs text-gray-400 mt-1">{n.message}</div>
                           <div className="text-xs text-gray-500 mt-1">
                             {moment.tz(n.created_at, "America/Chicago").fromNow()}
@@ -268,12 +284,19 @@ export default function Navbar() {
         </div>
       </header>
 
-      <NotificationModal
-        open={modalOpen}
-        onClose={() => setModalOpen(false)}
+      <TaskNotificationModal
+        open={taskModalOpen}
+        onClose={() => setTaskModalOpen(false)}
         notification={selectedNotification}
         fetchNotifications={fetchNotifications}
         onMarkDone={onMarkDone}
+      />
+
+      <NoteNotificationModal
+        open={noteModalOpen}
+        onClose={() => setNoteModalOpen(false)}
+        notification={selectedNotification}
+        fetchNotifications={fetchNotifications}
       />
     </>
   );

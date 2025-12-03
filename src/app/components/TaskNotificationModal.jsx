@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import moment from "moment-timezone";
 import { apiRequest } from "../utils/api";
 
-export default function NotificationModal({
+export default function TaskNotificationModal({
   open,
   onClose,
   notification,
