@@ -120,7 +120,7 @@ export default function MessagesModal({ onClose, pid_group }) {
                           : "bg-white/10 border-white/20 text-gray-100"
                       }`}
                   >
-                    <div className="whitespace-pre-wrap">{msg.text}</div>
+                    <div className="whitespace-pre-wrap break-words">{msg.text}</div>
 
                     {msg.mms_url && (
                       <div className="mt-3 space-y-2">
