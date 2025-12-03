@@ -1,12 +1,22 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { X } from "lucide-react";
 import { apiRequest } from "../utils/api";
 
 export default function MessagesModal({ onClose, pid_group }) {
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
+  
+  const messagesEndRef = useRef(null);
+  
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView();
+  };
+  
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
 
   useEffect(() => {
     if (!pid_group) return;
@@ -79,7 +89,7 @@ export default function MessagesModal({ onClose, pid_group }) {
               prev.created_date.split(" ")[0] !== msg.created_date.split(" ")[0];
 
             return (
-              <div key={idx}>
+              <div key={idx} ref={messagesEndRef}>
                 {/* Date Separator */}
                 {showDate && (
                   <div className="flex justify-center my-2">
