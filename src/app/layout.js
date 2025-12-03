@@ -2,13 +2,14 @@
 
 import "./globals.css";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import Navbar from "./components/Navbar";
 import Sidebar from "./components/Sidebar";
 import Link from "next/link";
 import { routeMap } from "./config/routes";
 import Toast from "./components/Toast";
 import { ToastProvider, useToast } from "./hooks/ToastContext";
+import NotificationBell from "./components/NotificationBell";
 
 function LayoutContent({ children }) {
   const pathname = usePathname();
@@ -26,6 +27,9 @@ function LayoutContent({ children }) {
     pathname === "/login" ||
     pathname === "/register" ||
     pathname === "/forgot-password";
+
+  // We'll reuse NotificationBell state via refs passed into bell component
+  const bellRef = useRef();
 
   return (
     <>
@@ -46,21 +50,21 @@ function LayoutContent({ children }) {
               viewBox="0 0 24 24"
               stroke="currentColor"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M4 6h16M4 12h16M4 18h16"
-              />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           </button>
-          <div>
+
+          <div className="flex-1">
             <div className="text-xs font-semibold">Complete Injury Centers</div>
             <div className="text-[10px] text-gray-400">Powered by PI360</div>
           </div>
-          <Link href="/referrals/new" className="btn btn-primary">
-            New Referral
-          </Link>
+
+          <div className="flex items-center gap-2">
+            <Link href="/referrals/new" className="btn btn-primary">
+              New Referral
+            </Link>
+            <NotificationBell ref={bellRef} compact />
+          </div>
         </div>
       )}
 
@@ -70,7 +74,7 @@ function LayoutContent({ children }) {
         <section
           className={hideLayout ? "col-span-12" : "md:col-span-9 xl:col-span-10"}
         >
-          {!hideLayout && <Navbar />}
+          {!hideLayout && <Navbar externalBellRef={bellRef} />}
           <main className="main">{children}</main>
 
           {/* ✅ Toast stays globally mounted */}
@@ -92,10 +96,7 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <head>
         <title>PI360</title>
-
         <link rel="icon" href="/favicon.ico" sizes="any" />
-
-        {/* ✅ Keep Tailwind setup for global styling */}
         <script src="https://cdn.tailwindcss.com"></script>
         <script
           dangerouslySetInnerHTML={{

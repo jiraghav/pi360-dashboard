@@ -111,7 +111,7 @@ export default function TaskNotificationModal({
         </div>
 
         {/* Patient */}
-        {notification.case_id && (
+        {notification.case_id !== "0" && (
           <div className="mb-4 p-3 rounded-lg bg-white/5 border border-white/10">
             <div className="text-xs text-gray-400 mb-1">Patient</div>
 

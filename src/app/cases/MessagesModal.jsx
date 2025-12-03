@@ -47,15 +47,26 @@ export default function MessagesModal({ onClose, pid_group }) {
   const formatDate = (dateString) => {
     const d = new Date(dateString);
   
+    const today = new Date();
+    const yesterday = new Date();
+    yesterday.setDate(today.getDate() - 1);
+  
+    const isSameDay = (d1, d2) =>
+      d1.getFullYear() === d2.getFullYear() &&
+      d1.getMonth() === d2.getMonth() &&
+      d1.getDate() === d2.getDate();
+  
+    if (isSameDay(d, today)) return "Today";
+    if (isSameDay(d, yesterday)) return "Yesterday";
+  
     return new Intl.DateTimeFormat("en-US", {
       weekday: "long",
       year: "numeric",
       month: "long",
       day: "numeric",
-      timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone, // force local tz
+      timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
     }).format(d);
   };
-
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
