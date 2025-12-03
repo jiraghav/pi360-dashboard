@@ -88,13 +88,13 @@ export default function ExpandedCaseDetails({ data, setSelectedCase, setShowUplo
                         });
                         setShowUploadLOPModal(true);
                       }}
-                      className="text-xs px-2 py-1 rounded btn cursor-default"
+                      className="text-xs px-2 py-1 rounded btn cursor-default bg-red-500 text-white"
                     >
                       Upload LOP
                     </button>
                   ) : (
                     <button
-                      className="text-xs px-2 py-1 rounded btn cursor-default"
+                      className="text-xs px-2 py-1 rounded btn cursor-default bg-green-500 text-white"
                     >
                       LOP Uploaded
                     </button>
