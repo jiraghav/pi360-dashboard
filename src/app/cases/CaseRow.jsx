@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { apiRequest } from "../utils/api";
 import ExpandedCaseDetails from "./ExpandedCaseDetails";
 import { Phone, Mail } from "lucide-react";
+import MessagesModal from "./MessagesModal";
 
 export default function CaseRow({
   caseItem,
@@ -22,6 +23,7 @@ export default function CaseRow({
 }) {
   const [expandedData, setExpandedData] = useState({});
   const isExpanded = expandedRows[caseItem.pid];
+  const [showMessagesModal, setShowMessagesModal] = useState(false);
 
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef(null);
@@ -131,6 +133,7 @@ export default function CaseRow({
           {caseItem.phone_home && (
             <div className="ml-1 relative group">
               <button
+                onClick={() => setShowMessagesModal(true)}
                 className="badge w-8 cursor-default flex items-center justify-center bg-blue-500"
               >
                 <Phone className="w-4 h-4" />
@@ -311,6 +314,14 @@ export default function CaseRow({
           setShowUploadLOPModal={setShowUploadLOPModal}
           updateSectionLOP={updateSectionLOP}
           markCaseHasLOP={markCaseHasLOP} />
+      )}
+      
+      {showMessagesModal && (
+        <MessagesModal
+          open={showMessagesModal}
+          onClose={() => setShowMessagesModal(false)}
+          pid_group={caseItem.pid_group || ''}
+        />
       )}
     </div>
   );
