@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { apiRequest } from "../utils/api";
 import ExpandedCaseDetails from "./ExpandedCaseDetails";
-import { Phone, Mail } from "lucide-react";
+import { Phone, Mail, MessageSquare } from "lucide-react";
 import MessagesModal from "./MessagesModal";
 
 export default function CaseRow({
@@ -133,7 +133,6 @@ export default function CaseRow({
           {caseItem.phone_home && (
             <div className="ml-1 relative group">
               <button
-                onClick={() => setShowMessagesModal(true)}
                 className="badge w-8 cursor-default flex items-center justify-center bg-blue-500"
               >
                 <Phone className="w-4 h-4" />
@@ -160,6 +159,16 @@ export default function CaseRow({
               >
                 {caseItem.phone_home}
               </div>
+            </div>
+          )}
+          {caseItem.has_messages !== "0" && (
+            <div className="ml-1 relative group">
+              <button
+                onClick={() => setShowMessagesModal(true)}
+                className="badge w-8 cursor-default flex items-center justify-center bg-blue-500"
+              >
+                <MessageSquare className="w-4 h-4" />
+              </button>
             </div>
           )}
           <button className="badge ml-2" onClick={toggleRow}>
