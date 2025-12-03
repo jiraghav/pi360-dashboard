@@ -14,6 +14,7 @@ import { useToast } from "../hooks/ToastContext";
 
 import TaskNotificationModal from "./TaskNotificationModal";
 import NoteNotificationModal from "./NoteNotificationModal";
+import DocumentNotificationModal from "./DocumentNotificationModal";
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -27,6 +28,7 @@ export default function Navbar() {
 
   const [taskModalOpen, setTaskModalOpen] = useState(false);
   const [noteModalOpen, setNoteModalOpen] = useState(false);
+  const [documentModalOpen, setDocumentModalOpen] = useState(false);
   const [selectedNotification, setSelectedNotification] = useState(null);
 
   const dropdownRef = useRef(null);
@@ -165,6 +167,10 @@ export default function Navbar() {
         setNoteModalOpen(true);
         break;
 
+      case "document":
+        setDocumentModalOpen(true);
+        break;
+
       default:
         console.warn("Unknown notification type:", n.notification_type);
         break;
@@ -295,6 +301,13 @@ export default function Navbar() {
       <NoteNotificationModal
         open={noteModalOpen}
         onClose={() => setNoteModalOpen(false)}
+        notification={selectedNotification}
+        fetchNotifications={fetchNotifications}
+      />
+
+      <DocumentNotificationModal
+        open={documentModalOpen}
+        onClose={() => setDocumentModalOpen(false)}
         notification={selectedNotification}
         fetchNotifications={fetchNotifications}
       />
