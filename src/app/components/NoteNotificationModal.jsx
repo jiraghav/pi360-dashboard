@@ -35,7 +35,7 @@ export default function NoteNotificationModal({
     fetchNote();
   }, [open, notification?.note_id]);
 
-  if (!open) return null;
+  if (!open || !noteData) return null;
 
   return (
     <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50 backdrop-blur-sm">
