@@ -15,6 +15,7 @@ import { useToast } from "../hooks/ToastContext";
 import TaskNotificationModal from "./TaskNotificationModal";
 import NoteNotificationModal from "./NoteNotificationModal";
 import DocumentNotificationModal from "./DocumentNotificationModal";
+import { useRouter } from "next/navigation";
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -32,6 +33,7 @@ export default function Navbar() {
   const [selectedNotification, setSelectedNotification] = useState(null);
 
   const dropdownRef = useRef(null);
+  const router = useRouter();
 
   // -------------------------------
   // FETCH NOTIFICATIONS
@@ -176,6 +178,15 @@ export default function Navbar() {
         break;
     }
   }
+  
+  const onViewProfile = (p) => {
+    if (!p?.patient_name) return;
+    
+    setOpen(false);
+
+    const query = encodeURIComponent(p.patient_name);
+    router.push(`/cases?search=${query}`);
+  };
 
   // SPLIT READ/UNREAD
   const unread = notifications.filter((n) => n.is_read == 0);
@@ -246,6 +257,17 @@ export default function Navbar() {
                           onClick={() => handleNotificationClick(n)}
                           className="px-4 py-3 text-sm hover:bg-white/5 cursor-pointer border-b border-white/5"
                         >
+                          {n.patient_name && (
+                            <span
+                              className="text-xs float-right text-blue-400 underline cursor-pointer"
+                              onClick={(e) => {
+                                e.stopPropagation();   // Prevent opening the notification modal
+                                onViewProfile(n);
+                              }}
+                            >
+                              👤 {n.patient_name}
+                            </span>
+                          )}
                           <div className="text-white">{n.title}</div>
                           <div className="text-xs text-gray-400 mt-1">{n.message}</div>
                           <div className="text-xs text-gray-500 mt-1">
@@ -269,6 +291,17 @@ export default function Navbar() {
                           onClick={() => handleNotificationClick(n)}
                           className="px-4 py-3 text-sm hover:bg-white/5 cursor-pointer border-b border-white/5 opacity-50"
                         >
+                          {n.patient_name && (
+                            <span
+                              className="text-xs float-right text-blue-400 underline cursor-pointer"
+                              onClick={(e) => {
+                                e.stopPropagation();   // Prevent opening the notification modal
+                                onViewProfile(n);
+                              }}
+                            >
+                              👤 {n.patient_name}
+                            </span>
+                          )}
                           <div className="text-white">{n.title}</div>
                           <div className="text-xs text-gray-400 mt-1">{n.message}</div>
                           <div className="text-xs text-gray-500 mt-1">
