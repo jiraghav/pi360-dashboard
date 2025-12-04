@@ -46,7 +46,7 @@ export default function DocumentNotificationModal({
 
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
-          <h4 className="font-semibold">New Document</h4>
+          <h4 className="font-semibold">Document</h4>
           <button type="button" className="badge" onClick={onClose}>
             Close
           </button>
@@ -71,8 +71,6 @@ export default function DocumentNotificationModal({
 
         {/* Document Content */}
         <div className="mb-4">
-
-          <div className="text-xs text-gray-400 mb-1">Document</div>
 
           {loadingDoc ? (
             <div className="text-gray-400 text-sm">Loading document...</div>

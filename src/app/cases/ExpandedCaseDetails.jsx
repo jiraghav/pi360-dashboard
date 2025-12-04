@@ -2,10 +2,15 @@
 
 import { useState } from "react";
 import TaskModal from "../tasks/TaskModal";
+import DocumentNotificationModal from "../components/DocumentNotificationModal";
+import { FileText } from "lucide-react";
 
 export default function ExpandedCaseDetails({ data, setSelectedCase, setShowUploadLOPModal, updateSectionLOP, markCaseHasLOP }) {
   const [showTaskModal, setShowTaskModal] = useState(false);
   const [selectedCase, setSelectedCaseNewTask] = useState(null);
+  
+  const [docModalOpen, setDocModalOpen] = useState(false);
+  const [selectedDocNotification, setSelectedDocNotification] = useState(null);
 
   return (
     <div className="mt-2 md:mt-4 p-3 md:p-4 rounded-xl border border-stroke bg-card">
@@ -124,6 +129,32 @@ export default function ExpandedCaseDetails({ data, setSelectedCase, setShowUplo
                     )}
                   </div>
                 )}
+                
+                {section.document_ids && (
+                  <div className="mt-2 flex items-center gap-2 flex-wrap">
+                    {section.document_ids
+                      .split(",")
+                      .map((docId) => docId.trim())
+                      .filter(Boolean)
+                      .map((docId) => (
+                        <a
+                          key={docId}
+                          onClick={() => {
+                            setSelectedDocNotification({
+                              document_id: docId,
+                              patient_name: `${data.detail.fname} ${data.detail.lname}`,
+                              case_id: data.detail.pid,
+                              id: 0
+                            });
+                            setDocModalOpen(true);
+                          }}
+                          className="w-6 h-6 flex items-center justify-center rounded bg-gray-700 text-white text-sm hover:bg-gray-900"
+                        >
+                          <FileText className="w-3.5 h-3.5 text-white" />
+                        </a>
+                      ))}
+                  </div>
+                )}
               </div>
             ))}
           </div>
@@ -133,6 +164,12 @@ export default function ExpandedCaseDetails({ data, setSelectedCase, setShowUplo
             selectedCase={selectedCase}   // <-- send case here
             onCreated={(task) => {
             }}
+          />
+          <DocumentNotificationModal
+            open={docModalOpen}
+            onClose={() => setDocModalOpen(false)}
+            notification={selectedDocNotification}
+            fetchNotifications={() => {}}
           />
         </>
       ) : (
