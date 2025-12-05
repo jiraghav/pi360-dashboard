@@ -459,7 +459,7 @@ export default function ServiceLocations() {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
               {/* Map */}
               <div
-                className="lg:col-span-9 relative"
+                className="lg:col-span-8 relative"
               >
                 {loadingLocations && (
                   <div className="absolute inset-0 bg-black/30 flex items-center justify-center text-white text-sm z-10 rounded-lg">
@@ -573,11 +573,11 @@ export default function ServiceLocations() {
               </div>
 
               {/* Facility List */}
-              <aside className="lg:col-span-3 space-y-3 md:max-h-[500px] overflow-y-auto pr-2 mt-6 lg:mt-0">
+              <aside className="lg:col-span-4 space-y-3 md:max-h-[500px] overflow-y-auto pr-2 mt-6 lg:mt-0">
                 {filteredLocations.length > 0 && !loadingLocations && (
                   <div className="text-sm text-gray-400 mb-2">
                     Showing <span className="font-semibold text-gray-200">{filteredLocations.length}</span>{" "}
-                    service {filteredLocations.length === 1 ? "location" : "locations"}
+                    of <span className="font-semibold text-gray-200">{locations.length}</span> locations
                   </div>
                 )}
                 {loadingLocations ? (
