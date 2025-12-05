@@ -22,8 +22,6 @@ export default function SendMessageModal({
     };
   }, [selectedCase]);
 
-  if (!selectedCase) return null;
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -51,16 +49,19 @@ export default function SendMessageModal({
           </button>
         </div>
 
-        {/* Case Info */}
-        <p className="text-sm text-mute mb-4">
-          You are sending a message regarding:
-          <br />
-          <strong className="text-white">
-            {selectedCase.fname} {selectedCase.mname} {selectedCase.lname}
-          </strong>
-          <br />
-          DOB: {selectedCase.dob}
-        </p>
+        {
+          selectedCase?.pid && (
+            <p className="text-sm text-mute mb-4">
+              You are sending a message regarding:
+              <br />
+              <strong className="text-white">
+                {selectedCase.fname} {selectedCase.mname} {selectedCase.lname}
+              </strong>
+              <br />
+              DOB: {selectedCase.dob}
+            </p>
+          )
+        }
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4">

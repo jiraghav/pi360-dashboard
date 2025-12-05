@@ -4,6 +4,7 @@ export default function QuickActions({
   router,
   setReviewModalOpen,
   setReferralModalOpen,
+  setShowSendMessageModal
 }) {
   return (
     <div className="col-span-12 xl:col-span-4 card p-5">
@@ -19,7 +20,7 @@ export default function QuickActions({
           <div className="text-3xl font-semibold">{loading ? "…" : kpis?.notesCount || 0}</div>
           Review Notes
         </button>
-        <button type="button" className="btn" onClick={() => router.push("/cases")}>
+        <button type="button" className="btn" onClick={() => setShowSendMessageModal(true)}>
           Send Message to Back Office
         </button>
       </div>

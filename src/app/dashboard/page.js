@@ -12,6 +12,8 @@ import ClinicalAlerts from "./ClinicalAlerts";
 import ActivityFeed from "./ActivityFeed";
 import GreetingHeader from "./GreetingHeader";
 import NewLocationRequestModal from "./NewLocationRequestModal";
+import SendMessageModal from "../cases/SendMessageModal";
+import { useToast } from "../hooks/ToastContext";
 
 export default function Dashboard() {
   const [dashboardData, setDashboardData] = useState(null);
@@ -20,7 +22,11 @@ export default function Dashboard() {
   const [reviewModalOpen, setReviewModalOpen] = useState(false);
   const [referralModalOpen, setReferralModalOpen] = useState(false);
   const [newLocationRequestModalOpen, setNewLocationRequestModalOpen] = useState(false);
+  const [showSendMessageModal, setShowSendMessageModal] = useState(false);
   const router = useRouter();
+
+  const [selectedCase, setSelectedCase] = useState({"message": ""});
+  const { showToast } = useToast();
 
   useEffect(() => {
     const fetchDashboard = async () => {
@@ -35,6 +41,22 @@ export default function Dashboard() {
     };
     fetchDashboard();
   }, []);
+  
+  const sendBackOfficeMessage = async () => {
+    if (!selectedCase) return;
+    try {
+      const formData = new FormData();
+      formData.append("message", selectedCase.message || "");
+      const res = await apiRequest("send_back_office_msg.php", { method: "POST", body: formData });
+      if (res.status) {
+        showToast("success", res.message);
+        setSelectedCase({"message": ""});
+        setShowSendMessageModal(false);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   const kpis = dashboardData || {};
   const alerts = dashboardData?.clincalAlerts || [];
@@ -53,6 +75,7 @@ export default function Dashboard() {
             router={router}
             setReviewModalOpen={setReviewModalOpen}
             setReferralModalOpen={setReferralModalOpen}
+            setShowSendMessageModal={setShowSendMessageModal}
           />
           <KPIs kpis={kpis} loading={loading} router={router} setReferralModalOpen={setReferralModalOpen} setNewLocationRequestModalOpen={setNewLocationRequestModalOpen} />
         </section>
@@ -79,6 +102,14 @@ export default function Dashboard() {
         isOpen={newLocationRequestModalOpen}
         onClose={() => setNewLocationRequestModalOpen(false)}
       />
+      {showSendMessageModal && (
+        <SendMessageModal
+          selectedCase={selectedCase}
+          onClose={() => setShowSendMessageModal(false)}
+          onConfirm={sendBackOfficeMessage}
+          setSelectedCase={setSelectedCase}
+        />
+      )}
 
     </ProtectedRoute>
   );
