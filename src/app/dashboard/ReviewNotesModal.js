@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { apiRequest } from "../utils/api";
 
-export default function ReviewNotesModal({ isOpen, onClose }) {
+export default function ReviewNotesModal({ isOpen, onClose, pid }) {
   const [notes, setNotes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -14,7 +14,10 @@ export default function ReviewNotesModal({ isOpen, onClose }) {
     const fetchNotes = async () => {
       setLoading(true);
       try {
-        const data = await apiRequest("review_notes.php");
+        const data = await apiRequest("review_notes.php", {
+          method: "POST",
+          body: { pid }
+        });
         setNotes(data.notes || []);
       } catch (err) {
         console.error("Error loading notes:", err);

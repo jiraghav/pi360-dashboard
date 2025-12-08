@@ -3,6 +3,7 @@
 import { useState } from "react";
 import TaskModal from "../tasks/TaskModal";
 import DocumentNotificationModal from "../components/DocumentNotificationModal";
+import ReviewNotesModal from "../dashboard/ReviewNotesModal";
 import { FileText } from "lucide-react";
 
 export default function ExpandedCaseDetails({ data, setSelectedCase, setShowUploadLOPModal, updateSectionLOP, markCaseHasLOP }) {
@@ -11,6 +12,9 @@ export default function ExpandedCaseDetails({ data, setSelectedCase, setShowUplo
   
   const [docModalOpen, setDocModalOpen] = useState(false);
   const [selectedDocNotification, setSelectedDocNotification] = useState(null);
+  
+  const [showReviewNotes, setShowReviewNotes] = useState(false);
+  const [selectedPid, setSelectedPid] = useState(null);
 
   return (
     <div className="mt-2 md:mt-4 p-3 md:p-4 rounded-xl border border-stroke bg-card">
@@ -105,7 +109,21 @@ export default function ExpandedCaseDetails({ data, setSelectedCase, setShowUplo
                     </button>
                   )}
                 </div>
-                <div className="font-semibold">{section.status}</div>
+                <div className="flex justify-between items-start">
+                  <div className="font-semibold">{section.status}</div>
+                
+                  {section.has_notes !== '0' && (
+                    <button
+                      onClick={() => {
+                        setSelectedPid(section.pid);
+                        setShowReviewNotes(true);
+                      }}
+                      className="text-xs px-2 py-1 mt-1 rounded btn cursor-pointer bg-blue-500 text-white"
+                    >
+                      Review Notes
+                    </button>
+                  )}
+                </div>
 
                 {(section.last_visit || section.visits || section.balance) && (
                   <div className="mt-2 flex flex-col sm:flex-row sm:flex-wrap sm:gap-x-6 gap-y-1 text-xs text-gray-400">
@@ -131,28 +149,31 @@ export default function ExpandedCaseDetails({ data, setSelectedCase, setShowUplo
                 )}
                 
                 {section.document_ids && (
-                  <div className="mt-2 flex items-center gap-2 flex-wrap">
-                    {section.document_ids
-                      .split(",")
-                      .map((docId) => docId.trim())
-                      .filter(Boolean)
-                      .map((docId) => (
-                        <a
-                          key={docId}
-                          onClick={() => {
-                            setSelectedDocNotification({
-                              document_id: docId,
-                              patient_name: `${data.detail.fname} ${data.detail.lname}`,
-                              case_id: data.detail.pid,
-                              id: 0
-                            });
-                            setDocModalOpen(true);
-                          }}
-                          className="w-6 h-6 flex items-center justify-center rounded bg-gray-700 text-white text-sm hover:bg-gray-900"
-                        >
-                          <FileText className="w-3.5 h-3.5 text-white" />
-                        </a>
-                      ))}
+                  <div className="mt-2">
+                    <div className="text-xs text-500 font-medium mb-1">Documents:</div>
+                    <div className="mt-2 flex items-center gap-2 flex-wrap">
+                      {section.document_ids
+                        .split(",")
+                        .map((docId) => docId.trim())
+                        .filter(Boolean)
+                        .map((docId) => (
+                          <a
+                            key={docId}
+                            onClick={() => {
+                              setSelectedDocNotification({
+                                document_id: docId,
+                                patient_name: `${data.detail.fname} ${data.detail.lname}`,
+                                case_id: data.detail.pid,
+                                id: 0
+                              });
+                              setDocModalOpen(true);
+                            }}
+                            className="w-6 h-6 flex items-center justify-center rounded bg-gray-700 text-white text-sm hover:bg-gray-900"
+                          >
+                            <FileText className="w-3.5 h-3.5 text-white" />
+                          </a>
+                        ))}
+                    </div>
                   </div>
                 )}
               </div>
@@ -170,6 +191,12 @@ export default function ExpandedCaseDetails({ data, setSelectedCase, setShowUplo
             onClose={() => setDocModalOpen(false)}
             notification={selectedDocNotification}
             fetchNotifications={() => {}}
+          />
+          
+          <ReviewNotesModal
+            isOpen={showReviewNotes}
+            onClose={() => setShowReviewNotes(false)}
+            pid={selectedPid}
           />
         </>
       ) : (
