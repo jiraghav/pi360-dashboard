@@ -90,7 +90,7 @@ export default function CaseRow({
     >
       <div className="grid grid-cols-1 md:grid-cols-12 items-start md:items-center gap-2 md:gap-0 p-4 md:p-0">
         {/* Expand */}
-        <div className="flex items-center md:col-span-2">
+        <div className="flex items-center md:col-span-3">
           <button
             className={`badge w-10 cursor-default ${
               caseItem.has_lop !== "0" ? "bg-green-500" : "bg-red-500"
@@ -209,7 +209,7 @@ export default function CaseRow({
           {caseItem.doi}
         </div>
 
-        <div className="md:col-span-2">
+        <div className="md:col-span-1">
           {caseItem.status && (
             <>
               <span className="md:hidden font-semibold">Status: </span>

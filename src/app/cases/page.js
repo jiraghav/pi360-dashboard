@@ -32,10 +32,23 @@ export default function Cases() {
   const [showSendIntakeLinkModal, setShowSendIntakeLinkModal] = useState(false);
   const [showUploadLOPModal, setShowUploadLOPModal] = useState(false);
   const [showEditDemographicsModal, setShowEditDemographicsModal] = useState(false);
+
   const limit = 10;
   const { showToast } = useToast();
-  
+
   const casesTableRef = useRef(null);
+
+  // --------------------------------------------------------
+  // 🔥 Reset to page 1 whenever search or status filter changes
+  // --------------------------------------------------------
+  useEffect(() => {
+    setPage(1);
+  }, [search]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [statusFilter]);
+  // --------------------------------------------------------
 
   // Initialize filter from URL
   useEffect(() => {
@@ -50,7 +63,7 @@ export default function Cases() {
     if (!initialized) return;
     loadCases();
   }, [page, search, statusFilter, initialized]);
-  
+
   const loadCases = async () => {
     setLoading(true);
     try {
@@ -62,6 +75,7 @@ export default function Cases() {
       if (statusFilter) query.append("status", statusFilter);
 
       const data = await apiRequest(`/cases.php?${query.toString()}`);
+
       if (data.status && data.patients) {
         setCases(data.patients);
         setTotal(data.total || data.patients.length);
@@ -73,7 +87,6 @@ export default function Cases() {
       if (casesTableRef.current) {
         casesTableRef.current.clearExpanded();
       }
-
     } catch (e) {
       console.error("Fetch failed:", e);
     } finally {
@@ -88,7 +101,10 @@ export default function Cases() {
       const formData = new FormData();
       formData.append("pid", selectedCase.pid);
       formData.append("note", selectedCase.description || "");
-      const res = await apiRequest("request_records.php", { method: "POST", body: formData });
+      const res = await apiRequest("request_records.php", {
+        method: "POST",
+        body: formData,
+      });
       if (res.status) {
         showToast("success", `Records requested for ${selectedCase.fname} ${selectedCase.lname}`);
         setShowRequestRecordModal(false);
@@ -97,11 +113,14 @@ export default function Cases() {
       console.error(e);
     }
   };
-  
+
   const confirmDroppedCaseRequest = async (formData) => {
     if (!selectedCase) return;
     try {
-      const res = await apiRequest("dropped_request.php", { method: "POST", body: formData });
+      const res = await apiRequest("dropped_request.php", {
+        method: "POST",
+        body: formData,
+      });
       if (res.status) {
         showToast("success", `Drop requested for ${selectedCase.fname} ${selectedCase.lname}`);
         setShowDroppedCaseModal(false);
@@ -118,7 +137,10 @@ export default function Cases() {
       const formData = new FormData();
       formData.append("pid", selectedCase.pid);
       formData.append("message", selectedCase.message || "");
-      const res = await apiRequest("send_back_office_msg.php", { method: "POST", body: formData });
+      const res = await apiRequest("send_back_office_msg.php", {
+        method: "POST",
+        body: formData,
+      });
       if (res.status) {
         showToast("success", res.message);
         setShowSendMessageModal(false);
@@ -127,7 +149,7 @@ export default function Cases() {
       console.error(e);
     }
   };
-  
+
   const sendTelemedLink = async () => {
     if (!selectedCase) return;
     try {
@@ -151,7 +173,7 @@ export default function Cases() {
       showToast("error", "Something went wrong while sending the telemed link");
     }
   };
-  
+
   const sendTeleneuroLink = async () => {
     if (!selectedCase) return;
     try {
@@ -175,7 +197,7 @@ export default function Cases() {
       showToast("error", "Something went wrong while sending the teleneuro link");
     }
   };
-  
+
   const sendIntakeLink = async () => {
     if (!selectedCase) return;
     try {
@@ -221,7 +243,7 @@ export default function Cases() {
       showToast("error", "Something went wrong");
     }
   };
-  
+
   const markCaseHasLOP = (pid) => {
     setCases((prev) =>
       prev.map((c) =>
@@ -271,6 +293,7 @@ export default function Cases() {
           setSelectedCase={setSelectedCase}
         />
       )}
+
       {showSendMessageModal && selectedCase && (
         <SendMessageModal
           selectedCase={selectedCase}
@@ -279,6 +302,7 @@ export default function Cases() {
           setSelectedCase={setSelectedCase}
         />
       )}
+
       {showSendTelemedLinkModal && selectedCase && (
         <SendTelemedLinkModal
           selectedCase={selectedCase}
@@ -287,6 +311,7 @@ export default function Cases() {
           setSelectedCase={setSelectedCase}
         />
       )}
+
       {showSendTeleneuroLinkModal && selectedCase && (
         <SendTeleneuroLinkModal
           selectedCase={selectedCase}
@@ -295,6 +320,7 @@ export default function Cases() {
           setSelectedCase={setSelectedCase}
         />
       )}
+
       {showSendIntakeLinkModal && selectedCase && (
         <SendIntakeLinkModal
           selectedCase={selectedCase}
@@ -303,6 +329,7 @@ export default function Cases() {
           setSelectedCase={setSelectedCase}
         />
       )}
+
       {showUploadLOPModal && selectedCase && (
         <UploadLOPModal
           selectedCase={selectedCase}
@@ -310,6 +337,7 @@ export default function Cases() {
           onConfirm={uploadLOP}
         />
       )}
+
       {showDroppedCaseModal && selectedCase && (
         <DroppedCaseModal
           selectedCase={selectedCase}
@@ -318,6 +346,7 @@ export default function Cases() {
           setSelectedCase={setSelectedCase}
         />
       )}
+
       {showEditDemographicsModal && selectedCase && (
         <EditDemographicsModal
           selectedCase={selectedCase}

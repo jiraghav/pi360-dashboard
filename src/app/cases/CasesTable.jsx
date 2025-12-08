@@ -42,12 +42,12 @@ const CasesTable = forwardRef(function CasesTable(
     <>
       {/* Header */}
       <div className="hidden md:grid grid-cols-12 text-mute text-xs uppercase tracking-wide pb-3 border-b border-stroke">
-        <div className="col-span-2">Expand</div>
+        <div className="col-span-3">Expand</div>
         <div className="col-span-2">First</div>
         <div className="col-span-2">Last</div>
         <div className="col-span-1">DOB</div>
         <div className="col-span-1">DOI</div>
-        <div className="col-span-2">Status</div>
+        <div className="col-span-1">Status</div>
         <div className="col-span-2">Actions</div>
       </div>
 
