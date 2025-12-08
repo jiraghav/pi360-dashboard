@@ -1,6 +1,8 @@
 "use client";
 
-import { PlusCircle, MapPin, CarFront } from "lucide-react";
+import { PlusCircle, MapPin, CarFront, Siren } from "lucide-react";
+import { useToast } from "../hooks/ToastContext";
+import { apiRequest } from "../utils/api";
 
 export default function KPIs({
   kpis,
@@ -9,6 +11,34 @@ export default function KPIs({
   setReferralModalOpen,
   setNewLocationRequestModalOpen,
 }) {
+  const { showToast } = useToast();
+
+  // function to fetch ER department and redirect
+  const handleSendToER = async () => {
+    try {
+      const data = await apiRequest("get-er-department.php");
+
+      if (!data?.facility?.id) {
+        showToast("error", "No ER Department available");
+        return;
+      }
+
+      localStorage.setItem(
+        "selectedReferralFacility",
+        JSON.stringify({
+          id: data?.facility?.id,
+          name: data?.facility?.description,
+          address: data?.facility?.address || "",
+        })
+      );
+
+      router.push("/referrals/new");
+    } catch (err) {
+      console.error(err);
+      alert("Failed to load ER department");
+    }
+  };
+
   const items = [
     { label: "Total Cases", value: kpis?.totalCases, path: "/cases" },
     { label: "Active Cases", value: kpis?.activeCases, path: "/cases?status=active" },
@@ -40,6 +70,12 @@ export default function KPIs({
       label: "Request Ride",
       value: <CarFront className="w-7 h-7 inline text-blue-400" />,
       comingSoon: true,
+    },
+    {
+      label: "Send To ER",
+      value: <Siren className="w-7 h-7 inline text-blue-400" />,
+      description: "Emergency department",
+      action: handleSendToER,
     },
   ];
 
