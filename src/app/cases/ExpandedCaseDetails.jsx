@@ -5,6 +5,7 @@ import TaskModal from "../tasks/TaskModal";
 import DocumentNotificationModal from "../components/DocumentNotificationModal";
 import ReviewNotesModal from "../dashboard/ReviewNotesModal";
 import { FileText } from "lucide-react";
+import CaseInfoModal from "./CaseInfoModal";
 
 export default function ExpandedCaseDetails({ data, setSelectedCase, setShowUploadLOPModal, updateSectionLOP, markCaseHasLOP }) {
   const [showTaskModal, setShowTaskModal] = useState(false);
@@ -15,13 +16,15 @@ export default function ExpandedCaseDetails({ data, setSelectedCase, setShowUplo
   
   const [showReviewNotes, setShowReviewNotes] = useState(false);
   const [selectedPid, setSelectedPid] = useState(null);
+  
+  const [showCaseInfoModal, setShowCaseInfoModal] = useState(false);
 
   return (
     <div className="mt-2 md:mt-4 p-3 md:p-4 rounded-xl border border-stroke bg-card">
       {data ? (
         <>
           <div className="flex items-center justify-between mb-1">
-            <div className="text-xs text-slate-500 font-medium">Case Info</div>
+            <div className="text-xs text-slate-500 font-medium"></div>
         
             <button
               className="text-xs px-2 py-1 rounded btn cursor-pointer"
@@ -40,22 +43,28 @@ export default function ExpandedCaseDetails({ data, setSelectedCase, setShowUplo
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 mt-2">
           {/* Case Info Card */}
           <div className="card p-3">
-            <div className="text-xs text-slate-500 mb-1 font-medium">Case Info</div>
+              <div className="flex items-center justify-between mb-1">
+                <div className="text-xs text-slate-500 font-medium">Case Info</div>
+
+                <button
+                  onClick={() => setShowCaseInfoModal(true)}
+                  className="text-xs px-2 py-1 rounded btn bg-blue-500 text-white cursor-pointer"
+                >
+                  Edit
+                </button>
+              </div>
+
               <ul className="text-sm space-y-1">
                 <li className="flex justify-between">
                   <span className="text-slate-500">MVA:</span>
-                  <span className="font-medium">
-                    {data.detail.casetype || "—"}
-                  </span>
+                  <span className="font-medium">{data.detail.casetype || "—"}</span>
                 </li>
-          
+            
                 <li className="flex justify-between">
                   <span className="text-slate-500">Limits:</span>
-                  <span className="font-medium">
-                    {data.detail.limits || "—"}
-                  </span>
+                  <span className="font-medium">{data.detail.limits || "—"}</span>
                 </li>
-          
+            
                 <li className="flex justify-between items-center">
                   <span className="text-slate-500">Liability Cleared:</span>
                   <span
@@ -197,6 +206,15 @@ export default function ExpandedCaseDetails({ data, setSelectedCase, setShowUplo
             isOpen={showReviewNotes}
             onClose={() => setShowReviewNotes(false)}
             pid={selectedPid}
+          />
+          
+          <CaseInfoModal
+            isOpen={showCaseInfoModal}
+            onClose={() => setShowCaseInfoModal(false)}
+            data={data.detail}
+            onUpdated={() => {
+              // Refresh or re-fetch details here if needed
+            }}
           />
         </>
       ) : (
