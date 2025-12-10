@@ -58,6 +58,38 @@ export default function ServiceLocations() {
   }, []);
   
   useEffect(() => {
+    if (!isLoaded) return;
+
+    // 1️⃣ Try to get user's real location
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const coords = {
+            lat: pos.coords.latitude,
+            lng: pos.coords.longitude,
+          };
+          setPatientCoords(coords);
+          setSearchInput("My Current Location");
+          moveMapToCoords(coords);
+        },
+        () => {
+          // 2️⃣ If blocked or failed → fallback to **Texas City**
+          const texasCity = { lat: 29.3838, lng: -94.9027 };
+          setPatientCoords(texasCity);
+          setSearchInput("Texas City, TX");
+          moveMapToCoords(texasCity);
+        },
+        { timeout: 8000 }
+      );
+    } else {
+      // No geolocation support → fallback
+      const texasCity = { lat: 29.3838, lng: -94.9027 };
+      setPatientCoords(texasCity);
+      moveMapToCoords(texasCity);
+    }
+  }, [isLoaded]);
+  
+  useEffect(() => {
     const updateHeight = () => {
       setMapContainerStyle({
         width: "100%",
