@@ -35,6 +35,8 @@ export default function NewPatientForm() {
 
     try {
       const formData = new FormData(formEl);
+      
+      formData.append("create_patient_only", redirectToReferral ? "0" : "1");
 
       const response = await apiRequest("create_patient.php", {
         method: "POST",
