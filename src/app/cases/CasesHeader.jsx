@@ -2,26 +2,92 @@
 
 import Link from "next/link";
 import { useState, useEffect } from "react";
+import DatePicker from "react-datepicker";
 
-export default function CasesHeader({ statusFilter, setStatusFilter, setSearch, search }) {
+export default function CasesHeader({
+  statusFilter,
+  setStatusFilter,
+  setSearch,
+  search,
+  doiFrom,
+  doiTo,
+  setDoiFrom,
+  setDoiTo
+}) {
   const [searchInput, setSearchInput] = useState(search || "");
 
+  // Local state to store the date range for DatePicker
+  const [dateRange, setDateRange] = useState([
+    doiFrom ? new Date(doiFrom) : null,
+    doiTo ? new Date(doiTo) : null,
+  ]);
+
+  const [startDate, endDate] = dateRange;
+
+  // Debounced search update
   useEffect(() => {
     const t = setTimeout(() => setSearch(searchInput), 500);
     return () => clearTimeout(t);
   }, [searchInput]);
-  
+
+  // Sync UI when query param changes externally
   useEffect(() => {
     setSearchInput(search || "");
   }, [search]);
 
+  // Sync date range UI if doiFrom / doiTo change outside
+  useEffect(() => {
+    setDateRange([
+      doiFrom ? new Date(doiFrom) : null,
+      doiTo ? new Date(doiTo) : null,
+    ]);
+  }, [doiFrom, doiTo]);
+
   const handleStatusChange = (e) => {
     const newStatus = e.target.value;
     setStatusFilter(newStatus);
+
     const params = new URLSearchParams(window.location.search);
     if (newStatus) params.set("status", newStatus);
     else params.delete("status");
+
     window.history.replaceState({}, "", `?${params.toString()}`);
+  };
+
+  const formatLocalDate = (date) =>
+    date ? date.toLocaleDateString("en-CA") : "";
+  
+  const handleDateChange = (range) => {
+    setDateRange(range);
+    const [start, end] = range;
+  
+    const params = new URLSearchParams(window.location.search);
+  
+    if (start) {
+      const f = formatLocalDate(start);
+      setDoiFrom(f);
+      params.set("doi_from", f);
+    } else {
+      setDoiFrom("");
+      params.delete("doi_from");
+    }
+  
+    if (end) {
+      const t = formatLocalDate(end);
+      setDoiTo(t);
+      params.set("doi_to", t);
+    } else {
+      setDoiTo("");
+      params.delete("doi_to");
+    }
+  
+    window.history.replaceState({}, "", `?${params.toString()}`);
+  };
+  
+  const toDate = (str) => {
+    if (!str) return null;
+    const [y, m, d] = str.split("-").map(Number);
+    return new Date(y, m - 1, d); // Local timezone → No shift
   };
 
   return (
@@ -57,12 +123,34 @@ export default function CasesHeader({ statusFilter, setStatusFilter, setSearch, 
           <option value="completed">Completed</option>
         </select>
 
+        {/* Search input */}
         <input
           type="text"
           placeholder="Search by name..."
           value={searchInput}
-          onChange={(e) => setSearchInput(e.target.value)}
+          onChange={(e) => {
+            const val = e.target.value;
+            setSearchInput(val);
+
+            const params = new URLSearchParams(window.location.search);
+            if (val) params.set("search", val);
+            else params.delete("search");
+
+            window.history.replaceState({}, "", `?${params.toString()}`);
+          }}
           className="w-full sm:w-64 border rounded px-3 py-2 bg-black text-white placeholder-gray-400"
+        />
+
+        {/* 🔥 Date Range Picker (single input) */}
+        <DatePicker
+          selectsRange
+          startDate={toDate(doiFrom)}
+          endDate={toDate(doiTo)}
+          onChange={handleDateChange}
+          placeholderText="Select DOI Range"
+          className="w-full px-3 py-2 bg-[#111] text-white border border-gray-700 rounded-lg"
+          calendarClassName="dark-datepicker"
+          isClearable
         />
       </div>
     </div>

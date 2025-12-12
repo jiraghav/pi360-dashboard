@@ -23,7 +23,12 @@ export default function Cases() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [initialized, setInitialized] = useState(false);
+  
+  const [doiFrom, setDoiFrom] = useState("");
+  const [doiTo, setDoiTo] = useState("");
+
   const [selectedCase, setSelectedCase] = useState(null);
+  
   const [showRequestRecordModal, setShowRequestRecordModal] = useState(false);
   const [showDroppedCaseModal, setShowDroppedCaseModal] = useState(false);
   const [showSendMessageModal, setShowSendMessageModal] = useState(false);
@@ -48,13 +53,22 @@ export default function Cases() {
   useEffect(() => {
     setPage(1);
   }, [statusFilter]);
+  
+  useEffect(() => {
+    setPage(1);
+  }, [doiFrom, doiTo]);
   // --------------------------------------------------------
 
   // Initialize filter from URL
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
+
     setSearch(params.get("search") || "");
     setStatusFilter(params.get("status") || "");
+    
+    setDoiFrom(params.get("doi_from") || "");
+    setDoiTo(params.get("doi_to") || "");
+
     setInitialized(true);
   }, []);
 
@@ -62,7 +76,7 @@ export default function Cases() {
   useEffect(() => {
     if (!initialized) return;
     loadCases();
-  }, [page, search, statusFilter, initialized]);
+  }, [page, search, statusFilter, doiFrom, doiTo, initialized]);
 
   const loadCases = async () => {
     setLoading(true);
@@ -73,6 +87,8 @@ export default function Cases() {
         search,
       });
       if (statusFilter) query.append("status", statusFilter);
+      if (doiFrom) query.append("doi_from", doiFrom);
+      if (doiTo) query.append("doi_to", doiTo);
 
       const data = await apiRequest(`/cases.php?${query.toString()}`);
 
@@ -261,6 +277,10 @@ export default function Cases() {
             setStatusFilter={setStatusFilter}
             setSearch={setSearch}
             search={search}
+            doiFrom={doiFrom}
+            doiTo={doiTo}
+            setDoiFrom={setDoiFrom}
+            setDoiTo={setDoiTo}
           />
 
           <CasesTable
