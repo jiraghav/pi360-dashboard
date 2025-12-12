@@ -160,7 +160,7 @@ export default function TasksContent() {
                       )}
                     </div>
                     {task.description && (
-                      <div className="text-sm text-gray-400 mt-0.5 whitespace-pre">
+                      <div className="text-sm text-gray-400 mt-0.5 whitespace-pre-line">
                         {task.description}
                       </div>
                     )}
