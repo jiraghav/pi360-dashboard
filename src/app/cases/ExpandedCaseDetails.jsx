@@ -80,7 +80,18 @@ export default function ExpandedCaseDetails({ data, setSelectedCase, setShowUplo
               <div key={i} className="card p-3">
                 <div className="flex items-center justify-between text-mute text-xs">
                   {/* Title on left */}
-                  <span>{section.title}</span>
+                  
+                  <span>
+                  {
+                    section.color && (
+                      <span
+                        key={i}
+                        className="dot"
+                        style={{ backgroundColor: section.color }}
+                      ></span>
+                    )
+                  }
+                  {section.title}</span>
                 
                   {/* Button on right */}
                   {section.has_lop === '0' ? (
