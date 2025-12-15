@@ -11,7 +11,7 @@ import SendMessageModal from "./SendMessageModal";
 import SendTelemedLinkModal from "./SendTelemedLinkModal";
 import SendTeleneuroLinkModal from "./SendTeleneuroLinkModal";
 import SendIntakeLinkModal from "./SendIntakeLinkModal";
-import UploadLOPModal from "./UploadLOPModal";
+import UploadDocumentModal from "./UploadDocumentModal";
 import DroppedCaseModal from "./DroppedCaseModal";
 import EditDemographicsModal from "./EditDemographicsModal";
 
@@ -35,7 +35,7 @@ export default function Cases() {
   const [showSendTelemedLinkModal, setShowSendTelemedLinkModal] = useState(false);
   const [showSendTeleneuroLinkModal, setShowSendTeleneuroLinkModal] = useState(false);
   const [showSendIntakeLinkModal, setShowSendIntakeLinkModal] = useState(false);
-  const [showUploadLOPModal, setShowUploadLOPModal] = useState(false);
+  const [showUploadDocumentModal, setShowUploadDocumentModal] = useState(false);
   const [showEditDemographicsModal, setShowEditDemographicsModal] = useState(false);
 
   const limit = 10;
@@ -238,21 +238,21 @@ export default function Cases() {
     }
   };
 
-  const uploadLOP = async (formData) => {
+  const uploadDocument = async (formData) => {
     try {
-      const res = await apiRequest("upload_lop.php", {
+      const res = await apiRequest("upload_document.php", {
         method: "POST",
         body: formData,
       });
 
       if (res.status) {
-        showToast("success", res.message || "LOP uploaded successfully");
+        showToast("success", res.message || "Document uploaded successfully");
         if (selectedCase.onSuccess) {
           selectedCase.onSuccess();
         }
-        setShowUploadLOPModal(false);
+        setShowUploadDocumentModal(false);
       } else {
-        showToast("error", res.message || "Failed to upload LOP");
+        showToast("error", res.message || "Failed to upload Document");
       }
     } catch (e) {
       console.error(e);
@@ -297,7 +297,7 @@ export default function Cases() {
             setShowSendTelemedLinkModal={setShowSendTelemedLinkModal}
             setShowSendTeleneuroLinkModal={setShowSendTeleneuroLinkModal}
             setShowSendIntakeLinkModal={setShowSendIntakeLinkModal}
-            setShowUploadLOPModal={setShowUploadLOPModal}
+            setShowUploadDocumentModal={setShowUploadDocumentModal}
             setShowDroppedCaseModal={setShowDroppedCaseModal}
             markCaseHasLOP={markCaseHasLOP}
             setShowEditDemographicsModal={setShowEditDemographicsModal}
@@ -350,11 +350,11 @@ export default function Cases() {
         />
       )}
 
-      {showUploadLOPModal && selectedCase && (
-        <UploadLOPModal
+      {showUploadDocumentModal && selectedCase && (
+        <UploadDocumentModal
           selectedCase={selectedCase}
-          onClose={() => setShowUploadLOPModal(false)}
-          onConfirm={uploadLOP}
+          onClose={() => setShowUploadDocumentModal(false)}
+          onConfirm={uploadDocument}
         />
       )}
 

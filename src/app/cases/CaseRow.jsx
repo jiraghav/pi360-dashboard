@@ -16,7 +16,7 @@ export default function CaseRow({
   setShowSendTelemedLinkModal,
   setShowSendTeleneuroLinkModal,
   setShowSendIntakeLinkModal,
-  setShowUploadLOPModal,
+  setShowUploadDocumentModal,
   markCaseHasLOP,
   setShowDroppedCaseModal,
   setShowEditDemographicsModal
@@ -63,6 +63,20 @@ export default function CaseRow({
       } catch (err) {
         console.error("Failed to fetch case details:", err);
       }
+    }
+  };
+  
+  const fetchCaseDetails = async (pid) => {
+    try {
+      const details = await apiRequest(`/case_details.php?pid=${pid}`);
+      if (details.status) {
+        setExpandedData((prev) => ({
+          ...prev,
+          [pid]: details.data,
+        }));
+      }
+    } catch (err) {
+      console.error("Failed to fetch case details:", err);
     }
   };
   
@@ -320,9 +334,11 @@ export default function CaseRow({
         <ExpandedCaseDetails
           data={expandedData[caseItem.pid]}
           setSelectedCase={setSelectedCase}
-          setShowUploadLOPModal={setShowUploadLOPModal}
+          setShowUploadDocumentModal={setShowUploadDocumentModal}
           updateSectionLOP={updateSectionLOP}
-          markCaseHasLOP={markCaseHasLOP} />
+          markCaseHasLOP={markCaseHasLOP}
+          refreshCaseDetails={() => fetchCaseDetails(caseItem.pid)}
+        />
       )}
       
       {showMessagesModal && (
