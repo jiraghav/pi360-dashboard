@@ -19,7 +19,7 @@ export default function EditDemographicsModal({
   const fnameRef = useRef(null);
 
   const { showToast } = useToast();
-  const { lawyers, caseTypes, languages, states } = useFetchOptions();
+  const { lawyers, caseTypes, languages, states, caseManagerEmails } = useFetchOptions();
 
   useEffect(() => {
     if (!selectedCase?.pid) return;
@@ -67,6 +67,18 @@ export default function EditDemographicsModal({
       formEl.reportValidity();
       return;
     }
+    
+    const caseManagers = selectedCase.case_manager_emails;
+
+    const hasCaseManager =
+      Array.isArray(caseManagers)
+        ? caseManagers.length > 0
+        : typeof caseManagers === "string" && caseManagers.trim() !== "";
+
+    if (!hasCaseManager) {
+      showToast("error", "Please add at least one case manager before saving.");
+      return;
+    }
 
     setLoading(true);
     try {
@@ -74,8 +86,15 @@ export default function EditDemographicsModal({
         method: "POST",
         body: selectedCase,
       });
+      
+      let message = "Patient updated successfully!";
+      console.log(response);
+      if (response.case_manager_emails_updated) {
+        message += " Case manager was also added or updated to your profile.";
+      }
+      
+      showToast("success", message);
 
-      showToast("success", "Patient updated successfully!");
       await onConfirm(response);
     } finally {
       setLoading(false);
@@ -131,6 +150,7 @@ export default function EditDemographicsModal({
                 caseTypes={caseTypes}
                 languages={languages}
                 states={states}
+                caseManagerEmails={caseManagerEmails}
               />
 
               {/* Buttons */}

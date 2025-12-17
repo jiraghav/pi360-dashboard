@@ -8,6 +8,7 @@ export default function useFetchOptions() {
   const [caseTypes, setCaseTypes] = useState([]);
   const [languages, setLanguages] = useState([]);
   const [states, setStates] = useState([]);
+  const [caseManagerEmails, setCaseManagerEmails] = useState([]);
 
   // Lawyers
   useEffect(() => {
@@ -49,5 +50,14 @@ export default function useFetchOptions() {
     })();
   }, []);
 
-  return { lawyers, caseTypes, languages, states };
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await apiRequest("case_manager_emails.php");
+        setCaseManagerEmails(res.data.case_manager_emails || []);
+      } catch {}
+    })();
+  }, []);
+
+  return { lawyers, caseTypes, languages, states, caseManagerEmails };
 }
