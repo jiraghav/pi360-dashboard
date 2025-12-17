@@ -46,18 +46,26 @@ export default function ServiceLocations() {
   
   const { showToast } = useToast();
   
-  const [sendToER, setSendToER] = useState(false);
-  
+  const [sendToER, setSendToER] = useState(null);
+  const [filtersReady, setFiltersReady] = useState(false);
+
   useEffect(() => {
     if (typeof window === "undefined") return;
-
+  
     const params = new URLSearchParams(window.location.search);
     setSendToER(params.get("send_to_er") === "1");
   }, []);
   
   useEffect(() => {
-    if (!sendToER || !specialities.length) return;
-  
+    if (sendToER === null) return;
+
+    if (!sendToER) {
+      setFiltersReady(true); // normal flow
+      return;
+    }
+    
+    if (!specialities.length) return;
+
     const erSpeciality = specialities.find(
       (s) =>
         s.description?.toLowerCase().includes("emergency")
@@ -66,6 +74,8 @@ export default function ServiceLocations() {
     if (erSpeciality) {
       setActiveSpecialities([erSpeciality.id]);
     }
+    
+    setFiltersReady(true);
   }, [sendToER, specialities]);
 
   useEffect(() => {
@@ -199,6 +209,8 @@ export default function ServiceLocations() {
 
   // Fetch locations (only when BOTH speciality and address exist)
   useEffect(() => {
+    if (!filtersReady) return;
+
     async function fetchLocations() {
       if (!patientCoords) {
         setLocations([]);
@@ -230,7 +242,7 @@ export default function ServiceLocations() {
     }
 
     fetchLocations();
-  }, [activeSpecialities, patientCoords, withinMiles]);
+  }, [filtersReady, activeSpecialities, patientCoords, withinMiles]);
   
   useEffect(() => {
     if (window.innerWidth >= 768) return; // only mobile
