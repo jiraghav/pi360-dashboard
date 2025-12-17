@@ -202,7 +202,7 @@ export default function PatientFormFields({
       
       <div className="md:col-span-2">
         <label className="block mb-1 text-sm font-medium text-gray-300">
-          Case Manager Emails
+          Case Manager Emails *
         </label>
 
         {/* Chips */}
