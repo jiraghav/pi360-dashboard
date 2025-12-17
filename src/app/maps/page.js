@@ -45,6 +45,28 @@ export default function ServiceLocations() {
   });
   
   const { showToast } = useToast();
+  
+  const [sendToER, setSendToER] = useState(false);
+  
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const params = new URLSearchParams(window.location.search);
+    setSendToER(params.get("send_to_er") === "1");
+  }, []);
+  
+  useEffect(() => {
+    if (!sendToER || !specialities.length) return;
+  
+    const erSpeciality = specialities.find(
+      (s) =>
+        s.description?.toLowerCase().includes("emergency")
+    );
+  
+    if (erSpeciality) {
+      setActiveSpecialities([erSpeciality.id]);
+    }
+  }, [sendToER, specialities]);
 
   useEffect(() => {
     (async () => {

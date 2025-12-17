@@ -15,28 +15,7 @@ export default function KPIs({
 
   // function to fetch ER department and redirect
   const handleSendToER = async () => {
-    try {
-      const data = await apiRequest("get-er-department.php");
-
-      if (!data?.facility?.id) {
-        showToast("error", "No ER Department available");
-        return;
-      }
-
-      localStorage.setItem(
-        "selectedReferralFacility",
-        JSON.stringify({
-          id: data?.facility?.id,
-          name: data?.facility?.description,
-          address: data?.facility?.address || "",
-        })
-      );
-
-      router.push("/referrals/new");
-    } catch (err) {
-      console.error(err);
-      alert("Failed to load ER department");
-    }
+      router.push("/maps?send_to_er=1");
   };
 
   const items = [
