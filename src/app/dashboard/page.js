@@ -14,6 +14,8 @@ import GreetingHeader from "./GreetingHeader";
 import NewLocationRequestModal from "./NewLocationRequestModal";
 import SendMessageModal from "../cases/SendMessageModal";
 import { useToast } from "../hooks/ToastContext";
+import SendTelemedLinkModal from "../cases/SendTelemedLinkModal";
+import SendTeleneuroLinkModal from "../cases/SendTeleneuroLinkModal";
 
 export default function Dashboard() {
   const [dashboardData, setDashboardData] = useState(null);
@@ -23,6 +25,8 @@ export default function Dashboard() {
   const [referralModalOpen, setReferralModalOpen] = useState(false);
   const [newLocationRequestModalOpen, setNewLocationRequestModalOpen] = useState(false);
   const [showSendMessageModal, setShowSendMessageModal] = useState(false);
+  const [showSendTelemedLinkModal, setShowSendTelemedLinkModal] = useState(false);
+  const [showSendTeleneuroLinkModal, setShowSendTeleneuroLinkModal] = useState(false);
   const router = useRouter();
 
   const [selectedCase, setSelectedCase] = useState({"message": ""});
@@ -57,6 +61,56 @@ export default function Dashboard() {
       console.error(e);
     }
   };
+  
+  const sendTelemedLink = async () => {
+    if (!selectedCase) return;
+    try {
+      const formData = new FormData();
+      formData.append("pid", selectedCase.pid);
+      formData.append("phone", selectedCase.phone_home || "");
+
+      const res = await apiRequest("send_telemed_link.php", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (res.status) {
+        showToast("success", res.message || "Telemed link sent successfully");
+        setShowSendTelemedLinkModal(false);
+        setSelectedCase();
+      } else {
+        showToast("error", res.message || "Failed to send telemed link");
+      }
+    } catch (e) {
+      console.error(e);
+      showToast("error", "Something went wrong while sending the telemed link");
+    }
+  };
+  
+  const sendTeleneuroLink = async () => {
+    if (!selectedCase) return;
+    try {
+      const formData = new FormData();
+      formData.append("pid", selectedCase.pid);
+      formData.append("phone", selectedCase.phone_home || "");
+
+      const res = await apiRequest("send_teleneuro_link.php", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (res.status) {
+        showToast("success", res.message || "Teleneuro link sent successfully");
+        setShowSendTeleneuroLinkModal(false);
+        setSelectedCase();
+      } else {
+        showToast("error", res.message || "Failed to send teleneuro link");
+      }
+    } catch (e) {
+      console.error(e);
+      showToast("error", "Something went wrong while sending the teleneuro link");
+    }
+  };
 
   const kpis = dashboardData || {};
   const alerts = dashboardData?.clincalAlerts || [];
@@ -77,7 +131,14 @@ export default function Dashboard() {
             setReferralModalOpen={setReferralModalOpen}
             setShowSendMessageModal={setShowSendMessageModal}
           />
-          <KPIs kpis={kpis} loading={loading} router={router} setReferralModalOpen={setReferralModalOpen} setNewLocationRequestModalOpen={setNewLocationRequestModalOpen} />
+          <KPIs kpis={kpis}
+                loading={loading}
+                router={router}
+                setReferralModalOpen={setReferralModalOpen}
+                setNewLocationRequestModalOpen={setNewLocationRequestModalOpen}
+                setShowSendTelemedLinkModal={setShowSendTelemedLinkModal}
+                setShowSendTeleneuroLinkModal={setShowSendTeleneuroLinkModal}
+               />
         </section>
 
         <section className="grid grid-cols-12 gap-4">
@@ -108,6 +169,24 @@ export default function Dashboard() {
           onClose={() => setShowSendMessageModal(false)}
           onConfirm={sendBackOfficeMessage}
           setSelectedCase={setSelectedCase}
+        />
+      )}
+      {showSendTelemedLinkModal && (
+        <SendTelemedLinkModal
+          showPatientSelection={true} 
+          selectedCase={selectedCase}
+          setSelectedCase={setSelectedCase}
+          onClose={() => {setShowSendTelemedLinkModal(false); setSelectedCase();}}
+          onConfirm={sendTelemedLink}
+        />
+      )}
+      {showSendTeleneuroLinkModal && (
+        <SendTeleneuroLinkModal
+          showPatientSelection={true} 
+          selectedCase={selectedCase}
+          setSelectedCase={setSelectedCase}
+          onClose={() => {setShowSendTeleneuroLinkModal(false); setSelectedCase();}}
+          onConfirm={sendTeleneuroLink}
         />
       )}
 

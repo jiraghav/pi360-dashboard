@@ -75,7 +75,7 @@ export default function SendMessageModal({
             <textarea
               id="message"
               rows={4}
-              value={selectedCase.message || ""}
+              value={selectedCase?.message || ""}
               placeholder="Type your message here..."
               required
               onChange={(e) =>
