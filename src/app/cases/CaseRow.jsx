@@ -323,6 +323,25 @@ export default function CaseRow({
                 >
                   Dropped Case
                 </button>
+                
+                <button
+                  onClick={() => {
+                    setSelectedCase({
+                      ...caseItem,
+                      pid: caseItem.pid,
+                      case_pid: caseItem.pid,
+                      doc_type: 'reduction',
+                      onSuccess: () => {
+                        fetchCaseDetails(caseItem.pid);
+                      }
+                    });
+                    setShowUploadDocumentModal(true);
+                    setMenuOpen(false);
+                  }}
+                  className="block w-full text-left px-3 py-2 text-sm text-slate-100 hover:bg-slate-700 hover:text-mint-300 transition"
+                >
+                  Upload Reduction
+                </button>
               </div>
             )}
           </div>

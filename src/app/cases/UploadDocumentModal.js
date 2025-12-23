@@ -104,6 +104,7 @@ export default function UploadDocumentModal({ selectedCase, onClose, onConfirm }
               <option value="ortho_report">Ortho Report</option>
               <option value="neuro_report">Neuro Report</option>
               <option value="chiro_report">Chiro Report</option>
+              <option value="reduction">Reduction</option>
               <option value="other">Other</option>
             </select>
           </div>
