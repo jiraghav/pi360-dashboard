@@ -352,6 +352,7 @@ export default function CaseRow({
       {isExpanded && (
         <ExpandedCaseDetails
           data={expandedData[caseItem.pid]}
+          caseItem={caseItem}
           setSelectedCase={setSelectedCase}
           setShowUploadDocumentModal={setShowUploadDocumentModal}
           updateSectionLOP={updateSectionLOP}

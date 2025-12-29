@@ -3,58 +3,69 @@
 import { useState } from "react";
 import { X } from "lucide-react";
 import { apiRequest } from "../utils/api";
+import { useToast } from "../hooks/ToastContext";
 
-export default function CaseInfoModal({ isOpen, onClose, data, onUpdated }) {
+export default function CaseInfoModal({ isOpen, onClose, data, caseItem, onUpdated }) {
   if (!isOpen) return null;
+  
+  const { showToast } = useToast();
 
   const [limits, setLimits] = useState(data.limits || "");
 
   const [liability, setLiability] = useState(
-    data.liability_cleared === 1 || data.liability_cleared === 0
+    data.liability_cleared === "1" || data.liability_cleared === "0"
       ? data.liability_cleared
       : ""
   );
-  const [liabilityNotes, setLiabilityNotes] = useState(data.liability_notes || "");
+  const [liabilityNotes, setLiabilityNotes] = useState(data.liability_cleared_detail || "");
 
   const [policeReport, setPoliceReport] = useState(
-    data.police_report === 1 || data.police_report === 0
+    data.police_report === "1" || data.police_report === "0"
       ? data.police_report
       : ""
   );
-  const [policeReportNotes, setPoliceReportNotes] = useState(data.police_report_notes || "");
+  const [policeReportNotes, setPoliceReportNotes] = useState(data.police_report_detail || "");
 
   const [underinsured, setUnderinsured] = useState(
-    data.underinsured === 1 || data.underinsured === 0
+    data.underinsured === "1" || data.underinsured === "0"
       ? data.underinsured
       : ""
   );
-  const [underinsuredNotes, setUnderinsuredNotes] = useState(data.underinsured_notes || "");
+  const [underinsuredNotes, setUnderinsuredNotes] = useState(data.underinsured_detail || "");
 
   const [uninsured, setUninsured] = useState(
-    data.uninsured === 1 || data.uninsured === 0
+    data.uninsured === "1" || data.uninsured === "0"
       ? data.uninsured
       : ""
   );
-  const [uninsuredNotes, setUninsuredNotes] = useState(data.uninsured_notes || "");
+  const [uninsuredNotes, setUninsuredNotes] = useState(data.uninsured_detail || "");
 
   const handleSave = async () => {
     try {
       const payload = {
-        limits,
+        pid_group: caseItem.pid_group,
+
         liability_cleared: liability === "" ? null : liability,
-        liability_notes: liabilityNotes,
+        liability_cleared_detail: liabilityNotes,
   
+        limits,
+
         police_report: policeReport === "" ? null : policeReport,
-        police_report_notes: policeReportNotes,
+        police_report_detail: policeReportNotes,
   
         underinsured: underinsured === "" ? null : underinsured,
-        underinsured_notes: underinsuredNotes,
+        underinsured_detail: underinsuredNotes,
   
         uninsured: uninsured === "" ? null : uninsured,
-        uninsured_notes: uninsuredNotes,
+        uninsured_detail: uninsuredNotes,
       };
-  
-      await apiRequest(`update-case-info.php`, "POST", payload);
+      
+      await apiRequest("update-case-info.php", {
+        method: "POST",
+        body: payload,
+      });
+      
+      showToast("success", `Case Information successfully updated!`);
   
       onUpdated?.(); // refresh parent list/page
       onClose();     // close modal
@@ -68,16 +79,16 @@ export default function CaseInfoModal({ isOpen, onClose, data, onUpdated }) {
       <label className="flex items-center gap-1 cursor-pointer">
         <input
           type="radio"
-          checked={state === 1}
-          onChange={() => setState(1)}
+          checked={state === "1"}
+          onChange={() => setState("1")}
         />
         Yes
       </label>
       <label className="flex items-center gap-1 cursor-pointer">
         <input
           type="radio"
-          checked={state === 0}
-          onChange={() => setState(0)}
+          checked={state === "0"}
+          onChange={() => setState("0")}
         />
         No
       </label>

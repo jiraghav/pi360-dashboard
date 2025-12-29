@@ -7,7 +7,7 @@ import ReviewNotesModal from "../dashboard/ReviewNotesModal";
 import { FileText } from "lucide-react";
 import CaseInfoModal from "./CaseInfoModal";
 
-export default function ExpandedCaseDetails({ data, setSelectedCase, setShowUploadDocumentModal, updateSectionLOP, markCaseHasLOP, refreshCaseDetails }) {
+export default function ExpandedCaseDetails({ data, caseItem, setSelectedCase, setShowUploadDocumentModal, updateSectionLOP, markCaseHasLOP, refreshCaseDetails }) {
   const [showTaskModal, setShowTaskModal] = useState(false);
   const [selectedCase, setSelectedCaseNewTask] = useState(null);
   
@@ -249,8 +249,9 @@ export default function ExpandedCaseDetails({ data, setSelectedCase, setShowUplo
             isOpen={showCaseInfoModal}
             onClose={() => setShowCaseInfoModal(false)}
             data={data.detail}
+            caseItem={caseItem}
             onUpdated={() => {
-              // Refresh or re-fetch details here if needed
+              refreshCaseDetails();
             }}
           />
         </>
