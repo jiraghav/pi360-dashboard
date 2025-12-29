@@ -45,6 +45,38 @@ export default function ServiceLocations() {
   });
   
   const { showToast } = useToast();
+  
+  const [sendToER, setSendToER] = useState(null);
+  const [filtersReady, setFiltersReady] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+  
+    const params = new URLSearchParams(window.location.search);
+    setSendToER(params.get("send_to_er") === "1");
+  }, []);
+  
+  useEffect(() => {
+    if (sendToER === null) return;
+
+    if (!sendToER) {
+      setFiltersReady(true); // normal flow
+      return;
+    }
+    
+    if (!specialities.length) return;
+
+    const erSpeciality = specialities.find(
+      (s) =>
+        s.description?.toLowerCase().includes("emergency")
+    );
+  
+    if (erSpeciality) {
+      setActiveSpecialities([erSpeciality.id]);
+    }
+    
+    setFiltersReady(true);
+  }, [sendToER, specialities]);
 
   useEffect(() => {
     (async () => {
@@ -56,6 +88,38 @@ export default function ServiceLocations() {
       }
     })();
   }, []);
+  
+  useEffect(() => {
+    if (!isLoaded) return;
+
+    // 1️⃣ Try to get user's real location
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const coords = {
+            lat: pos.coords.latitude,
+            lng: pos.coords.longitude,
+          };
+          setPatientCoords(coords);
+          setSearchInput("My Current Location");
+          moveMapToCoords(coords);
+        },
+        () => {
+          // 2️⃣ If blocked or failed → fallback to **Texas City**
+          const texasCity = { lat: 29.3838, lng: -94.9027 };
+          setPatientCoords(texasCity);
+          setSearchInput("Texas City, TX");
+          moveMapToCoords(texasCity);
+        },
+        { timeout: 8000 }
+      );
+    } else {
+      // No geolocation support → fallback
+      const texasCity = { lat: 29.3838, lng: -94.9027 };
+      setPatientCoords(texasCity);
+      moveMapToCoords(texasCity);
+    }
+  }, [isLoaded]);
   
   useEffect(() => {
     const updateHeight = () => {
@@ -145,6 +209,8 @@ export default function ServiceLocations() {
 
   // Fetch locations (only when BOTH speciality and address exist)
   useEffect(() => {
+    if (!filtersReady) return;
+
     async function fetchLocations() {
       if (!patientCoords) {
         setLocations([]);
@@ -176,7 +242,7 @@ export default function ServiceLocations() {
     }
 
     fetchLocations();
-  }, [activeSpecialities, patientCoords, withinMiles]);
+  }, [filtersReady, activeSpecialities, patientCoords, withinMiles]);
   
   useEffect(() => {
     if (window.innerWidth >= 768) return; // only mobile

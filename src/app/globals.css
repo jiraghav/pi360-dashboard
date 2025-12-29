@@ -68,3 +68,11 @@ body { background: radial-gradient(1200px 600px at 20% -10%, rgba(56,189,248,.12
   background-color: #10b981 !important;
   color: #fff !important;
 }
+@import "react-datepicker/dist/react-datepicker.css";
+
+.react-datepicker__day--range-start {
+  background-color: #216ba5 !important;
+}
+.react-datepicker__day--in-selecting-range {
+  background-color: #216ba580 !important;
+}

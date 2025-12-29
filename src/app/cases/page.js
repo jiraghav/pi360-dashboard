@@ -11,7 +11,7 @@ import SendMessageModal from "./SendMessageModal";
 import SendTelemedLinkModal from "./SendTelemedLinkModal";
 import SendTeleneuroLinkModal from "./SendTeleneuroLinkModal";
 import SendIntakeLinkModal from "./SendIntakeLinkModal";
-import UploadLOPModal from "./UploadLOPModal";
+import UploadDocumentModal from "./UploadDocumentModal";
 import DroppedCaseModal from "./DroppedCaseModal";
 import EditDemographicsModal from "./EditDemographicsModal";
 
@@ -23,14 +23,19 @@ export default function Cases() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [initialized, setInitialized] = useState(false);
+  
+  const [doiFrom, setDoiFrom] = useState("");
+  const [doiTo, setDoiTo] = useState("");
+
   const [selectedCase, setSelectedCase] = useState(null);
+  
   const [showRequestRecordModal, setShowRequestRecordModal] = useState(false);
   const [showDroppedCaseModal, setShowDroppedCaseModal] = useState(false);
   const [showSendMessageModal, setShowSendMessageModal] = useState(false);
   const [showSendTelemedLinkModal, setShowSendTelemedLinkModal] = useState(false);
   const [showSendTeleneuroLinkModal, setShowSendTeleneuroLinkModal] = useState(false);
   const [showSendIntakeLinkModal, setShowSendIntakeLinkModal] = useState(false);
-  const [showUploadLOPModal, setShowUploadLOPModal] = useState(false);
+  const [showUploadDocumentModal, setShowUploadDocumentModal] = useState(false);
   const [showEditDemographicsModal, setShowEditDemographicsModal] = useState(false);
 
   const limit = 10;
@@ -48,13 +53,22 @@ export default function Cases() {
   useEffect(() => {
     setPage(1);
   }, [statusFilter]);
+  
+  useEffect(() => {
+    setPage(1);
+  }, [doiFrom, doiTo]);
   // --------------------------------------------------------
 
   // Initialize filter from URL
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
+
     setSearch(params.get("search") || "");
     setStatusFilter(params.get("status") || "");
+    
+    setDoiFrom(params.get("doi_from") || "");
+    setDoiTo(params.get("doi_to") || "");
+
     setInitialized(true);
   }, []);
 
@@ -62,7 +76,7 @@ export default function Cases() {
   useEffect(() => {
     if (!initialized) return;
     loadCases();
-  }, [page, search, statusFilter, initialized]);
+  }, [page, search, statusFilter, doiFrom, doiTo, initialized]);
 
   const loadCases = async () => {
     setLoading(true);
@@ -73,6 +87,8 @@ export default function Cases() {
         search,
       });
       if (statusFilter) query.append("status", statusFilter);
+      if (doiFrom) query.append("doi_from", doiFrom);
+      if (doiTo) query.append("doi_to", doiTo);
 
       const data = await apiRequest(`/cases.php?${query.toString()}`);
 
@@ -222,21 +238,21 @@ export default function Cases() {
     }
   };
 
-  const uploadLOP = async (formData) => {
+  const uploadDocument = async (formData) => {
     try {
-      const res = await apiRequest("upload_lop.php", {
+      const res = await apiRequest("upload_document.php", {
         method: "POST",
         body: formData,
       });
 
       if (res.status) {
-        showToast("success", res.message || "LOP uploaded successfully");
+        showToast("success", res.message || "Document uploaded successfully");
         if (selectedCase.onSuccess) {
           selectedCase.onSuccess();
         }
-        setShowUploadLOPModal(false);
+        setShowUploadDocumentModal(false);
       } else {
-        showToast("error", res.message || "Failed to upload LOP");
+        showToast("error", res.message || "Failed to upload Document");
       }
     } catch (e) {
       console.error(e);
@@ -261,6 +277,10 @@ export default function Cases() {
             setStatusFilter={setStatusFilter}
             setSearch={setSearch}
             search={search}
+            doiFrom={doiFrom}
+            doiTo={doiTo}
+            setDoiFrom={setDoiFrom}
+            setDoiTo={setDoiTo}
           />
 
           <CasesTable
@@ -277,7 +297,7 @@ export default function Cases() {
             setShowSendTelemedLinkModal={setShowSendTelemedLinkModal}
             setShowSendTeleneuroLinkModal={setShowSendTeleneuroLinkModal}
             setShowSendIntakeLinkModal={setShowSendIntakeLinkModal}
-            setShowUploadLOPModal={setShowUploadLOPModal}
+            setShowUploadDocumentModal={setShowUploadDocumentModal}
             setShowDroppedCaseModal={setShowDroppedCaseModal}
             markCaseHasLOP={markCaseHasLOP}
             setShowEditDemographicsModal={setShowEditDemographicsModal}
@@ -330,11 +350,11 @@ export default function Cases() {
         />
       )}
 
-      {showUploadLOPModal && selectedCase && (
-        <UploadLOPModal
+      {showUploadDocumentModal && selectedCase && (
+        <UploadDocumentModal
           selectedCase={selectedCase}
-          onClose={() => setShowUploadLOPModal(false)}
-          onConfirm={uploadLOP}
+          onClose={() => setShowUploadDocumentModal(false)}
+          onConfirm={uploadDocument}
         />
       )}
 

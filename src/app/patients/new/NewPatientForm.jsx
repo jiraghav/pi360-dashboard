@@ -11,7 +11,7 @@ export default function NewPatientForm() {
   const router = useRouter();
   const { showToast } = useToast();
 
-  const { lawyers, caseTypes, languages, states } = useFetchOptions();
+  const { lawyers, caseTypes, languages, states, caseManagerEmails } = useFetchOptions();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedCase, setSelectedCase] = useState({});
@@ -35,13 +35,28 @@ export default function NewPatientForm() {
 
     try {
       const formData = new FormData(formEl);
+      
+      const caseManagers = formData.get("case_manager_emails"); // hidden field name
+
+      if (!caseManagers || caseManagers.trim() === "") {
+        showToast("error", "Please add at least one case manager before continuing.");
+        return;
+      }
+      
+      formData.append("create_patient_only", redirectToReferral ? "0" : "1");
 
       const response = await apiRequest("create_patient.php", {
         method: "POST",
         body: formData,
       });
 
-      showToast("success", "Patient created successfully!");
+      let message = "Patient created successfully!";
+      
+      if (response.case_manager_emails_updated) {
+        message += " Case manager was also added or updated to your profile.";
+      }
+      
+      showToast("success", message);
 
       if (redirectToReferral) {
         router.push(`/referrals/new?pid=${response.pid}`);
@@ -73,6 +88,7 @@ export default function NewPatientForm() {
         caseTypes={caseTypes}
         languages={languages}
         states={states}
+        caseManagerEmails={caseManagerEmails}
       />
 
         {/* Buttons */}

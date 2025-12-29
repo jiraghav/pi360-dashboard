@@ -17,28 +17,31 @@ export default function TaskNotificationModal({
   const [loading, setLoading] = useState(false);
   const [notes, setNotes] = useState([]);
   const [loadingNotes, setLoadingNotes] = useState(false);
+  
+  const [newNote, setNewNote] = useState("");
+  const [addingNote, setAddingNote] = useState(false);
+  
+  const fetchNotes = async () => {
+    setLoadingNotes(true);
+
+    try {
+      const data = await apiRequest(
+        `get-task-notes.php?task_id=${notification.task_id}&notification_id=${notification.id}`
+      );
+
+      setNotes(data.notes || []);
+      
+      fetchNotifications();
+    } catch (error) {
+      console.error("Failed to load notes:", error);
+    } finally {
+      setLoadingNotes(false);
+    }
+  };
 
   // Fetch notes when modal opens
   useEffect(() => {
     if (!open || !notification?.task_id) return;
-
-    const fetchNotes = async () => {
-      setLoadingNotes(true);
-
-      try {
-        const data = await apiRequest(
-          `get-task-notes.php?task_id=${notification.task_id}&notification_id=${notification.id}`
-        );
-
-        setNotes(data.notes || []);
-        
-        fetchNotifications();
-      } catch (error) {
-        console.error("Failed to load notes:", error);
-      } finally {
-        setLoadingNotes(false);
-      }
-    };
 
     fetchNotes();
   }, [open, notification?.task_id]);
@@ -93,10 +96,35 @@ export default function TaskNotificationModal({
       setLoading(false);
     }
   };
+  
+  const handleAddNote = async () => {
+    if (!newNote.trim()) return alert("Please enter a note");
+  
+    setAddingNote(true);
+    try {
+      const res = await apiRequest("add-task-note.php", {
+        method: "POST",
+        body: {
+          task_id: notification.task_id,
+          notification_id: notification.id,
+          note: newNote,
+        },
+      });
+  
+      if (res.status) {
+        setNewNote("");
 
-  // ---------------------------
-  // UI
-  // ---------------------------
+        await fetchNotes();
+
+        fetchNotifications(); // refresh bell count/read status
+      }
+    } catch (err) {
+      console.error("Failed to add note:", err);
+    } finally {
+      setAddingNote(false);
+    }
+  };
+
   return (
     <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50 backdrop-blur-sm">
       <div className="card max-w-lg w-full p-6 relative">
@@ -125,39 +153,40 @@ export default function TaskNotificationModal({
           </div>
         )}
 
-        {/* Title */}
-        <div className="mb-3">
-          <div className="text-xs text-gray-400 mb-1">Title</div>
-          <div className="text-lg font-semibold text-white">
-            {notification.task_title}
+        {/* Line 1: Title | Status | Priority */}
+        <div className="flex items-start justify-between gap-3 mb-2">
+          <div className="flex-1 min-w-0">
+            <div className="text-[10px] text-gray-400">Title</div>
+            <div className="text-sm font-semibold text-white truncate">
+              {notification.task_title}
+            </div>
+          </div>
+        
+          <div className="flex items-center gap-3 shrink-0 mt-3">
+            <div>
+              <div className="text-[10px] text-gray-400 text-center">Status</div>
+              {getStatusBadge(notification.status)}
+            </div>
+        
+            <div>
+              <div className="text-[10px] text-gray-400 text-center">Priority</div>
+              {getPriorityBadge(notification.priority)}
+            </div>
           </div>
         </div>
-
-        {/* Description */}
-        <div className="mb-4">
-          <div className="text-xs text-gray-400 mb-1">Description</div>
-          <div className="text-lg font-semibold text-white">
-            {notification.task_description || "No description provided."}
+        
+        {/* Line 2: Description | Created */}
+        <div className="flex items-end justify-between gap-3 mb-3">
+          <div className="flex-1 min-w-0">
+            <div className="text-[10px] text-gray-400">Description</div>
+            <div className="text-xs text-white leading-snug line-clamp-2">
+              {notification.task_description || "No description provided."}
+            </div>
           </div>
-        </div>
-
-        {/* Status & Priority */}
-        <div className="flex items-center gap-6 mb-4">
-          <div>
-            <div className="text-xs text-gray-400 mb-1">Status</div>
-            {getStatusBadge(notification.status)}
+        
+          <div className="text-[10px] text-gray-500 whitespace-nowrap">
+            {moment(notification.created_at).format("MMM DD, YYYY • hh:mm A")}
           </div>
-
-          <div>
-            <div className="text-xs text-gray-400 mb-1">Priority</div>
-            {getPriorityBadge(notification.priority)}
-          </div>
-        </div>
-
-        {/* Created Time */}
-        <div className="text-xs text-gray-500 border-t border-stroke pt-3 mb-4">
-          Created:{" "}
-          {moment(notification.created_at).format("MMM DD, YYYY • hh:mm A")}
         </div>
 
         {/* ---------------------------- */}
@@ -187,6 +216,35 @@ export default function TaskNotificationModal({
               ))}
             </div>
           )}
+        </div>
+        
+        {/* Add Note */}
+        <div className="mb-3">
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleAddNote();
+            }}
+          >
+            <textarea
+              rows={2}
+              className="w-full rounded-md bg-white/5 border border-white/10 p-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-primary"
+              placeholder="Add a note..."
+              value={newNote}
+              required
+              onChange={(e) => setNewNote(e.target.value)}
+            />
+        
+            <div className="flex justify-end mt-2">
+              <button
+                type="submit"
+                disabled={addingNote}
+                className="btn btn-sm btn-primary"
+              >
+                {addingNote ? "Adding..." : "Add Note"}
+              </button>
+            </div>
+          </form>
         </div>
 
         {/* Mark as Done */}

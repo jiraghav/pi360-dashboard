@@ -80,13 +80,13 @@ export default function TasksContent() {
   const getStatusBadge = (status) => {
     switch (status) {
       case "1":
-        return <span className="badge text-blue-500">Pending</span>;
+        return <span className="badge whitespace-nowrap text-blue-500">Pending</span>;
       case "2":
-        return <span className="badge text-green-500">Done</span>;
+        return <span className="badge whitespace-nowrap text-green-500">Done</span>;
       case "3":
-        return <span className="badge text-yellow-400">In Progress</span>;
+        return <span className="badge whitespace-nowrap text-yellow-400">In Progress</span>;
       default:
-        return <span className="badge text-gray-400">Unknown</span>;
+        return <span className="badge whitespace-nowrap text-gray-400">Unknown</span>;
     }
   };
   
@@ -160,7 +160,7 @@ export default function TasksContent() {
                       )}
                     </div>
                     {task.description && (
-                      <div className="text-sm text-gray-400 mt-0.5">
+                      <div className="text-sm text-gray-400 mt-0.5 whitespace-pre-line">
                         {task.description}
                       </div>
                     )}
@@ -180,7 +180,7 @@ export default function TasksContent() {
                   </div>
                   <div className="flex items-center gap-2">
                     <span
-                      className={`badge text-${
+                      className={`badge whitespace-nowrap text-${
                         task.priority == 3
                           ? "rose-500"
                           : task.priority == 2

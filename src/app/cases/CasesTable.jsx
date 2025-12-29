@@ -21,7 +21,7 @@ const CasesTable = forwardRef(function CasesTable(
     setShowSendTelemedLinkModal,
     setShowSendTeleneuroLinkModal,
     setShowSendIntakeLinkModal,
-    setShowUploadLOPModal,
+    setShowUploadDocumentModal,
     markCaseHasLOP,
     setShowDroppedCaseModal,
     setShowEditDemographicsModal
@@ -69,7 +69,7 @@ const CasesTable = forwardRef(function CasesTable(
             setShowSendTelemedLinkModal={setShowSendTelemedLinkModal}
             setShowSendTeleneuroLinkModal={setShowSendTeleneuroLinkModal}
             setShowSendIntakeLinkModal={setShowSendIntakeLinkModal}
-            setShowUploadLOPModal={setShowUploadLOPModal}
+            setShowUploadDocumentModal={setShowUploadDocumentModal}
             markCaseHasLOP={markCaseHasLOP}
             setShowEditDemographicsModal={setShowEditDemographicsModal}
           />

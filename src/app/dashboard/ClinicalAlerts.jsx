@@ -97,7 +97,7 @@ export default function ClinicalAlerts({
                 
                     {/* Description / info line */}
                     {alert.description && (
-                      <div className="text-sm text-gray-400 mt-0.5">
+                      <div className="text-sm text-gray-400 mt-0.5 whitespace-pre-line">
                         {alert.description}
                       </div>
                     )}

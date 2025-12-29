@@ -16,7 +16,7 @@ export default function CaseRow({
   setShowSendTelemedLinkModal,
   setShowSendTeleneuroLinkModal,
   setShowSendIntakeLinkModal,
-  setShowUploadLOPModal,
+  setShowUploadDocumentModal,
   markCaseHasLOP,
   setShowDroppedCaseModal,
   setShowEditDemographicsModal
@@ -63,6 +63,20 @@ export default function CaseRow({
       } catch (err) {
         console.error("Failed to fetch case details:", err);
       }
+    }
+  };
+  
+  const fetchCaseDetails = async (pid) => {
+    try {
+      const details = await apiRequest(`/case_details.php?pid=${pid}`);
+      if (details.status) {
+        setExpandedData((prev) => ({
+          ...prev,
+          [pid]: details.data,
+        }));
+      }
+    } catch (err) {
+      console.error("Failed to fetch case details:", err);
     }
   };
   
@@ -309,6 +323,25 @@ export default function CaseRow({
                 >
                   Dropped Case
                 </button>
+                
+                <button
+                  onClick={() => {
+                    setSelectedCase({
+                      ...caseItem,
+                      pid: caseItem.pid,
+                      case_pid: caseItem.pid,
+                      doc_type: 'reduction',
+                      onSuccess: () => {
+                        fetchCaseDetails(caseItem.pid);
+                      }
+                    });
+                    setShowUploadDocumentModal(true);
+                    setMenuOpen(false);
+                  }}
+                  className="block w-full text-left px-3 py-2 text-sm text-slate-100 hover:bg-slate-700 hover:text-mint-300 transition"
+                >
+                  Upload Reduction
+                </button>
               </div>
             )}
           </div>
@@ -320,9 +353,11 @@ export default function CaseRow({
         <ExpandedCaseDetails
           data={expandedData[caseItem.pid]}
           setSelectedCase={setSelectedCase}
-          setShowUploadLOPModal={setShowUploadLOPModal}
+          setShowUploadDocumentModal={setShowUploadDocumentModal}
           updateSectionLOP={updateSectionLOP}
-          markCaseHasLOP={markCaseHasLOP} />
+          markCaseHasLOP={markCaseHasLOP}
+          refreshCaseDetails={() => fetchCaseDetails(caseItem.pid)}
+        />
       )}
       
       {showMessagesModal && (

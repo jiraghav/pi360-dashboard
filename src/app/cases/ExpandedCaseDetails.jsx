@@ -7,7 +7,7 @@ import ReviewNotesModal from "../dashboard/ReviewNotesModal";
 import { FileText } from "lucide-react";
 import CaseInfoModal from "./CaseInfoModal";
 
-export default function ExpandedCaseDetails({ data, setSelectedCase, setShowUploadLOPModal, updateSectionLOP, markCaseHasLOP }) {
+export default function ExpandedCaseDetails({ data, setSelectedCase, setShowUploadDocumentModal, updateSectionLOP, markCaseHasLOP, refreshCaseDetails }) {
   const [showTaskModal, setShowTaskModal] = useState(false);
   const [selectedCase, setSelectedCaseNewTask] = useState(null);
   
@@ -89,7 +89,18 @@ export default function ExpandedCaseDetails({ data, setSelectedCase, setShowUplo
               <div key={i} className="card p-3">
                 <div className="flex items-center justify-between text-mute text-xs">
                   {/* Title on left */}
-                  <span>{section.title}</span>
+                  
+                  <span>
+                  {
+                    section.color && (
+                      <span
+                        key={i}
+                        className="dot"
+                        style={{ backgroundColor: section.color }}
+                      ></span>
+                    )
+                  }
+                  {section.title}</span>
                 
                   {/* Button on right */}
                   {section.has_lop === '0' ? (
@@ -99,12 +110,14 @@ export default function ExpandedCaseDetails({ data, setSelectedCase, setShowUplo
                           ...data.detail,
                           pid: section.pid,
                           case_pid: data.detail.pid,
+                          doc_type: 'lop',
                           onSuccess: () => {
-                            updateSectionLOP(section.pid);       // updates section
-                            markCaseHasLOP(data.detail.pid);     // updates main case
+                            updateSectionLOP(section.pid);
+                            markCaseHasLOP(data.detail.pid);
+                            refreshCaseDetails();
                           }
                         });
-                        setShowUploadLOPModal(true);
+                        setShowUploadDocumentModal(true);
                       }}
                       className="text-xs px-2 py-1 rounded btn cursor-default bg-red-500 text-white"
                     >
@@ -157,10 +170,32 @@ export default function ExpandedCaseDetails({ data, setSelectedCase, setShowUplo
                   </div>
                 )}
                 
-                {section.document_ids && (
-                  <div className="mt-2">
-                    <div className="text-xs text-500 font-medium mb-1">Documents:</div>
-                    <div className="mt-2 flex items-center gap-2 flex-wrap">
+                <div className="mt-2">
+                  <div className="flex items-center justify-between mb-1">
+                    <div className="text-xs text-500 font-medium">Documents:</div>
+                
+                    {/* Add Document Button */}
+                    <button
+                      onClick={() => {
+                        setSelectedCase({
+                          ...data.detail,
+                          pid: section.pid,
+                          case_pid: data.detail.pid,
+                          doc_type: '',
+                          onSuccess: () => {
+                            refreshCaseDetails();
+                          }
+                        });
+                        setShowUploadDocumentModal(true);
+                      }}
+                      className="text-xs px-2 py-1 rounded btn cursor-pointer"
+                    >
+                      + Add Document
+                    </button>
+                  </div>
+                
+                  {section.document_ids ? (
+                    <div className="flex items-center gap-2 flex-wrap mt-2">
                       {section.document_ids
                         .split(",")
                         .map((docId) => docId.trim())
@@ -173,18 +208,20 @@ export default function ExpandedCaseDetails({ data, setSelectedCase, setShowUplo
                                 document_id: docId,
                                 patient_name: `${data.detail.fname} ${data.detail.lname}`,
                                 case_id: data.detail.pid,
-                                id: 0
+                                id: 0,
                               });
                               setDocModalOpen(true);
                             }}
                             className="w-6 h-6 flex items-center justify-center rounded bg-gray-700 text-white text-sm hover:bg-gray-900"
                           >
-                            <FileText className="w-3.5 h-3.5 text-white" />
+                            <FileText className="w-3.5 h-3.5" />
                           </a>
                         ))}
                     </div>
-                  </div>
-                )}
+                  ) : (
+                    <p className="text-xs text-gray-400 mt-2">No documents</p>
+                  )}
+                </div>
               </div>
             ))}
           </div>

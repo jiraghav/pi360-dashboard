@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { AsyncPaginate } from "react-select-async-paginate";
 import { apiRequest } from "../utils/api";
 
 export default function SendTeleneuroLinkModal({
@@ -8,7 +9,9 @@ export default function SendTeleneuroLinkModal({
   onClose,
   onConfirm,
   setSelectedCase,
+  showPatientSelection
 }) {
+  const [patient, setPatient] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -18,8 +21,6 @@ export default function SendTeleneuroLinkModal({
       document.body.style.overflow = "";
     };
   }, [selectedCase]);
-
-  if (!selectedCase) return null;
 
   // Format phone as (XXX) XXX-XXXX
   const formatPhone = (value) => {
@@ -37,11 +38,42 @@ export default function SendTeleneuroLinkModal({
     const digits = phone.replace(/\D/g, "");
     return digits.length === 10;
   };
+  
+  /* Load patients (same as TaskModal) */
+  const loadPatients = async (inputValue, loadedOptions, { page }) => {
+    try {
+      const params = new URLSearchParams({ limit: 10, page: page || 1 });
+      if (inputValue) params.append("search", inputValue);
+
+      const data = await apiRequest(`cases.php?${params.toString()}`);
+
+      return {
+        options: (data.patients || []).map((p) => ({
+          label: `${p.fname} ${p.lname}${
+            p.dob ? ` — DOB: ${p.dob}` : ""
+          }`,
+          value: p,
+        })),
+        hasMore: page * 10 < (data.total || 0),
+        additional: { page: (page || 1) + 1 },
+      };
+    } catch (err) {
+      console.error("Failed to load patients", err);
+      return { options: [], hasMore: false, additional: { page: 1 } };
+    }
+  };
+
+  const activeCase = selectedCase || patient?.value;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    if (!activeCase) {
+      setError("Please select a patient.");
+      return;
+    }
 
-    if (!isValidUSPhone(selectedCase.phone_home || "")) {
+    if (!isValidUSPhone(activeCase.phone_home || "")) {
       setError("Please enter a valid 10-digit US phone number.");
       return;
     }
@@ -51,7 +83,8 @@ export default function SendTeleneuroLinkModal({
 
     try {
       await onConfirm({
-        phone: selectedCase.phone_home,
+        pid: activeCase.pid,
+        phone: activeCase.phone_home,
       });
     } finally {
       setLoading(false);
@@ -68,6 +101,7 @@ export default function SendTeleneuroLinkModal({
         <div className="flex items-center justify-between mb-4">
           <h4 className="font-semibold text-lg">Send Teleneuro Link</h4>
           <button
+            type="button"
             onClick={onClose}
             className="badge cursor-pointer hover:bg-stroke/40"
           >
@@ -75,20 +109,52 @@ export default function SendTeleneuroLinkModal({
           </button>
         </div>
   
-        {/* Case Info */}
-        <p className="text-sm text-mute mb-4">
-          Sending teleneuro schedule link for:
-          <br />
-          <strong className="text-white">
-            {selectedCase.fname} {selectedCase.mname} {selectedCase.lname}
-          </strong>
-          <br />
-          DOB: {selectedCase.dob}
-        </p>
-  
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Editable Phone */}
+          {showPatientSelection && (
+            <AsyncPaginate
+              placeholder="Select Patient"
+              value={patient}
+              loadOptions={loadPatients}
+              onChange={(val) => {
+                setPatient(val);
+                if (val?.value) {
+                  setSelectedCase(val.value);
+                }
+              }}
+              required
+              additional={{ page: 1 }}
+              styles={{
+                control: (p) => ({
+                  ...p,
+                  backgroundColor: "#0b0f16",
+                  borderColor: "#1f2937",
+                }),
+                singleValue: (p) => ({ ...p, color: "white" }),
+                input: (p) => ({ ...p, color: "white" }),
+                placeholder: (p) => ({ ...p, color: "#9ca3af" }),
+                option: (p) => ({
+                  ...p,
+                  color: "white",
+                  backgroundColor: "black",
+                }),
+              }}
+            />
+          )}
+          
+          {/* Case Info */}
+          {activeCase && activeCase.pid && (
+            <p className="text-sm text-mute">
+              Sending teleneuro schedule link for:
+              <br />
+              <strong className="text-white">
+                {activeCase.fname} {activeCase.mname} {activeCase.lname}
+              </strong>
+              <br />
+              DOB: {activeCase.dob}
+            </p>
+          )}
+
           <div>
             <label
               htmlFor="phone_home"
@@ -102,10 +168,10 @@ export default function SendTeleneuroLinkModal({
               type="tel"
               required
               placeholder="(123) 456-7890"
-              value={formatPhone(selectedCase.phone_home || "")}
+              value={formatPhone(activeCase?.phone_home || "")}
               onChange={(e) =>
                 setSelectedCase({
-                  ...selectedCase,
+                  ...activeCase,
                   phone_home: formatPhone(e.target.value),
                 })
               }

@@ -1,6 +1,6 @@
 "use client";
 
-import { PlusCircle, MapPin, CarFront, Siren } from "lucide-react";
+import { PlusCircle, MapPin, CarFront, Siren, PhoneCall, BrainCircuit } from "lucide-react";
 import { useToast } from "../hooks/ToastContext";
 import { apiRequest } from "../utils/api";
 
@@ -10,33 +10,14 @@ export default function KPIs({
   router,
   setReferralModalOpen,
   setNewLocationRequestModalOpen,
+  setShowSendTelemedLinkModal,
+  setShowSendTeleneuroLinkModal,
 }) {
   const { showToast } = useToast();
 
   // function to fetch ER department and redirect
   const handleSendToER = async () => {
-    try {
-      const data = await apiRequest("get-er-department.php");
-
-      if (!data?.facility?.id) {
-        showToast("error", "No ER Department available");
-        return;
-      }
-
-      localStorage.setItem(
-        "selectedReferralFacility",
-        JSON.stringify({
-          id: data?.facility?.id,
-          name: data?.facility?.description,
-          address: data?.facility?.address || "",
-        })
-      );
-
-      router.push("/referrals/new");
-    } catch (err) {
-      console.error(err);
-      alert("Failed to load ER department");
-    }
+      router.push("/maps?send_to_er=1");
   };
 
   const items = [
@@ -76,6 +57,16 @@ export default function KPIs({
       value: <Siren className="w-7 h-7 inline text-blue-400" />,
       description: "Emergency department",
       action: handleSendToER,
+    },
+    {
+      label: "Schedule TeleMed",
+      value: <PhoneCall className="w-7 h-7 inline text-blue-400" />,
+      action: () => setShowSendTelemedLinkModal(true),
+    },
+    {
+      label: "Schedule Teleneuro",
+      value: <BrainCircuit className="w-7 h-7 inline text-blue-400" />,
+      action: () => setShowSendTeleneuroLinkModal(true),
     },
   ];
 
