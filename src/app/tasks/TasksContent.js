@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import ProtectedRoute from "../components/ProtectedRoute";
+import TaskNotificationModal from "../components/TaskNotificationModal";
 import TaskModal from "./TaskModal";
 import { apiRequest } from "../utils/api";
 import { formatDate } from "../utils/formatter";
@@ -24,6 +25,8 @@ export default function TasksContent() {
 
   const searchParams = useSearchParams();
   const statusParam = searchParams?.get("status") || "";
+  
+  const [selectedTask, setSelectedTask] = useState(null);
 
   useEffect(() => {
     fetchToCIC();
@@ -154,10 +157,15 @@ export default function TasksContent() {
                 >
                   <div className="flex flex-col">
                     <div className="font-medium flex items-center gap-1 flex-wrap">
-                      <span>{task.title || "Untitled Task"}</span>
-                      {task.caseId && (
-                        <span className="text-xs text-mute">· Case #{task.caseId}</span>
-                      )}
+                        <span
+                          onClick={() => onOpenTask(task)}
+                          className="cursor-pointer text-blue-600 hover:underline"
+                        >
+                          {task.title || "Untitled Task"}
+                        </span>
+                        {task.caseId && (
+                          <span className="text-xs text-mute">· Case #{task.caseId}</span>
+                        )}
                     </div>
                     {task.description && (
                       <div className="text-sm text-gray-400 mt-0.5 whitespace-pre-line">
@@ -223,6 +231,11 @@ export default function TasksContent() {
       </>
     );
   }
+  
+  const onOpenTask = (task) => {
+    setSelectedTask(task);
+    setTaskModalOpen(true);
+  };
 
   return (
     <ProtectedRoute>
@@ -263,6 +276,36 @@ export default function TasksContent() {
         isOpen={taskModalOpen}
         onClose={() => setTaskModalOpen(false)}
         onCreated={fetchToCIC} // refresh only To CIC when new task added
+      />
+      
+      <TaskNotificationModal
+        open={taskModalOpen}
+        onClose={() => {
+          setTaskModalOpen(false);
+          setSelectedTask(null);
+        }}
+        notification={
+          selectedTask
+            ? {
+                task_id: selectedTask.id,
+                case_id: selectedTask.caseId,
+                patient_name: selectedTask.patient_name,
+                task_title: selectedTask.title,
+                status: selectedTask.status,
+                priority: selectedTask.priority,
+                task_description: selectedTask.description,
+                created_at: selectedTask.created_at,
+                task_type: selectedTask.type,
+              }
+            : null
+        }        fetchNotifications={() => {
+          fetchToCIC();
+          fetchFromCIC();
+        }}
+        onMarkDone={() => {
+          fetchToCIC();
+          fetchFromCIC();
+        }}
       />
     </ProtectedRoute>
   );

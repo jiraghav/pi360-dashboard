@@ -31,18 +31,23 @@ export default function Dashboard() {
 
   const [selectedCase, setSelectedCase] = useState({"message": ""});
   const { showToast } = useToast();
+  
+  const fetchDashboard = async () => {
+    setLoading(true);
+    setError("");
+    setDashboardData(null);
+
+    try {
+      const data = await apiRequest("dashboard.php");
+      setDashboardData(data);
+    } catch (err) {
+      setError(err.message || "Failed to load dashboard data");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchDashboard = async () => {
-      try {
-        const data = await apiRequest("dashboard.php");
-        setDashboardData(data);
-      } catch (err) {
-        setError(err.message || "Failed to load dashboard data");
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchDashboard();
   }, []);
   
@@ -146,6 +151,7 @@ export default function Dashboard() {
             alerts={alerts}
             loading={loading}
             error={error}
+            reloadDashboard={fetchDashboard}
           />
           <ActivityFeed activities={activities} loading={loading} error={error} />
         </section>

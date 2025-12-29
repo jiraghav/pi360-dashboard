@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import moment from "moment-timezone";
 import { apiRequest } from "../utils/api";
+import { useToast } from "../hooks/ToastContext";
 
 export default function TaskNotificationModal({
   open,
@@ -21,17 +22,21 @@ export default function TaskNotificationModal({
   const [newNote, setNewNote] = useState("");
   const [addingNote, setAddingNote] = useState(false);
   
+  const { showToast } = useToast();
+  
   const fetchNotes = async () => {
     setLoadingNotes(true);
 
     try {
       const data = await apiRequest(
-        `get-task-notes.php?task_id=${notification.task_id}&notification_id=${notification.id}`
+        `get-task-notes.php?task_id=${notification.task_id}&notification_id=${notification?.id || ''}`
       );
 
       setNotes(data.notes || []);
       
-      fetchNotifications();
+      if (notification?.id) {
+        fetchNotifications();
+      }
     } catch (error) {
       console.error("Failed to load notes:", error);
     } finally {
@@ -88,6 +93,10 @@ export default function TaskNotificationModal({
 
     setLoading(true);
     try {
+      await apiRequest("update_task_status.php", {
+        method: "POST",
+        body: { task_id: notification.task_id, status: 2 },
+      });
       await onMarkDone(notification.task_id);
       onClose();
     } catch (e) {
@@ -106,17 +115,21 @@ export default function TaskNotificationModal({
         method: "POST",
         body: {
           task_id: notification.task_id,
-          notification_id: notification.id,
+          notification_id: notification?.id || '',
           note: newNote,
         },
       });
   
       if (res.status) {
         setNewNote("");
+        
+        showToast("success", "Note successfully added!");
 
         await fetchNotes();
 
-        fetchNotifications(); // refresh bell count/read status
+        if (notification?.id) {
+          fetchNotifications(); // refresh bell count/read status
+        }
       }
     } catch (err) {
       console.error("Failed to add note:", err);
@@ -131,7 +144,7 @@ export default function TaskNotificationModal({
 
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
-          <h4 className="font-semibold">Notification Details</h4>
+          <h4 className="font-semibold">{notification?.id ? 'Notification' : 'Task'} Details</h4>
 
           <button type="button" className="badge" onClick={onClose}>
             Close
@@ -185,7 +198,7 @@ export default function TaskNotificationModal({
           </div>
         
           <div className="text-[10px] text-gray-500 whitespace-nowrap">
-            {moment(notification.created_at).format("MMM DD, YYYY • hh:mm A")}
+            {moment(notification.created_at).format("MMM DD, YYYY • hh:mm:ss A")}
           </div>
         </div>
 
@@ -203,14 +216,14 @@ export default function TaskNotificationModal({
             <div className="text-gray-500 text-sm">No notes found.</div>
           ) : (
             <div className="space-y-2 max-h-40 overflow-y-auto pr-2">
-              {notes.map((note) => (
+              {notes.map((note, index) => (
                 <div
-                  key={note.id}
+                  key={`task_notification_${note.id ?? `temp_task_notification_${index}`}`}
                   className="p-2 bg-white/5 rounded border border-white/10"
                 >
                   <div className="text-sm text-white">{note.note}</div>
                   <div className="text-[10px] text-gray-500 mt-1">
-                    {moment(note.created_at).format("MMM DD, YYYY • hh:mm A")}
+                    {moment(note.created_at).format("MMM DD, YYYY • hh:mm:ss A")}
                   </div>
                 </div>
               ))}

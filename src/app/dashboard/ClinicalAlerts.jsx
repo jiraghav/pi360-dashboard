@@ -3,19 +3,24 @@ import { useState, useEffect } from "react";
 import { apiRequest } from "../utils/api"; // adjust if needed
 import { formatDate } from "../utils/formatter"; // adjust if needed
 import { useRouter } from "next/navigation";
+import TaskNotificationModal from "../components/TaskNotificationModal";
 
 export default function ClinicalAlerts({
   alerts,
   loading,
   error,
+  reloadDashboard
 }) {
   const [alertList, setAlertList] = useState(alerts || []);
   const [showAllAlerts, setShowAllAlerts] = useState(false);
   const router = useRouter();
+  
+  const [selectedTask, setSelectedTask] = useState(null);
+  const [taskModalOpen, setTaskModalOpen] = useState(false);
 
   // ✅ Keep alertList in sync with latest alerts prop
   useEffect(() => {
-    if (alerts && alerts.length > 0) {
+    if (alerts && alerts.length >= 0) {
       setAlertList(alerts);
     }
   }, [alerts]);
@@ -65,6 +70,11 @@ export default function ClinicalAlerts({
     const query = encodeURIComponent(a.patient_name);
     router.push(`/cases?search=${query}`);
   };
+  
+  const onOpenTask = (task) => {
+    setSelectedTask(task);
+    setTaskModalOpen(true);
+  };
 
   return (
     <div className="col-span-12 lg:col-span-6 card p-5">
@@ -89,7 +99,12 @@ export default function ClinicalAlerts({
                 <li key={i} className="py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                   <div className="flex flex-col">
                     <div className="font-medium flex items-center gap-1 flex-wrap">
-                      <span>{alert.title || "Untitled Task"}</span>
+                        <span
+                          onClick={() => onOpenTask(alert)}
+                          className="cursor-pointer text-blue-600 hover:underline"
+                        >
+                          {alert.title || "Untitled Task"}
+                        </span>
                       {alert.caseId && (
                         <span className="text-xs text-mute">· Case #{alert.caseId}</span>
                       )}
@@ -146,6 +161,31 @@ export default function ClinicalAlerts({
               </button>
             </div>
           )}
+          
+          <TaskNotificationModal
+            open={taskModalOpen}
+            onClose={() => {
+              setTaskModalOpen(false);
+              setSelectedTask(null);
+            }}
+            notification={
+              selectedTask
+                ? {
+                    task_id: selectedTask.id,
+                    case_id: selectedTask.caseId,
+                    patient_name: selectedTask.patient_name,
+                    task_title: selectedTask.title,
+                    status: selectedTask.status,
+                    priority: selectedTask.priority,
+                    task_description: selectedTask.description,
+                    created_at: selectedTask.created_at,
+                    task_type: selectedTask.type,
+                  }
+                : null
+            }
+            fetchNotifications={reloadDashboard}
+            onMarkDone={reloadDashboard}
+          />
         </>
       )}
     </div>
