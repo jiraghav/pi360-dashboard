@@ -8,7 +8,7 @@ export default function QuickActions({
   setReferralModalOpen,
   setShowSendMessageModal
 }) {
-  const { isAffiliate } = useFetchOptions();
+  const { isAffiliate } = useFetchOptions({ fetchRoles: true });
 
   return (
     <div className="col-span-12 xl:col-span-4 card p-5">

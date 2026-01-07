@@ -19,7 +19,13 @@ export default function EditDemographicsModal({
   const fnameRef = useRef(null);
 
   const { showToast } = useToast();
-  const { lawyers, caseTypes, languages, states, caseManagerEmails } = useFetchOptions();
+  const { lawyers, caseTypes, languages, states, caseManagerEmails } = useFetchOptions({
+    fetchLawyers: true,
+    fetchCaseTypes: true,
+    fetchLanguages: true,
+    fetchStates: true,
+    fetchCaseManagers: true,
+  });
 
   useEffect(() => {
     if (!selectedCase?.pid) return;

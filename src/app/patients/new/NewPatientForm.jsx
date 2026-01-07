@@ -11,7 +11,13 @@ export default function NewPatientForm() {
   const router = useRouter();
   const { showToast } = useToast();
 
-  const { lawyers, caseTypes, languages, states, caseManagerEmails } = useFetchOptions();
+  const { lawyers, caseTypes, languages, states, caseManagerEmails } = useFetchOptions({
+    fetchLawyers: true,
+    fetchCaseTypes: true,
+    fetchLanguages: true,
+    fetchStates: true,
+    fetchCaseManagers: true,
+  });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedCase, setSelectedCase] = useState({});

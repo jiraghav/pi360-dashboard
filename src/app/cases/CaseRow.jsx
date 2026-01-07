@@ -5,7 +5,6 @@ import { apiRequest } from "../utils/api";
 import ExpandedCaseDetails from "./ExpandedCaseDetails";
 import { Phone, Mail, MessageSquare } from "lucide-react";
 import MessagesModal from "./MessagesModal";
-import useFetchOptions from "../hooks/useFetchOptions";
 
 export default function CaseRow({
   caseItem,
@@ -20,7 +19,8 @@ export default function CaseRow({
   setShowUploadDocumentModal,
   markCaseHasLOP,
   setShowDroppedCaseModal,
-  setShowEditDemographicsModal
+  setShowEditDemographicsModal,
+  isAffiliate
 }) {
   const [expandedData, setExpandedData] = useState({});
   const isExpanded = expandedRows[caseItem.pid];
@@ -28,7 +28,6 @@ export default function CaseRow({
 
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef(null);
-  const { isAffiliate } = useFetchOptions();
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -369,6 +368,7 @@ export default function CaseRow({
           updateSectionLOP={updateSectionLOP}
           markCaseHasLOP={markCaseHasLOP}
           refreshCaseDetails={() => fetchCaseDetails(caseItem.pid)}
+          isAffiliate={isAffiliate}
         />
       )}
       

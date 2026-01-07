@@ -14,6 +14,7 @@ import SendIntakeLinkModal from "./SendIntakeLinkModal";
 import UploadDocumentModal from "./UploadDocumentModal";
 import DroppedCaseModal from "./DroppedCaseModal";
 import EditDemographicsModal from "./EditDemographicsModal";
+import useFetchOptions from "../hooks/useFetchOptions";
 
 export default function Cases() {
   const [cases, setCases] = useState([]);
@@ -37,6 +38,8 @@ export default function Cases() {
   const [showSendIntakeLinkModal, setShowSendIntakeLinkModal] = useState(false);
   const [showUploadDocumentModal, setShowUploadDocumentModal] = useState(false);
   const [showEditDemographicsModal, setShowEditDemographicsModal] = useState(false);
+
+  const { isAffiliate } = useFetchOptions({ fetchRoles: true });
 
   const limit = 10;
   const { showToast } = useToast();
@@ -281,6 +284,7 @@ export default function Cases() {
             doiTo={doiTo}
             setDoiFrom={setDoiFrom}
             setDoiTo={setDoiTo}
+            isAffiliate={isAffiliate}
           />
 
           <CasesTable
@@ -301,6 +305,7 @@ export default function Cases() {
             setShowDroppedCaseModal={setShowDroppedCaseModal}
             markCaseHasLOP={markCaseHasLOP}
             setShowEditDemographicsModal={setShowEditDemographicsModal}
+            isAffiliate={isAffiliate}
           />
         </section>
       </main>

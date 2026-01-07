@@ -1,9 +1,18 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { apiRequest } from "../utils/api";
 
-export default function useFetchOptions() {
+export default function useFetchOptions(options = {}) {
+  const {
+    fetchLawyers = false,
+    fetchCaseTypes = false,
+    fetchLanguages = false,
+    fetchStates = false,
+    fetchCaseManagers = false,
+    fetchRoles = false,
+  } = options;
+
   const [lawyers, setLawyers] = useState([]);
   const [caseTypes, setCaseTypes] = useState([]);
   const [languages, setLanguages] = useState([]);
@@ -12,65 +21,98 @@ export default function useFetchOptions() {
   const [roles, setRoles] = useState([]);
   const [isAffiliate, setIsAffiliate] = useState(false);
 
+  const calledRef = useRef({});
+
+  const shouldCall = (key) => {
+    if (calledRef.current[key]) return false;
+    calledRef.current[key] = true;
+    return true;
+  };
+
   // Lawyers
   useEffect(() => {
+    if (!fetchLawyers || !shouldCall("lawyers")) return;
+
     (async () => {
       try {
         const res = await apiRequest("getLawyers.php");
         setLawyers(res.lawyers || []);
       } catch {}
     })();
-  }, []);
+  }, [fetchLawyers]);
 
   // Case Types
   useEffect(() => {
+    if (!fetchCaseTypes || !shouldCall("caseTypes")) return;
+
     (async () => {
       try {
         const res = await apiRequest("getCaseTypeOptions.php");
         setCaseTypes(res.options || []);
       } catch {}
     })();
-  }, []);
+  }, [fetchCaseTypes]);
 
-  // Preferred Languages
+  // Languages
   useEffect(() => {
+    if (!fetchLanguages || !shouldCall("languages")) return;
+
     (async () => {
       try {
         const res = await apiRequest("getLanguages.php");
         setLanguages(res.languages || []);
       } catch {}
     })();
-  }, []);
+  }, [fetchLanguages]);
 
   // States
   useEffect(() => {
+    if (!fetchStates || !shouldCall("states")) return;
+
     (async () => {
       try {
         const res = await apiRequest("getStates.php?all=1");
         setStates(res.states || []);
       } catch {}
     })();
-  }, []);
+  }, [fetchStates]);
 
+  // Case Manager Emails
   useEffect(() => {
+    if (!fetchCaseManagers || !shouldCall("caseManagers")) return;
+
     (async () => {
       try {
         const res = await apiRequest("case_manager_emails.php");
-        setCaseManagerEmails(res.data.case_manager_emails || []);
+        setCaseManagerEmails(res.data?.case_manager_emails || []);
       } catch {}
     })();
-  }, []);
+  }, [fetchCaseManagers]);
 
+  // Roles
   useEffect(() => {
+    if (!fetchRoles || !shouldCall("roles")) return;
+
     (async () => {
       try {
         const res = await apiRequest("getRoles.php");
-        setRoles(res.roles || []);
-      
-        setIsAffiliate(Array.isArray(res.roles) && res.roles.includes("affiliate"));
+        const roleList = res.roles || [];
+
+        setRoles(roleList);
+        setIsAffiliate(
+          Array.isArray(roleList) && roleList.includes("affiliate")
+        );
       } catch {}
     })();
-  }, []);
+  }, [fetchRoles]);
 
-  return { lawyers, caseTypes, languages, states, caseManagerEmails, roles, isAffiliate };
+  return {
+    lawyers,
+    caseTypes,
+    languages,
+    states,
+    caseManagerEmails,
+    roles,
+    isAffiliate,
+  };
 }

@@ -24,7 +24,8 @@ const CasesTable = forwardRef(function CasesTable(
     setShowUploadDocumentModal,
     markCaseHasLOP,
     setShowDroppedCaseModal,
-    setShowEditDemographicsModal
+    setShowEditDemographicsModal,
+    isAffiliate
   },
   ref
 ) {
@@ -72,6 +73,7 @@ const CasesTable = forwardRef(function CasesTable(
             setShowUploadDocumentModal={setShowUploadDocumentModal}
             markCaseHasLOP={markCaseHasLOP}
             setShowEditDemographicsModal={setShowEditDemographicsModal}
+            isAffiliate={isAffiliate}
           />
         ))
       )}

@@ -7,7 +7,7 @@ import ReviewNotesModal from "../dashboard/ReviewNotesModal";
 import { FileText } from "lucide-react";
 import CaseInfoModal from "./CaseInfoModal";
 
-export default function ExpandedCaseDetails({ data, caseItem, setSelectedCase, setShowUploadDocumentModal, updateSectionLOP, markCaseHasLOP, refreshCaseDetails }) {
+export default function ExpandedCaseDetails({ data, caseItem, setSelectedCase, setShowUploadDocumentModal, updateSectionLOP, markCaseHasLOP, refreshCaseDetails, isAffiliate }) {
   const [showTaskModal, setShowTaskModal] = useState(false);
   const [selectedCase, setSelectedCaseNewTask] = useState(null);
   
@@ -86,7 +86,15 @@ export default function ExpandedCaseDetails({ data, caseItem, setSelectedCase, s
               </ul>
             </div>
             {data.sections?.map((section, i) => (
-              <div key={i} className="card p-3">
+              <div key={i}
+              className={`card p-3
+                ${
+                  isAffiliate && !section.affiliate_has_access
+                    ? "opacity-50 cursor-not-allowed select-none"
+                    : ""
+                }
+              `}
+              >
                 <div className="flex items-center justify-between text-mute text-xs">
                   {/* Title on left */}
                   
@@ -106,6 +114,9 @@ export default function ExpandedCaseDetails({ data, caseItem, setSelectedCase, s
                   {section.has_lop === '0' ? (
                     <button 
                       onClick={() => {
+                        if (isAffiliate && !section.affiliate_has_access) {
+                          return;
+                        }
                         setSelectedCase({
                           ...data.detail,
                           pid: section.pid,
@@ -119,7 +130,13 @@ export default function ExpandedCaseDetails({ data, caseItem, setSelectedCase, s
                         });
                         setShowUploadDocumentModal(true);
                       }}
-                      className="text-xs px-2 py-1 rounded btn cursor-default bg-red-500 text-white"
+                      className={`text-xs px-2 py-1 rounded btn bg-red-500 text-white
+                        ${
+                          isAffiliate && !section.affiliate_has_access
+                            ? "opacity-50 cursor-not-allowed"
+                            : "cursor-default"
+                        }
+                      `}
                     >
                       Upload LOP
                     </button>
@@ -137,10 +154,19 @@ export default function ExpandedCaseDetails({ data, caseItem, setSelectedCase, s
                   {section.has_notes !== '0' && (
                     <button
                       onClick={() => {
+                        if (isAffiliate && !section.affiliate_has_access) {
+                          return;
+                        }
                         setSelectedPid(section.pid);
                         setShowReviewNotes(true);
                       }}
-                      className="text-xs px-2 py-1 mt-1 rounded btn cursor-pointer bg-blue-500 text-white"
+                      className={`text-xs px-2 py-1 mt-1 rounded btn bg-blue-500 text-white
+                        ${
+                          isAffiliate && !section.affiliate_has_access
+                            ? "opacity-50 cursor-not-allowed"
+                            : "cursor-pointer"
+                        }
+                      `}
                     >
                       Review Notes
                     </button>
@@ -177,6 +203,9 @@ export default function ExpandedCaseDetails({ data, caseItem, setSelectedCase, s
                     {/* Add Document Button */}
                     <button
                       onClick={() => {
+                        if (isAffiliate && !section.affiliate_has_access) {
+                          return;
+                        }
                         setSelectedCase({
                           ...data.detail,
                           pid: section.pid,
@@ -188,7 +217,13 @@ export default function ExpandedCaseDetails({ data, caseItem, setSelectedCase, s
                         });
                         setShowUploadDocumentModal(true);
                       }}
-                      className="text-xs px-2 py-1 rounded btn cursor-pointer"
+                      className={`text-xs px-2 py-1 rounded btn
+                        ${
+                          isAffiliate && !section.affiliate_has_access
+                            ? "opacity-50 cursor-not-allowed"
+                            : "cursor-pointer"
+                        }
+                      `}
                     >
                       + Add Document
                     </button>
@@ -204,6 +239,9 @@ export default function ExpandedCaseDetails({ data, caseItem, setSelectedCase, s
                           <a
                             key={docId}
                             onClick={() => {
+                              if (isAffiliate && !section.affiliate_has_access) {
+                                return;
+                              }
                               setSelectedDocNotification({
                                 document_id: docId,
                                 patient_name: `${data.detail.fname} ${data.detail.lname}`,
@@ -212,7 +250,13 @@ export default function ExpandedCaseDetails({ data, caseItem, setSelectedCase, s
                               });
                               setDocModalOpen(true);
                             }}
-                            className="w-6 h-6 flex items-center justify-center rounded bg-gray-700 text-white text-sm hover:bg-gray-900"
+                            className={`w-6 h-6 flex items-center justify-center rounded bg-gray-700 text-white text-sm
+                              ${
+                                isAffiliate && !section.affiliate_has_access
+                                  ? "opacity-50 cursor-not-allowed"
+                                  : "hover:bg-gray-900"
+                              }
+                            `}
                           >
                             <FileText className="w-3.5 h-3.5" />
                           </a>

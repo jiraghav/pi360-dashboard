@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import DatePicker from "react-datepicker";
-import useFetchOptions from "../hooks/useFetchOptions";
 
 export default function CasesHeader({
   statusFilter,
@@ -13,7 +12,8 @@ export default function CasesHeader({
   doiFrom,
   doiTo,
   setDoiFrom,
-  setDoiTo
+  setDoiTo,
+  isAffiliate
 }) {
   const [searchInput, setSearchInput] = useState(search || "");
 
@@ -25,8 +25,6 @@ export default function CasesHeader({
 
   const [startDate, endDate] = dateRange;
   
-  const { isAffiliate } = useFetchOptions();
-
   // Debounced search update
   useEffect(() => {
     const t = setTimeout(() => setSearch(searchInput), 500);
