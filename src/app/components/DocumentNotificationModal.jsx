@@ -12,6 +12,13 @@ export default function DocumentNotificationModal({
 }) {
   const [loadingDoc, setLoadingDoc] = useState(false);
   const [documentData, setDocumentData] = useState(null);
+  
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, []);
 
   useEffect(() => {
     if (!open || !notification?.document_id) return;

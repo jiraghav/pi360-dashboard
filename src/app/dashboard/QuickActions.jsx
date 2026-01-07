@@ -1,3 +1,5 @@
+import useFetchOptions from "../hooks/useFetchOptions";
+
 export default function QuickActions({
   kpis,
   loading,
@@ -6,6 +8,8 @@ export default function QuickActions({
   setReferralModalOpen,
   setShowSendMessageModal
 }) {
+  const { isAffiliate } = useFetchOptions();
+
   return (
     <div className="col-span-12 xl:col-span-4 card p-5">
       <h3 className="text-mute mb-3">Quick Actions</h3>
@@ -13,7 +17,12 @@ export default function QuickActions({
         <button onClick={() => router.push("/referrals/new")} className="btn btn-primary">
           New Referral
         </button>
-        <button onClick={() => router.push("/patients/new")} className="btn">
+        <button
+          disabled={isAffiliate}
+          onClick={() => router.push("/patients/new")}
+          className={`btn ${
+            isAffiliate && "disabled:opacity-50 disabled:cursor-not-allowed"
+          }`}>
           New Patient
         </button>
         <button type="button" className="btn" onClick={() => setReviewModalOpen(true)}>

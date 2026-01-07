@@ -8,6 +8,13 @@ export default function MessagesModal({ onClose, pid_group }) {
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
   
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, []);
+  
   const messagesEndRef = useRef(null);
   
   const scrollToBottom = () => {

@@ -1,12 +1,19 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { X } from "lucide-react";
 import { apiRequest } from "../utils/api";
 import { useToast } from "../hooks/ToastContext";
 
 export default function CaseInfoModal({ isOpen, onClose, data, caseItem, onUpdated }) {
   if (!isOpen) return null;
+  
+  useEffect(() => {
+    document.body.style.overflow = data ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [data]);
   
   const { showToast } = useToast();
 

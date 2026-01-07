@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import DatePicker from "react-datepicker";
+import useFetchOptions from "../hooks/useFetchOptions";
 
 export default function CasesHeader({
   statusFilter,
@@ -23,6 +24,8 @@ export default function CasesHeader({
   ]);
 
   const [startDate, endDate] = dateRange;
+  
+  const { isAffiliate } = useFetchOptions();
 
   // Debounced search update
   useEffect(() => {
@@ -107,9 +110,20 @@ export default function CasesHeader({
           <Link href="/referrals/new" className="btn btn-primary whitespace-nowrap">
             New Referral
           </Link>
-          <Link href="/patients/new" className="btn whitespace-nowrap">
-            New Patient
-          </Link>
+          {isAffiliate ? (
+            <span
+              className="btn whitespace-nowrap opacity-50 cursor-not-allowed"
+            >
+              New Patient
+            </span>
+          ) : (
+            <Link
+              href="/patients/new"
+              className="btn whitespace-nowrap"
+            >
+              New Patient
+            </Link>
+          )}
         </div>
 
         <select

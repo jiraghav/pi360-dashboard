@@ -5,6 +5,7 @@ import { apiRequest } from "../utils/api";
 import ExpandedCaseDetails from "./ExpandedCaseDetails";
 import { Phone, Mail, MessageSquare } from "lucide-react";
 import MessagesModal from "./MessagesModal";
+import useFetchOptions from "../hooks/useFetchOptions";
 
 export default function CaseRow({
   caseItem,
@@ -27,6 +28,7 @@ export default function CaseRow({
 
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef(null);
+  const { isAffiliate } = useFetchOptions();
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -248,12 +250,21 @@ export default function CaseRow({
             {menuOpen && (
               <div className="absolute right-0 mt-1 w-44 bg-slate-800 border border-stroke/30 rounded-md shadow-lg z-20">
                 <button
+                  disabled={isAffiliate}
                   onClick={() => {
+                    if (isAffiliate) return;
+
                     setSelectedCase(caseItem);
                     setShowEditDemographicsModal(true);
                     setMenuOpen(false);
                   }}
-                  className="block w-full text-left px-3 py-2 text-sm text-slate-100 hover:bg-slate-700 hover:text-mint-300 transition"
+                  className={`block w-full text-left px-3 py-2 text-sm transition
+                    ${
+                      isAffiliate
+                        ? "opacity-50 cursor-not-allowed text-slate-400"
+                        : "text-slate-100 hover:bg-slate-700 hover:text-mint-300"
+                    }
+                  `}
                 >
                   Edit Demographics
                 </button>

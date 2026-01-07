@@ -9,6 +9,8 @@ export default function useFetchOptions() {
   const [languages, setLanguages] = useState([]);
   const [states, setStates] = useState([]);
   const [caseManagerEmails, setCaseManagerEmails] = useState([]);
+  const [roles, setRoles] = useState([]);
+  const [isAffiliate, setIsAffiliate] = useState(false);
 
   // Lawyers
   useEffect(() => {
@@ -59,5 +61,16 @@ export default function useFetchOptions() {
     })();
   }, []);
 
-  return { lawyers, caseTypes, languages, states, caseManagerEmails };
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await apiRequest("getRoles.php");
+        setRoles(res.roles || []);
+      
+        setIsAffiliate(Array.isArray(res.roles) && res.roles.includes("affiliate"));
+      } catch {}
+    })();
+  }, []);
+
+  return { lawyers, caseTypes, languages, states, caseManagerEmails, roles, isAffiliate };
 }

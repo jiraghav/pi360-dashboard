@@ -12,6 +12,13 @@ export default function NoteNotificationModal({
 }) {
   const [loadingNote, setLoadingNote] = useState(false);
   const [noteData, setNoteData] = useState(null);
+  
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, []);
 
   useEffect(() => {
     if (!open || !notification?.note_id) return;

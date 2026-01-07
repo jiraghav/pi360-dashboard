@@ -261,7 +261,7 @@ export default function TaskNotificationModal({
         </div>
 
         {/* Mark as Done */}
-        {notification.status !== "2" && notification.task_type == 2 && (
+        {notification.status !== "2" && (notification.task_type == 2 || notification.task_type == 5) && (
           <button
             className="btn btn-primary w-full mt-2"
             onClick={handleMarkDone}
