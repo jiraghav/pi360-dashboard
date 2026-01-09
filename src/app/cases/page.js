@@ -27,6 +27,9 @@ export default function Cases() {
   
   const [doiFrom, setDoiFrom] = useState("");
   const [doiTo, setDoiTo] = useState("");
+  
+  const [affiliateFilter, setAffiliateFilter] = useState("");
+  const [affiliateList, setAffiliateList] = useState([]);
 
   const [selectedCase, setSelectedCase] = useState(null);
   
@@ -59,7 +62,7 @@ export default function Cases() {
   
   useEffect(() => {
     setPage(1);
-  }, [doiFrom, doiTo]);
+  }, [doiFrom, doiTo, affiliateFilter]);
   // --------------------------------------------------------
 
   // Initialize filter from URL
@@ -71,6 +74,9 @@ export default function Cases() {
     
     setDoiFrom(params.get("doi_from") || "");
     setDoiTo(params.get("doi_to") || "");
+    
+    const aff = params.get("affiliates");
+    setAffiliateFilter(aff ? aff.split(",") : []);
 
     setInitialized(true);
   }, []);
@@ -79,7 +85,7 @@ export default function Cases() {
   useEffect(() => {
     if (!initialized) return;
     loadCases();
-  }, [page, search, statusFilter, doiFrom, doiTo, initialized]);
+  }, [page, search, statusFilter, doiFrom, doiTo, affiliateFilter, initialized]);
 
   const loadCases = async () => {
     setLoading(true);
@@ -92,6 +98,7 @@ export default function Cases() {
       if (statusFilter) query.append("status", statusFilter);
       if (doiFrom) query.append("doi_from", doiFrom);
       if (doiTo) query.append("doi_to", doiTo);
+      if (affiliateFilter) query.append("affiliate_ids", affiliateFilter);
 
       const data = await apiRequest(`/cases.php?${query.toString()}`);
 
@@ -270,6 +277,28 @@ export default function Cases() {
       )
     );
   };
+  
+  useEffect(() => {
+    const fetchAffiliates = async () => {
+      try {
+        const res = await apiRequest("affiliates.php");
+
+        if (res.status) {
+          setAffiliateList(res.affiliates);
+        } else {
+          setAffiliateList([]);
+        }
+      } catch (e) {
+        console.error("Failed to fetch affiliates", e);
+        setAffiliateList([]);
+      }
+    };
+
+    // Hide for affiliate users
+    if (!isAffiliate) {
+      fetchAffiliates();
+    }
+  }, [isAffiliate]);
 
   return (
     <ProtectedRoute>
@@ -285,6 +314,9 @@ export default function Cases() {
             setDoiFrom={setDoiFrom}
             setDoiTo={setDoiTo}
             isAffiliate={isAffiliate}
+            affiliateFilter={affiliateFilter}
+            setAffiliateFilter={setAffiliateFilter}
+            affiliateList={affiliateList}
           />
 
           <CasesTable

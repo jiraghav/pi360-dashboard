@@ -14,10 +14,12 @@ export default function DocumentNotificationModal({
   const [documentData, setDocumentData] = useState(null);
   
   useEffect(() => {
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = "";
-    };
+    if (open) {
+      document.body.style.overflow = "hidden";
+      return () => {
+        document.body.style.overflow = "";
+      };
+    }
   }, []);
 
   useEffect(() => {

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import DatePicker from "react-datepicker";
 
 export default function CasesHeader({
@@ -13,7 +13,10 @@ export default function CasesHeader({
   doiTo,
   setDoiFrom,
   setDoiTo,
-  isAffiliate
+  isAffiliate,
+  affiliateFilter,
+  setAffiliateFilter,
+  affiliateList
 }) {
   const [searchInput, setSearchInput] = useState(search || "");
 
@@ -24,6 +27,43 @@ export default function CasesHeader({
   ]);
 
   const [startDate, endDate] = dateRange;
+  
+  const [showAffiliateDropdown, setShowAffiliateDropdown] = useState(false);
+  const dropdownRef = useRef(null);
+  
+  useEffect(() => {
+    const handler = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setShowAffiliateDropdown(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+  
+  const toggleAffiliate = (id) => {
+    let updated;
+
+    if (affiliateFilter.includes(id)) {
+      updated = affiliateFilter.filter(a => a !== id);
+    } else {
+      updated = [...affiliateFilter, id];
+    }
+
+    setAffiliateFilter(updated);
+    updateAffiliateParams(updated);
+  };
+
+  const selectAllAffiliates = () => {
+    const all = affiliateList.map(a => String(a.id));
+    setAffiliateFilter(all);
+    updateAffiliateParams(all);
+  };
+
+  const clearAffiliates = () => {
+    setAffiliateFilter([]);
+    updateAffiliateParams([]);
+  };
   
   // Debounced search update
   useEffect(() => {
@@ -90,9 +130,21 @@ export default function CasesHeader({
     const [y, m, d] = str.split("-").map(Number);
     return new Date(y, m - 1, d); // Local timezone → No shift
   };
+  
+  const updateAffiliateParams = (values) => {
+    const params = new URLSearchParams(window.location.search);
+
+    if (values.length) {
+      params.set("affiliates", values.join(","));
+    } else {
+      params.delete("affiliates");
+    }
+
+    window.history.replaceState({}, "", `?${params}`);
+  };
 
   return (
-    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
+    <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
       <h3 className="text-lg font-semibold">
         {statusFilter === "active"
           ? "Active Cases"
@@ -103,8 +155,8 @@ export default function CasesHeader({
           : "All Cases"}
       </h3>
 
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full md:w-auto">
-        <div className="flex flex-row flex-wrap gap-2">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-1 w-full md:w-auto">
+        <div className="flex flex-row gap-2 shrink-0">
           <Link href="/referrals/new" className="btn btn-primary whitespace-nowrap">
             New Referral
           </Link>
@@ -164,6 +216,74 @@ export default function CasesHeader({
           calendarClassName="dark-datepicker"
           isClearable
         />
+
+        {
+          isAffiliate && (
+            <div className="relative" ref={dropdownRef}>
+              <button
+                type="button"
+                onClick={() => setShowAffiliateDropdown(v => !v)}
+                className="
+  bg-black border flex items-center justify-between
+  w-full sm:w-auto shrink-0
+  min-w-[200px]
+  px-3 py-2 rounded text-white
+"
+              >
+                <span>
+                  {affiliateFilter.length
+                    ? `Affiliates (${affiliateFilter.length})`
+                    : "All Affiliates"}
+                </span>
+                <span className="text-xs">▾</span>
+              </button>
+            
+              {showAffiliateDropdown && (
+                <div className="absolute right-0 mt-1 w-64 bg-[#111] border border-gray-700 rounded-lg shadow-lg z-50 max-h-72 overflow-y-auto">
+                  
+                  {/* Select All */}
+                  <label className="flex items-center gap-2 px-3 py-2 cursor-pointer hover:bg-gray-800">
+                    <input
+                      type="checkbox"
+                      checked={affiliateFilter.length === affiliateList.length && affiliateList.length > 0}
+                      onChange={(e) =>
+                        e.target.checked ? selectAllAffiliates() : clearAffiliates()
+                      }
+                    />
+                    <span>Select All</span>
+                  </label>
+            
+                  <div className="border-t border-gray-700 my-1" />
+            
+                  {/* Affiliate list */}
+                  {affiliateList.map(a => (
+                    <label
+                      key={a.id}
+                      className="flex items-center gap-2 px-3 py-2 cursor-pointer hover:bg-gray-800"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={affiliateFilter.includes(String(a.id))}
+                        onChange={() => toggleAffiliate(String(a.id))}
+                      />
+                      <span className="truncate">{a.name}</span>
+                    </label>
+                  ))}
+            
+                  <div className="border-t border-gray-700 my-1" />
+            
+                  <button
+                    type="button"
+                    onClick={clearAffiliates}
+                    className="w-full text-left px-3 py-2 text-sm text-red-400 hover:bg-gray-800"
+                  >
+                    Clear selection
+                  </button>
+                </div>
+              )}
+            </div>
+          )
+        }
       </div>
     </div>
   );
