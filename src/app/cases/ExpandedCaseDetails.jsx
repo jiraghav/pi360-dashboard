@@ -6,6 +6,7 @@ import DocumentNotificationModal from "../components/DocumentNotificationModal";
 import ReviewNotesModal from "../dashboard/ReviewNotesModal";
 import { FileText } from "lucide-react";
 import CaseInfoModal from "./CaseInfoModal";
+import { useRouter } from "next/navigation";
 
 export default function ExpandedCaseDetails({ data, caseItem, setSelectedCase, setShowUploadDocumentModal, updateSectionLOP, markCaseHasLOP, refreshCaseDetails, isAffiliate }) {
   const [showTaskModal, setShowTaskModal] = useState(false);
@@ -19,15 +20,33 @@ export default function ExpandedCaseDetails({ data, caseItem, setSelectedCase, s
   
   const [showCaseInfoModal, setShowCaseInfoModal] = useState(false);
 
+  const router = useRouter();
+
   return (
     <div className="mt-2 md:mt-4 p-3 md:p-4 rounded-xl border border-stroke bg-card">
       {data ? (
         <>
-          <div className="flex items-center justify-between mb-1">
-            <div className="text-xs text-slate-500 font-medium"></div>
-        
+          <div className="flex items-center justify-end mb-1">            
+            {
+              caseItem.tasks_count > 0 && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    const query = encodeURIComponent(
+                      `${caseItem.fname} ${caseItem.lname}`
+                    );
+                    router.push(`/tasks?status=open&patient=${query}`);
+                  }}
+                  title="View Open Tasks"
+                  className="text-xs px-2 py-1 rounded btn cursor-pointer"
+                >
+                  View Tasks
+                </button>
+              )
+            }
+
             <button
-              className="text-xs px-2 py-1 rounded btn cursor-pointer"
+              className="text-xs px-2 py-1 rounded btn cursor-pointer ml-2"
               onClick={() => {
                 setSelectedCaseNewTask({
                   pid: data.detail.pid,
@@ -37,7 +56,7 @@ export default function ExpandedCaseDetails({ data, caseItem, setSelectedCase, s
                 });
                 setShowTaskModal(true);
               }}            >
-              Add Task
+              + Add Task
             </button>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 mt-2">

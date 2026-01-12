@@ -5,6 +5,7 @@ import { apiRequest } from "../utils/api";
 import ExpandedCaseDetails from "./ExpandedCaseDetails";
 import { Phone, Mail, MessageSquare } from "lucide-react";
 import MessagesModal from "./MessagesModal";
+import { useRouter } from "next/navigation";
 
 export default function CaseRow({
   caseItem,
@@ -28,6 +29,8 @@ export default function CaseRow({
 
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef(null);
+  
+  const router = useRouter();
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -115,6 +118,34 @@ export default function CaseRow({
           >
             LOP
           </button>
+          {
+            caseItem.tasks_count > 0 && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  const query = encodeURIComponent(
+                    `${caseItem.fname} ${caseItem.lname}`
+                  );
+                  router.push(`/tasks?status=open&patient=${query}`);
+                }}
+                title="View Open Tasks"
+                className="
+                  ml-2 mr-1 w-8 h-6
+                  flex items-center justify-center
+                  rounded-full text-xs font-semibold
+                  bg-red-600 text-white
+                  shadow-md shadow-red-600/40
+                  ring-2 ring-red-500 ring-offset-1 ring-offset-slate-900
+                  animate-pulse
+                  cursor-pointer
+                  hover:animate-none hover:bg-red-700
+                  transition
+                "
+              >
+                T
+              </button>
+            )
+          }
           {caseItem.email && (
             <div className="ml-1 relative group">
               <button

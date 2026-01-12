@@ -25,20 +25,21 @@ export default function TasksContent() {
 
   const searchParams = useSearchParams();
   const statusParam = searchParams?.get("status") || "";
+  const patientNameParam = searchParams?.get("patient") || "";
   
   const [selectedTask, setSelectedTask] = useState(null);
 
   useEffect(() => {
     fetchToCIC();
     fetchFromCIC();
-  }, [statusParam]);
+  }, [statusParam, patientNameParam]);
 
   // ---- Separate Fetch Functions ----
   async function fetchToCIC() {
     setLoadingToCIC(true);
     try {
-      const endpoint = statusParam
-        ? `get_tasks_to_cic.php?status=${encodeURIComponent(statusParam)}`
+      const endpoint = statusParam || patientNameParam
+        ? `get_tasks_to_cic.php?status=${encodeURIComponent(statusParam)}&patient=${encodeURIComponent(patientNameParam)}`
         : "get_tasks_to_cic.php";
       const data = await apiRequest(endpoint);
       setToCIC(data.data || []);
@@ -52,8 +53,8 @@ export default function TasksContent() {
   async function fetchFromCIC() {
     setLoadingFromCIC(true);
     try {
-      const endpoint = statusParam
-        ? `get_tasks_from_cic.php?status=${encodeURIComponent(statusParam)}`
+      const endpoint = statusParam || patientNameParam
+        ? `get_tasks_from_cic.php?status=${encodeURIComponent(statusParam)}&patient=${encodeURIComponent(patientNameParam)}`
         : "get_tasks_from_cic.php";
       const data = await apiRequest(endpoint);
       setFromCIC(data.data || []);
@@ -115,9 +116,14 @@ export default function TasksContent() {
         <div className="flex justify-between items-center mb-3">
           <h4 className="font-semibold">
             {title}{" "}
-            {statusParam && (
+            {(statusParam || patientNameParam) && (
               <span className="text-sm text-mute">
-                ({statusParam.charAt(0).toUpperCase() + statusParam.slice(1)} only)
+                (
+                {statusParam &&
+                  `${statusParam.charAt(0).toUpperCase() + statusParam.slice(1)} only`}
+                {statusParam && patientNameParam && " • "}
+                {patientNameParam && `Patient: ${patientNameParam}`}
+                )
               </span>
             )}
           </h4>
