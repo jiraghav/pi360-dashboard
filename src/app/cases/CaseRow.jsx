@@ -103,7 +103,9 @@ export default function CaseRow({
     <div
       className="mb-4 border border-stroke/30 rounded-xl md:border-0 md:rounded-none md:border-b md:border-stroke/50"
     >
-      <div className="grid grid-cols-1 md:grid-cols-12 items-start md:items-center gap-2 md:gap-0 p-4 md:p-0">
+      <div className="grid grid-cols-1 md:grid-cols-12 items-start md:items-center gap-2 md:gap-0 p-4 md:p-0"
+        onClick={toggleRow}
+        >
         {/* Expand */}
         <div className="flex items-center md:col-span-3">
           <button
@@ -179,14 +181,17 @@ export default function CaseRow({
           {caseItem.has_messages !== "0" && (
             <div className="ml-1 relative group">
               <button
-                onClick={() => setShowMessagesModal(true)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowMessagesModal(true)
+                }}
                 className="badge w-8 cursor-default flex items-center justify-center bg-blue-500"
               >
                 <MessageSquare className="w-4 h-4" />
               </button>
             </div>
           )}
-          <button className="badge ml-2" onClick={toggleRow}>
+          <button className="badge ml-2">
             {isExpanded ? "-" : "+"}
           </button>
           <span className="ml-2 flex gap-1">
@@ -250,7 +255,8 @@ export default function CaseRow({
               <div className="absolute right-0 mt-1 w-44 bg-slate-800 border border-stroke/30 rounded-md shadow-lg z-20">
                 <button
                   disabled={isAffiliate}
-                  onClick={() => {
+                  onClick={(e) => {
+                    e.stopPropagation();
                     if (isAffiliate) return;
 
                     setSelectedCase(caseItem);
@@ -269,7 +275,8 @@ export default function CaseRow({
                 </button>
 
                 <button
-                  onClick={() => {
+                  onClick={(e) => {
+                    e.stopPropagation();
                     setSelectedCase(caseItem);
                     setShowRequestRecordModal(true);
                     setMenuOpen(false);
@@ -280,7 +287,8 @@ export default function CaseRow({
                 </button>
     
                 <button
-                  onClick={() => {
+                  onClick={(e) => {
+                    e.stopPropagation();
                     setSelectedCase(caseItem);
                     setShowSendMessageModal(true);
                     setMenuOpen(false);
@@ -291,7 +299,8 @@ export default function CaseRow({
                 </button>
     
                 <button
-                  onClick={() => {
+                  onClick={(e) => {
+                    e.stopPropagation();
                     setSelectedCase(caseItem);
                     setShowSendTelemedLinkModal(true);
                     setMenuOpen(false);
@@ -302,7 +311,8 @@ export default function CaseRow({
                 </button>
     
                 <button
-                  onClick={() => {
+                  onClick={(e) => {
+                    e.stopPropagation();
                     setSelectedCase(caseItem);
                     setShowSendTeleneuroLinkModal(true);
                     setMenuOpen(false);
@@ -313,7 +323,8 @@ export default function CaseRow({
                 </button>
     
                 <button
-                  onClick={() => {
+                  onClick={(e) => {
+                    e.stopPropagation();
                     setSelectedCase(caseItem);
                     setShowSendIntakeLinkModal(true);
                     setMenuOpen(false);
@@ -324,7 +335,8 @@ export default function CaseRow({
                 </button>
                 
                 <button
-                  onClick={() => {
+                  onClick={(e) => {
+                    e.stopPropagation();
                     setSelectedCase(caseItem);
                     setShowDroppedCaseModal(true);
                     setMenuOpen(false);
@@ -335,7 +347,8 @@ export default function CaseRow({
                 </button>
                 
                 <button
-                  onClick={() => {
+                  onClick={(e) => {
+                    e.stopPropagation();
                     setSelectedCase({
                       ...caseItem,
                       pid: caseItem.pid,
