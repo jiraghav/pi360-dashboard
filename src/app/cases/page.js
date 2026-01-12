@@ -338,6 +338,7 @@ export default function Cases() {
             markCaseHasLOP={markCaseHasLOP}
             setShowEditDemographicsModal={setShowEditDemographicsModal}
             isAffiliate={isAffiliate}
+            loadCases={loadCases}
           />
         </section>
       </main>

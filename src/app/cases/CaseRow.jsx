@@ -6,6 +6,7 @@ import ExpandedCaseDetails from "./ExpandedCaseDetails";
 import { Phone, Mail, MessageSquare } from "lucide-react";
 import MessagesModal from "./MessagesModal";
 import { useRouter } from "next/navigation";
+import TaskModal from "../tasks/TaskModal";
 
 export default function CaseRow({
   caseItem,
@@ -21,7 +22,8 @@ export default function CaseRow({
   markCaseHasLOP,
   setShowDroppedCaseModal,
   setShowEditDemographicsModal,
-  isAffiliate
+  isAffiliate,
+  loadCases
 }) {
   const [expandedData, setExpandedData] = useState({});
   const isExpanded = expandedRows[caseItem.pid];
@@ -29,6 +31,9 @@ export default function CaseRow({
 
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef(null);
+  
+  const [showTaskModal, setShowTaskModal] = useState(false);
+  const [selectedCase, setSelectedCaseNewTask] = useState(null);
   
   const router = useRouter();
 
@@ -118,8 +123,10 @@ export default function CaseRow({
           >
             LOP
           </button>
-          {
-            caseItem.tasks_count > 0 && (
+
+          <div className="flex items-center gap-1 ml-1">
+            {/* View Tasks */}
+            {caseItem.tasks_count > 0 && (
               <button
                 onClick={(e) => {
                   e.stopPropagation();
@@ -128,24 +135,79 @@ export default function CaseRow({
                   );
                   router.push(`/tasks?status=open&patient=${query}`);
                 }}
-                title="View Open Tasks"
+                title={`View ${caseItem.tasks_count} Open Tasks`}
                 className="
-                  ml-2 mr-1 w-8 h-6
+                  relative
+                  w-[20px] h-[20px]
                   flex items-center justify-center
-                  rounded-full text-xs font-semibold
+                  rounded-full
+                  text-[11px] font-bold
                   bg-red-600 text-white
-                  shadow-md shadow-red-600/40
-                  ring-2 ring-red-500 ring-offset-1 ring-offset-slate-900
                   animate-pulse
-                  cursor-pointer
-                  hover:animate-none hover:bg-red-700
+                  hover:bg-red-700 hover:animate-none
                   transition
                 "
               >
                 T
+                <span
+                  className="
+                    absolute -top-[4px] -right-[4px]
+                    w-[12px] h-[12px]
+                    flex items-center justify-center
+                    rounded-full
+                    text-[8px] font-extrabold
+                    bg-white text-red-600
+                    border border-red-600
+                    leading-none
+                  "
+                >
+                  {caseItem.tasks_count > 9 ? "9+" : caseItem.tasks_count}
+                </span>
               </button>
-            )
-          }
+            )}
+          
+            {/* Add Task */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setSelectedCaseNewTask({
+                  pid: caseItem.pid,
+                  fname: caseItem.fname,
+                  lname: caseItem.lname,
+                  case_pid: caseItem.pid,
+                });
+                setShowTaskModal(true);
+              }}
+              title="Add Task"
+              className="
+                relative
+                w-[20px] h-[20px]
+                flex items-center justify-center
+                rounded-full
+                text-[11px] font-bold
+                bg-blue-500 text-white
+                hover:bg-blue-700
+                transition
+              "
+            >
+              T
+              <span
+                className="
+                  absolute -top-[4px] -right-[4px]
+                  w-[12px] h-[12px]
+                  flex items-center justify-center
+                  rounded-full
+                  text-[10px] font-extrabold
+                  bg-white text-blue-600
+                  border border-blue-600
+                  leading-none
+                "
+              >
+                  +
+              </span>
+            </button>
+          </div>
+
           {caseItem.email && (
             <div className="ml-1 relative group">
               <button
@@ -413,6 +475,10 @@ export default function CaseRow({
           markCaseHasLOP={markCaseHasLOP}
           refreshCaseDetails={() => fetchCaseDetails(caseItem.pid)}
           isAffiliate={isAffiliate}
+          showTaskModal={showTaskModal}
+          setShowTaskModal={setShowTaskModal}
+          selectedCase={selectedCase}
+          setSelectedCaseNewTask={setSelectedCaseNewTask}
         />
       )}
       
@@ -423,6 +489,15 @@ export default function CaseRow({
           pid_group={caseItem.pid_group || ''}
         />
       )}
+      
+      <TaskModal
+        isOpen={showTaskModal}
+        onClose={() => setShowTaskModal(false)}
+        selectedCase={selectedCase}
+        onCreated={(task) => {
+          loadCases();
+        }}
+      />
     </div>
   );
 }

@@ -8,9 +8,20 @@ import { FileText } from "lucide-react";
 import CaseInfoModal from "./CaseInfoModal";
 import { useRouter } from "next/navigation";
 
-export default function ExpandedCaseDetails({ data, caseItem, setSelectedCase, setShowUploadDocumentModal, updateSectionLOP, markCaseHasLOP, refreshCaseDetails, isAffiliate }) {
-  const [showTaskModal, setShowTaskModal] = useState(false);
-  const [selectedCase, setSelectedCaseNewTask] = useState(null);
+export default function ExpandedCaseDetails({
+    data,
+    caseItem,
+    setSelectedCase,
+    setShowUploadDocumentModal,
+    updateSectionLOP,
+    markCaseHasLOP,
+    refreshCaseDetails,
+    isAffiliate,
+    showTaskModal,
+    setShowTaskModal,
+    selectedCase,
+    setSelectedCaseNewTask
+  }) {
   
   const [docModalOpen, setDocModalOpen] = useState(false);
   const [selectedDocNotification, setSelectedDocNotification] = useState(null);
@@ -288,13 +299,6 @@ export default function ExpandedCaseDetails({ data, caseItem, setSelectedCase, s
               </div>
             ))}
           </div>
-          <TaskModal
-            isOpen={showTaskModal}
-            onClose={() => setShowTaskModal(false)}
-            selectedCase={selectedCase}   // <-- send case here
-            onCreated={(task) => {
-            }}
-          />
           <DocumentNotificationModal
             open={docModalOpen}
             onClose={() => setDocModalOpen(false)}
