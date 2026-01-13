@@ -119,7 +119,7 @@ export default function Dashboard() {
 
   const kpis = dashboardData || {};
   const alerts = dashboardData?.clincalAlerts || [];
-  const activities = dashboardData?.submittedToLawyers || [];
+  const activities = dashboardData?.activities || [];
   const userName = dashboardData?.lawyer_name || "Personal Injury Lawyer";
 
   return (
@@ -147,13 +147,13 @@ export default function Dashboard() {
         </section>
 
         <section className="grid grid-cols-12 gap-4">
+          <ActivityFeed activities={activities} loading={loading} error={error} />
           <ClinicalAlerts
             alerts={alerts}
             loading={loading}
             error={error}
             reloadDashboard={fetchDashboard}
           />
-          <ActivityFeed activities={activities} loading={loading} error={error} />
         </section>
       </main>
 

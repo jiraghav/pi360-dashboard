@@ -11,11 +11,12 @@ export default function ActivityFeed({ activities, loading, error }) {
   useEffect(() => {
     if (activities && activities.length > 0) {
       const formatted = activities.map((item) => ({
-        id: item.datetime,
-        status: `Submitted to Lawyer`,
+        id: item.id,
+        title: item.title,
+        description: item.description,
         name: `${item.name}`,
         caseId: `${item.caseId}`,
-        time: moment(item.datetime).format("MM/DD/YYYY hh:mm A"),
+        time: moment(item.created_at).format("MM/DD/YYYY hh:mm A"),
       }));
       setActivityList(formatted);
     }
@@ -52,25 +53,41 @@ export default function ActivityFeed({ activities, loading, error }) {
               (activity, i) => (
                 <li
                   key={i}
-                  className="py-3 flex items-center justify-between text-sm"
+                  className="py-3 flex items-start justify-between text-sm"
                 >
-                  <div>
+                  <div className="pr-4">
                     <div className="font-medium">
                       {activity.name && (
                         <span
                           onClick={() => onViewProfile(activity)}
-                          className="truncate text-blue-600 hover:underline cursor-pointer items-center"
+                          className="truncate text-blue-600 hover:underline cursor-pointer"
                         >
-                          {activity.name}{" "}
+                          {activity.name}
                         </span>
                       )}
-                      <span className="text-xs text-mute">
+                      <span className="text-xs text-mute ml-1">
                         · Case #{activity.caseId}
                       </span>
                     </div>
-                    <div className="text-xs text-mute">{activity.status}</div>
+                
+                    {/* Activity title */}
+                    {activity.title && (
+                      <div className="text-xs font-medium mt-1">
+                        {activity.title}
+                      </div>
+                    )}
+                
+                    {/* Activity description */}
+                    {activity.description && (
+                      <div className="text-xs text-mute mt-0.5">
+                        {activity.description}
+                      </div>
+                    )}
                   </div>
-                  <span className="text-xs text-mute">{activity.time}</span>
+                
+                  <span className="text-xs text-mute whitespace-nowrap">
+                    {activity.time}
+                  </span>
                 </li>
               )
             )}
