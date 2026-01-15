@@ -114,7 +114,35 @@ export default function ExpandedCaseDetails({
                   </span>
                 </li>
               </ul>
-            </div>
+          </div>
+          {
+            data.sections.length > 0 && (
+              <div className="card p-3">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="text-xs text-slate-500 font-medium">CIC Medical Summary</div>
+                  </div>
+    
+                  <ul className="text-sm space-y-1">
+                    {data.sections?.map((section, i) => (
+                      <li className="flex justify-between">
+                        <span className="font-medium">
+                        {
+                          section.color && (
+                            <span
+                              key={i}
+                              className="dot"
+                              style={{ backgroundColor: section.color }}
+                            ></span>
+                          )
+                        }
+                        {section.title}</span>
+                        <span>${section.balance}</span>
+                      </li>
+                    ))  }
+                  </ul>
+              </div>
+            )
+          }
             {data.sections?.map((section, i) => (
               <div key={i}
               className={`card p-3
