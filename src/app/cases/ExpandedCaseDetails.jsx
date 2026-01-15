@@ -135,7 +135,8 @@ export default function ExpandedCaseDetails({
                             ></span>
                           )
                         }
-                        {section.title}</span>
+                        {section.title} (<span className="text-xs">{section.fac_name}</span>)
+                        </span>
                         <span>${section.balance}</span>
                       </li>
                     ))  }
@@ -157,16 +158,17 @@ export default function ExpandedCaseDetails({
                   {/* Title on left */}
                   
                   <span>
-                  {
-                    section.color && (
-                      <span
-                        key={i}
-                        className="dot"
-                        style={{ backgroundColor: section.color }}
-                      ></span>
-                    )
-                  }
-                  {section.title}</span>
+                    {
+                      section.color && (
+                        <span
+                          key={i}
+                          className="dot"
+                          style={{ backgroundColor: section.color }}
+                        ></span>
+                      )
+                    }
+                    {section.title} (<span className="text-xs">{section.fac_name}</span>)
+                  </span>
                 
                   {/* Button on right */}
                   {section.has_lop === '0' ? (
