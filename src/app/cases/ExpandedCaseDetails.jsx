@@ -207,7 +207,7 @@ export default function ExpandedCaseDetails({
                   <div className="mt-2 flex flex-col sm:flex-row sm:flex-wrap sm:gap-x-6 gap-y-1 text-xs text-gray-400">
                     {section.visits && (
                       <div className="flex items-center gap-1">
-                        <span className="font-medium text-gray-300">Visits:</span>
+                        <span className="font-medium text-gray-300">Total Visits:</span>
                         <span>{section.visits}</span>
                       </div>
                     )}
@@ -215,6 +215,18 @@ export default function ExpandedCaseDetails({
                       <div className="flex items-center gap-1">
                         <span className="font-medium text-gray-300">Last Visit:</span>
                         <span className="truncate">{section.last_visit}</span>
+                      </div>
+                    )}
+                    {section.missed_visit && (
+                      <div className="flex items-center gap-1">
+                        <span className="font-medium text-gray-300">Missed Visit:</span>
+                        <span className="truncate">{section.missed_visit}</span>
+                      </div>
+                    )}
+                    {section.next_visit && (
+                      <div className="flex items-center gap-1">
+                        <span className="font-medium text-gray-300">Next Visit:</span>
+                        <span className="truncate">{section.next_visit}</span>
                       </div>
                     )}
                     {section.balance && (
