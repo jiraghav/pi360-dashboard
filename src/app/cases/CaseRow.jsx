@@ -7,6 +7,8 @@ import { Phone, Mail, MessageSquare } from "lucide-react";
 import MessagesModal from "./MessagesModal";
 import { useRouter } from "next/navigation";
 import TaskModal from "../tasks/TaskModal";
+import { useNotificationUI } from "../context/NotificationContext";
+import { Bell } from "lucide-react";
 
 export default function CaseRow({
   caseItem,
@@ -36,6 +38,8 @@ export default function CaseRow({
   const [selectedCase, setSelectedCaseNewTask] = useState(null);
   
   const router = useRouter();
+
+  const { setOpen, setNotificationPatient } = useNotificationUI();
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -234,6 +238,48 @@ export default function CaseRow({
               >
                   +
               </span>
+            </button>
+            
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setNotificationPatient({
+                  pid_group: caseItem.pid_group,
+                  name: `${caseItem.fname} ${caseItem.lname}`,
+                });
+                setOpen(true);
+              }}
+              title="View Notifications"
+              className="
+                relative
+                w-[20px] h-[20px]
+                flex items-center justify-center
+                rounded-full
+                bg-purple-500
+                hover:bg-purple-700
+                transition
+              "
+            >
+              <Bell className="w-4 h-4 text-white" />
+            
+              {caseItem.notifications_count > 0 && (
+                <span
+                  className="
+                    absolute -top-[4px] -right-[4px]
+                    w-[12px] h-[12px]
+                    flex items-center justify-center
+                    rounded-full
+                    text-[8px] font-extrabold
+                    bg-white text-purple-600
+                    border border-purple-600
+                    leading-none
+                  "
+                >
+                  {caseItem.notifications_count > 9
+                    ? "9+"
+                    : caseItem.notifications_count}
+                </span>
+              )}
             </button>
           </div>
 

@@ -17,13 +17,15 @@ import NoteNotificationModal from "./NoteNotificationModal";
 import DocumentNotificationModal from "./DocumentNotificationModal";
 import { useRouter } from "next/navigation";
 
+import { useNotificationUI } from "../context/NotificationContext";
+
 export default function Navbar() {
   const pathname = usePathname();
   const page = routeMap[pathname] || { title: "PI360", sub: "" };
 
   const { showToast } = useToast();
 
-  const [open, setOpen] = useState(false);
+  const { open, setOpen, notificationPatient, setNotificationPatient } = useNotificationUI();
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -34,6 +36,12 @@ export default function Navbar() {
 
   const dropdownRef = useRef(null);
   const router = useRouter();
+  
+  useEffect(() => {
+    if (notificationPatient) {
+      setOpen(true);
+    }
+  }, [notificationPatient]);
 
   // -------------------------------
   // FETCH NOTIFICATIONS
@@ -41,7 +49,10 @@ export default function Navbar() {
   const fetchNotifications = async () => {
     try {
       setLoading(true);
-      const res = await apiRequest("notifications.php", "GET");
+      const url = notificationPatient?.pid_group
+        ? `notifications.php?pid=${encodeURIComponent(notificationPatient?.pid_group)}`
+        : "notifications.php";
+      const res = await apiRequest(url, "GET");
 
       if (res?.data?.notifications) {
         setNotifications(res.data.notifications);
@@ -52,6 +63,10 @@ export default function Navbar() {
       setLoading(false);
     }
   };
+  
+  useEffect(() => {
+    fetchNotifications();
+  }, [open]);
   
   function getUserIdFromToken() {
     try {
@@ -222,7 +237,10 @@ export default function Navbar() {
             {/* Notification Bell */}
             <div className="relative" ref={dropdownRef}>
               <button
-                onClick={() => setOpen(!open)}
+                onClick={() => {
+                  setNotificationPatient();
+                  setOpen(!open);
+                }}
                 className="relative p-2 rounded-lg hover:bg-white/10"
               >
                 <Bell className="w-5 h-5 text-gray-200" />
@@ -238,77 +256,91 @@ export default function Navbar() {
                 <div className="absolute right-0 mt-3 w-80 bg-[#0D0F11] border border-white/10 rounded-xl shadow-2xl overflow-hidden animate-slide-down">
 
                   <div className="px-4 py-3 border-b border-white/10 font-semibold text-sm text-white">
-                    Notifications
+                    {notificationPatient?.name && (
+                      <span className="text-gray-400 mr-1">Patient:</span>
+                    )}
+                    {notificationPatient?.name ? `${notificationPatient?.name} Notifications` : "All Notifications"}
                   </div>
 
                   <div className="max-h-96 overflow-y-auto">
-
-                    {/* Unread */}
-                    <div className="px-4 py-2 text-xs font-semibold text-green-400 bg-white/5">
-                      Unread ({unread.length})
-                    </div>
-
-                    {unread.length === 0 ? (
-                      <div className="px-4 py-3 text-sm text-gray-500">No unread notifications</div>
-                    ) : (
-                      unread.map((n) => (
-                        <div
-                          key={n.id}
-                          onClick={() => handleNotificationClick(n)}
-                          className="px-4 py-3 text-sm hover:bg-white/5 cursor-pointer border-b border-white/5"
-                        >
-                          {n.patient_name && (
-                            <span
-                              className="text-xs float-right text-blue-400 underline cursor-pointer"
-                              onClick={(e) => {
-                                e.stopPropagation();   // Prevent opening the notification modal
-                                onViewProfile(n);
-                              }}
-                            >
-                              👤 {n.patient_name}
-                            </span>
-                          )}
-                          <div className="text-white">{n.title}</div>
-                          <div className="text-xs text-gray-400 mt-1">{n.message}</div>
-                          <div className="text-xs text-gray-500 mt-1">
-                            {moment.tz(n.created_at, "America/Chicago").fromNow()}
-                          </div>
-                        </div>
-                      ))
+                  
+                    {loading && (
+                      <div className="px-4 py-6 flex flex-col items-center justify-center text-gray-400 text-sm">
+                        <div className="animate-spin rounded-full h-6 w-6 border-2 border-gray-400 border-t-transparent mb-2"></div>
+                        Loading notifications…
+                      </div>
                     )}
 
-                    {/* Read */}
-                    <div className="px-4 py-2 text-xs font-semibold text-blue-400 bg-white/5 mt-2">
-                      Read ({read.length})
-                    </div>
-
-                    {read.length === 0 ? (
-                      <div className="px-4 py-3 text-sm text-gray-500">No read notifications</div>
-                    ) : (
-                      read.map((n) => (
-                        <div
-                          key={n.id}
-                          onClick={() => handleNotificationClick(n)}
-                          className="px-4 py-3 text-sm hover:bg-white/5 cursor-pointer border-b border-white/5 opacity-50"
-                        >
-                          {n.patient_name && (
-                            <span
-                              className="text-xs float-right text-blue-400 underline cursor-pointer"
-                              onClick={(e) => {
-                                e.stopPropagation();   // Prevent opening the notification modal
-                                onViewProfile(n);
-                              }}
-                            >
-                              👤 {n.patient_name}
-                            </span>
-                          )}
-                          <div className="text-white">{n.title}</div>
-                          <div className="text-xs text-gray-400 mt-1">{n.message}</div>
-                          <div className="text-xs text-gray-500 mt-1">
-                            {moment.tz(n.created_at, "America/Chicago").fromNow()}
-                          </div>
+                    {!loading && (
+                      <>
+                        {/* Unread */}
+                        <div className="px-4 py-2 text-xs font-semibold text-green-400 bg-white/5">
+                          Unread ({unread.length})
                         </div>
-                      ))
+
+                        {unread.length === 0 ? (
+                          <div className="px-4 py-3 text-sm text-gray-500">No unread notifications</div>
+                        ) : (
+                          unread.map((n) => (
+                            <div
+                              key={n.id}
+                              onClick={() => handleNotificationClick(n)}
+                              className="px-4 py-3 text-sm hover:bg-white/5 cursor-pointer border-b border-white/5"
+                            >
+                              {n.patient_name && (
+                                <span
+                                  className="text-xs float-right text-blue-400 underline cursor-pointer"
+                                  onClick={(e) => {
+                                    e.stopPropagation();   // Prevent opening the notification modal
+                                    onViewProfile(n);
+                                  }}
+                                >
+                                  👤 {n.patient_name}
+                                </span>
+                              )}
+                              <div className="text-white">{n.title}</div>
+                              <div className="text-xs text-gray-400 mt-1">{n.message}</div>
+                              <div className="text-xs text-gray-500 mt-1">
+                                {moment.tz(n.created_at, "America/Chicago").fromNow()}
+                              </div>
+                            </div>
+                          ))
+                        )}
+
+                        {/* Read */}
+                        <div className="px-4 py-2 text-xs font-semibold text-blue-400 bg-white/5 mt-2">
+                          Read ({read.length})
+                        </div>
+
+                        {read.length === 0 ? (
+                          <div className="px-4 py-3 text-sm text-gray-500">No read notifications</div>
+                        ) : (
+                          read.map((n) => (
+                            <div
+                              key={n.id}
+                              onClick={() => handleNotificationClick(n)}
+                              className="px-4 py-3 text-sm hover:bg-white/5 cursor-pointer border-b border-white/5 opacity-50"
+                            >
+                              {n.patient_name && (
+                                <span
+                                  className="text-xs float-right text-blue-400 underline cursor-pointer"
+                                  onClick={(e) => {
+                                    e.stopPropagation();   // Prevent opening the notification modal
+                                    onViewProfile(n);
+                                  }}
+                                >
+                                  👤 {n.patient_name}
+                                </span>
+                              )}
+                              <div className="text-white">{n.title}</div>
+                              <div className="text-xs text-gray-400 mt-1">{n.message}</div>
+                              <div className="text-xs text-gray-500 mt-1">
+                                {moment.tz(n.created_at, "America/Chicago").fromNow()}
+                              </div>
+                            </div>
+                          ))
+                        )}
+                      </>
                     )}
 
                   </div>

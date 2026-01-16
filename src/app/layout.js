@@ -9,6 +9,7 @@ import Link from "next/link";
 import { routeMap } from "./config/routes";
 import Toast from "./components/Toast";
 import { ToastProvider, useToast } from "./hooks/ToastContext";
+import { NotificationProvider } from "./context/NotificationContext";
 
 function LayoutContent({ children }) {
   const pathname = usePathname();
@@ -125,7 +126,9 @@ export default function RootLayout({ children }) {
 
       <body className="bg-bg text-ink">
         <ToastProvider>
-          <LayoutContent>{children}</LayoutContent>
+          <NotificationProvider>
+            <LayoutContent>{children}</LayoutContent>
+          </NotificationProvider>
         </ToastProvider>
       </body>
     </html>

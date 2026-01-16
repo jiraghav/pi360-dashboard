@@ -93,15 +93,19 @@ export default function Sidebar() {
           </span>
 
           <div className="leading-snug">
-            <p className="text-ink font-medium">
-              All LOPs go to “Complete Injury Centers”
+            <p className="text-ink">
+              All LOPs go to <span className="font-medium">Complete Injury Centers</span>
             </p>
 
             <p className="text-mute mt-1">
               Send to{" "}
-              <span className="text-ink font-medium">
+              <a
+                href="mailto:records@cic.clinic"
+                className="text-ink font-medium underline"
+              >
                 records@cic.clinic
-              </span>{" "}
+              </a>
+              {" "}
               or uploaded to the patient profile on this dashboard.
             </p>
           </div>
