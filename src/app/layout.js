@@ -15,13 +15,22 @@ function LayoutContent({ children }) {
   const pathname = usePathname();
   const route = routeMap[pathname] || { title: "Dashboard" };
   const [pageTitle, setPageTitle] = useState(route.title);
-  const { toast, hideToast } = useToast();
+  const { toast, hideToast } = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
     const route = routeMap[pathname] || { title: "Dashboard" };
     setPageTitle(route.title);
     document.title = route.title;
   }, [pathname]);
+  
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768); // Tailwind md breakpoint
+    handleResize(); // initial check
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const hideLayout =
     pathname === "/login" ||
@@ -30,40 +39,9 @@ function LayoutContent({ children }) {
 
   return (
     <>
-      {!hideLayout && (
-        <div className="md:hidden flex items-center justify-between px-4 py-3 glass border-b border-stroke/70 sticky top-0 z-50">
-          <button
-            id="openNav"
-            className="btn"
-            onClick={() => {
-              const sidebar = document.getElementById("sidebar");
-              if (sidebar) sidebar.classList.toggle("hidden");
-            }}
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="w-5 h-5"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M4 6h16M4 12h16M4 18h16"
-              />
-            </svg>
-          </button>
-          <div>
-            <div className="text-xs font-semibold">Complete Injury Centers</div>
-            <div className="text-[10px] text-gray-400">Powered by PI360</div>
-          </div>
-          <Link href="/referrals/new" className="btn btn-primary">
-            New Referral
-          </Link>
-        </div>
-      )}
+      <div className="md:hidden">
+        {!hideLayout && isMobile && <Navbar />}
+      </div>
 
       <div className="min-h-screen grid md:grid-cols-12">
         {!hideLayout && <Sidebar />}
@@ -71,7 +49,9 @@ function LayoutContent({ children }) {
         <section
           className={hideLayout ? "col-span-12" : "md:col-span-9 xl:col-span-10"}
         >
-          {!hideLayout && <Navbar />}
+          <div className="hidden md:block">
+            {!hideLayout && !isMobile && <Navbar />}
+          </div>
           <main className="main">{children}</main>
 
           {/* ✅ Toast stays globally mounted */}
@@ -125,11 +105,11 @@ export default function RootLayout({ children }) {
       </head>
 
       <body className="bg-bg text-ink">
-        <ToastProvider>
           <NotificationProvider>
-            <LayoutContent>{children}</LayoutContent>
+            <ToastProvider>
+              <LayoutContent>{children}</LayoutContent>
+            </ToastProvider>
           </NotificationProvider>
-        </ToastProvider>
       </body>
     </html>
   );

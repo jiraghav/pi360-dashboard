@@ -173,7 +173,7 @@ export default function Navbar() {
   
   function handleNotificationClick(n) {
     setSelectedNotification(n);
-
+console.log(n);
     switch (n.notification_type) {
 
       case "task":
@@ -211,12 +211,22 @@ export default function Navbar() {
   // -------------------------------
   return (
     <>
-      <header className="hidden md:block sticky top-0 z-40 glass border-b border-stroke/70">
+      <header className="sticky top-0 z-40 glass border-b border-stroke/70">
         <div className="px-6 py-4 flex items-center justify-between">
+        
+        <button
+          className="md:hidden btn"
+          onClick={() => {
+            const sidebar = document.getElementById("sidebar");
+            if (sidebar) sidebar.classList.toggle("hidden");
+          }}
+        >
+          ☰
+        </button>
 
           {/* Title */}
           <div>
-            <div className="text-xl font-bold tracking-wide">
+            <div className="text-xs font-semibold md:text-xl md:font-bold md:tracking-wide">
               Complete Injury Centers
             </div>
             <h1 className="text-xs text-mute">Powered by PI360</h1>
@@ -226,7 +236,7 @@ export default function Navbar() {
           <div className="flex items-center gap-6">
 
             {/* Help Text */}
-            <div className="text-sm text-gray-300 whitespace-nowrap">
+            <div className="hidden md:block text-sm text-gray-300 whitespace-nowrap">
               Text{" "}
               <a href="sms:2146666651" className="underline font-semibold text-white">
                 214-666-6651
@@ -253,8 +263,19 @@ export default function Navbar() {
 
               {/* Dropdown */}
               {open && (
-                <div className="absolute right-0 mt-3 w-80 bg-[#0D0F11] border border-white/10 rounded-xl shadow-2xl overflow-hidden animate-slide-down">
-
+                <div className="
+                  absolute
+                  mt-3
+                  w-80
+                  bg-[#0D0F11]
+                  border border-white/10
+                  rounded-xl
+                  shadow-2xl
+                  overflow-hidden
+                  animate-slide-down
+                  left-1/2 -translate-x-1/2
+                  md:left-auto md:translate-x-0 md:right-0
+                ">
                   <div className="px-4 py-3 border-b border-white/10 font-semibold text-sm text-white">
                     {notificationPatient?.name && (
                       <span className="text-gray-400 mr-1">Patient:</span>
@@ -348,8 +369,8 @@ export default function Navbar() {
               )}
             </div>
 
-            <Link href="/referrals/new" className="btn btn-primary">New Referral</Link>
-            <Link href="/tasks" className="btn">Create Task</Link>
+            <Link href="/referrals/new" className="btn btn-primary text-xs px-3 py-3">New Referral</Link>
+            <Link href="/tasks" className="btn hidden md:block">Create Task</Link>
 
           </div>
         </div>
