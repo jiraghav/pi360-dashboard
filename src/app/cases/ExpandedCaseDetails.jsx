@@ -7,6 +7,7 @@ import ReviewNotesModal from "../dashboard/ReviewNotesModal";
 import { FileText } from "lucide-react";
 import CaseInfoModal from "./CaseInfoModal";
 import { useRouter } from "next/navigation";
+import { MapPin } from "lucide-react";
 
 export default function ExpandedCaseDetails({
     data,
@@ -32,6 +33,7 @@ export default function ExpandedCaseDetails({
   const [showCaseInfoModal, setShowCaseInfoModal] = useState(false);
 
   const router = useRouter();
+  const [showTooltip, setShowTooltip] = useState(false);
 
   return (
     <div className="mt-2 md:mt-4 p-3 md:p-4 rounded-xl border border-stroke bg-card">
@@ -121,25 +123,64 @@ export default function ExpandedCaseDetails({
                   <div className="flex items-center justify-between mb-3">
                     <div className="text-xs text-slate-500 font-medium">CIC Medical Summary</div>
                   </div>
-    
-                  <ul className="text-sm space-y-1">
-                    {data.sections?.map((section, i) => (
-                      <li className="flex justify-between">
-                        <span className="font-medium">
-                        {
-                          section.color && (
-                            <span
-                              key={i}
-                              className="dot"
-                              style={{ backgroundColor: section.color }}
-                            ></span>
-                          )
-                        }
-                        {section.title} (<span className="text-xs">{section.fac_name}</span>)
-                        </span>
-                        <span>${section.balance}</span>
-                      </li>
-                    ))  }
+                  
+                  <ul className="text-sm space-y-2">
+                    {data.sections?.map((section, i) => {
+                      return (
+                        <li key={i} className="flex justify-between items-start">
+                          <span className="font-medium">
+                            <div className="flex flex-col gap-0.5">
+                              {/* Title row */}
+                              <div className="flex items-center gap-2">
+                                {section.color && (
+                                  <span
+                                    className="dot"
+                                    style={{ backgroundColor: section.color }}
+                                  />
+                                )}
+                                <span>{section.title}</span>
+                        
+                                {section.fac_street && (
+                                  <div className="relative group">
+                                    <MapPin
+                                      size={14}
+                                      className="text-slate-400 hover:text-mint-400 cursor-pointer"
+                                    />
+                        
+                                    <div
+                                      className="absolute z-50 mt-1 left-0 w-64 rounded-md
+                                                 bg-slate-800 text-slate-100 text-xs p-2 shadow-lg
+                                                 opacity-0 invisible
+                                                 group-hover:opacity-100 group-hover:visible
+                                                 transition-opacity duration-150"
+                                    >
+                                      <div className="break-words">
+                                        {[
+                                          section.fac_street,
+                                          section.fac_city,
+                                          section.fac_state,
+                                          section.fac_postal_code,
+                                        ]
+                                          .filter(Boolean)
+                                          .join(", ")}
+                                      </div>
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                        
+                              <div className="ml-5 text-xs text-slate-400">
+                                {section.fac_name}
+                              </div>
+                            </div>
+                          </span>
+                        
+                          <span className="whitespace-nowrap font-medium">
+                            ${section.balance || '0.00'}
+                          </span>
+                        </li>
+                      );
+                    })}
                   </ul>
               </div>
             )
