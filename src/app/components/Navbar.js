@@ -215,7 +215,7 @@ export default function Navbar() {
   return (
     <>
       <header className="sticky top-0 z-40 glass border-b border-stroke/70">
-        <div className="px-6 py-4 flex items-center justify-between">
+        <div className="px-3 md:px-6 py-4 flex items-center justify-between">
         
         <button
           className="md:hidden btn"
@@ -236,7 +236,7 @@ export default function Navbar() {
           </div>
 
           {/* Right Side */}
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-2">
 
             {/* Help Text */}
             <div className="hidden md:block text-sm text-gray-300 whitespace-nowrap">
@@ -269,14 +269,13 @@ export default function Navbar() {
                 <div className="
                   absolute
                   mt-3
-                  w-80
+                  w-[280px]
                   bg-[#0D0F11]
                   border border-white/10
                   rounded-xl
                   shadow-2xl
                   overflow-hidden
-                  animate-slide-down
-                  left-1/2 -translate-x-1/2
+                  -translate-x-1/2
                   md:left-auto md:translate-x-0 md:right-0
                 ">
                   <div className="px-4 py-3 border-b border-white/10 font-semibold text-sm text-white">
