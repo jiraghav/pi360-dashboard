@@ -70,9 +70,48 @@ export default function Sidebar() {
           Logout
         </button>
       </div>
+      
+      <div className="mt-6 p-3 rounded-lg bg-white/5 border border-stroke/60 text-sm">
+        <p className="text-xs text-mute mb-1 tracking-wide">
+          All CIC Payments Remit to Address:
+        </p>
+      
+        <div className="flex items-start gap-2">
+          <span className="text-mint-400 mt-0.5">📍</span>
+          <p className="text-ink leading-snug">
+            1930 East Rosemeade Pkwy #104,<br />
+            Carrollton, TX 75007
+          </p>
+        </div>
+      </div>
+      
+      <div className="mt-4 p-3 rounded-lg bg-red-500/5 border border-red-500/30 text-sm">
+        <div className="flex items-start gap-2">
+          {/* LOP Logo / Icon */}
+          <span className="font-bold text-sm badge bg-red-500">
+            LOP
+          </span>
+
+          <div className="leading-snug">
+            <p className="text-ink font-medium">
+              All LOPs go to “Complete Injury Centers”
+            </p>
+
+            <p className="text-mute mt-1">
+              Send to{" "}
+              <span className="text-ink font-medium">
+                records@cic.clinic
+              </span>{" "}
+              or uploaded to the patient profile on this dashboard.
+            </p>
+          </div>
+        </div>
+      </div>
 
       {/* Footer */}
-      <div className="mt-6 text-xs text-mute">© PI360</div>
+      <div className="mt-auto pt-4 border-t border-stroke/60 text-[11px] text-mute leading-snug">
+        © {new Date().getFullYear()} PI360 · Complete Injury Centers
+      </div>
     </aside>
   );
 }

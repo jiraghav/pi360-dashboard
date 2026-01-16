@@ -206,10 +206,6 @@ export default function Navbar() {
             </div>
             <h1 className="text-xs text-mute">Powered by PI360</h1>
           </div>
-          <div>
-            <h1 className="text-sm text-mute">All CIC Payments Remit to Address:</h1>
-            <h1 className="text-sm">1930 East Rosemeade Pkwy #104, Carrollton, TX 75007</h1>
-          </div>
 
           {/* Right Side */}
           <div className="flex items-center gap-6">

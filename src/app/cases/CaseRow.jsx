@@ -142,7 +142,7 @@ export default function CaseRow({
                 : "Upload LOP"
             }
             className={`
-              badge w-10
+              badge font-bold
               ${
                 caseItem.has_lop !== "0"
                   ? "bg-green-500 cursor-default"
