@@ -65,6 +65,9 @@ export default function Navbar() {
   };
   
   useEffect(() => {
+    if (open) {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
     fetchNotifications();
   }, [open]);
   
@@ -173,7 +176,7 @@ export default function Navbar() {
   
   function handleNotificationClick(n) {
     setSelectedNotification(n);
-console.log(n);
+
     switch (n.notification_type) {
 
       case "task":
