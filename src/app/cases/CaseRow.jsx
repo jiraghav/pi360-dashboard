@@ -117,9 +117,38 @@ export default function CaseRow({
         {/* Expand */}
         <div className="flex items-center md:col-span-3">
           <button
-            className={`badge w-10 cursor-default ${
-              caseItem.has_lop !== "0" ? "bg-green-500" : "bg-red-500"
-            }`}
+            onClick={(e) => {
+              e.stopPropagation();
+          
+              // Only allow click if LOP is missing (red)
+              if (caseItem.has_lop !== "0") return;
+          
+              setSelectedCase({
+                ...caseItem,
+                pid: caseItem.pid,
+                case_pid: caseItem.pid,
+                doc_type: "lop",
+                onSuccess: () => {
+                  fetchCaseDetails(caseItem.pid);
+                  loadCases();
+                }
+              });
+          
+              setShowUploadDocumentModal(true);
+            }}
+            title={
+              caseItem.has_lop !== "0"
+                ? "LOP already uploaded"
+                : "Upload LOP"
+            }
+            className={`
+              badge w-10
+              ${
+                caseItem.has_lop !== "0"
+                  ? "bg-green-500 cursor-default"
+                  : "bg-red-500 cursor-pointer hover:bg-red-600"
+              }
+            `}
           >
             LOP
           </button>
