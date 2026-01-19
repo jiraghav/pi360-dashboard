@@ -10,6 +10,7 @@ import { routeMap } from "./config/routes";
 import Toast from "./components/Toast";
 import { ToastProvider, useToast } from "./hooks/ToastContext";
 import { NotificationProvider } from "./context/NotificationContext";
+import AuthGuard from "./context/AuthGuard";
 
 function LayoutContent({ children }) {
   const pathname = usePathname();
@@ -34,8 +35,7 @@ function LayoutContent({ children }) {
 
   const hideLayout =
     pathname === "/login" ||
-    pathname === "/register" ||
-    pathname === "/forgot-password";
+    pathname === "/register";
 
   return (
     <>
@@ -105,11 +105,13 @@ export default function RootLayout({ children }) {
       </head>
 
       <body className="bg-bg text-ink">
-          <NotificationProvider>
-            <ToastProvider>
-              <LayoutContent>{children}</LayoutContent>
-            </ToastProvider>
-          </NotificationProvider>
+          <AuthGuard>
+            <NotificationProvider>
+              <ToastProvider>
+                <LayoutContent>{children}</LayoutContent>
+              </ToastProvider>
+            </NotificationProvider>
+          </AuthGuard>
       </body>
     </html>
   );
