@@ -562,6 +562,7 @@ export default function CaseRow({
           open={showMessagesModal}
           onClose={() => setShowMessagesModal(false)}
           pid_group={caseItem.pid_group || ''}
+          caseItem={caseItem}
         />
       )}
       

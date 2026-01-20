@@ -4,7 +4,7 @@ import { useEffect, useState, useRef } from "react";
 import { X } from "lucide-react";
 import { apiRequest } from "../utils/api";
 
-export default function MessagesModal({ onClose, pid_group }) {
+export default function MessagesModal({ caseItem, onClose, pid_group }) {
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
   
@@ -125,7 +125,7 @@ export default function MessagesModal({ onClose, pid_group }) {
                   {/* Avatar bubble */}
                   <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center font-semibold text-white">
                     {
-                      msg.direction === "outbound" ? "CIC" : msg.sender_name
+                      msg.direction === "outbound" ? "CIC" : `${caseItem.fname?.charAt(0) ?? ""}${caseItem.lname?.charAt(0) ?? ""}`
                     }
                   </div>
 
