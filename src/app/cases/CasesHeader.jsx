@@ -152,6 +152,8 @@ export default function CasesHeader({
           ? "Pending Report Cases"
           : statusFilter === "completed"
           ? "Completed Cases"
+          : statusFilter === "reduction recieved"
+          ? "Reduction Received Cases"
           : "All Cases"}
       </h3>
 
@@ -185,6 +187,7 @@ export default function CasesHeader({
           <option value="active">Active</option>
           <option value="pending_reports">Pending Reports</option>
           <option value="completed">Completed</option>
+          <option value="reduction_recieved">Reduction Received</option>
         </select>
 
         {/* Search input */}
