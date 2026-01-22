@@ -20,6 +20,7 @@ export default function useFetchOptions(options = {}) {
   const [caseManagerEmails, setCaseManagerEmails] = useState([]);
   const [roles, setRoles] = useState([]);
   const [isAffiliate, setIsAffiliate] = useState(false);
+  const [isAffiliateLoading, setIsAffiliateLoading] = useState(true);
 
   const calledRef = useRef({});
 
@@ -92,7 +93,8 @@ export default function useFetchOptions(options = {}) {
   // Roles
   useEffect(() => {
     if (!fetchRoles || !shouldCall("roles")) return;
-
+    setIsAffiliateLoading(true);
+    
     (async () => {
       try {
         const res = await apiRequest("getRoles.php");
@@ -102,6 +104,7 @@ export default function useFetchOptions(options = {}) {
         setIsAffiliate(
           Array.isArray(roleList) && roleList.includes("affiliate")
         );
+        setIsAffiliateLoading(false);
       } catch {}
     })();
   }, [fetchRoles]);
@@ -114,5 +117,6 @@ export default function useFetchOptions(options = {}) {
     caseManagerEmails,
     roles,
     isAffiliate,
+    isAffiliateLoading
   };
 }

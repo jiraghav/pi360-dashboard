@@ -22,7 +22,7 @@ export default function Sidebar() {
     router.push("/login");
   };
   
-  const { isAffiliate } = useFetchOptions({ fetchRoles: true });
+  const { isAffiliate, isAffiliateLoading } = useFetchOptions({ fetchRoles: true });
 
   // 👉 Hide sidebar + move page to top whenever route changes
   useEffect(() => {
@@ -74,7 +74,7 @@ export default function Sidebar() {
         </button>
       </div>
       
-      {!isAffiliate && (
+      {!isAffiliateLoading && !isAffiliate && (
         <>
           <div className="mt-6 p-3 rounded-lg bg-white/5 border border-stroke/60 text-sm">
             <p className="text-xs text-mute mb-1 tracking-wide">
