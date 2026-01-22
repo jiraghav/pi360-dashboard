@@ -23,6 +23,7 @@ export default function Sidebar() {
   };
   
   const { isAffiliate, isAffiliateLoading } = useFetchOptions({ fetchRoles: true });
+  const { name } = useFetchOptions({ fetchName: true });
 
   // 👉 Hide sidebar + move page to top whenever route changes
   useEffect(() => {
@@ -34,6 +35,11 @@ export default function Sidebar() {
     // Scroll page smoothly to top
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [pathname]);
+  
+  const hour = new Date().getHours();
+  let greeting = "Good Evening";
+  if (hour < 12) greeting = "Good Morning";
+  else if (hour < 18) greeting = "Good Afternoon";
 
   return (
     <aside
@@ -49,6 +55,19 @@ export default function Sidebar() {
             className="w-full h-full object-contain"
           />
         </div>
+      </div>
+      
+      <div className="text-center mb-6 min-h-[24px]">
+        {name ? (
+          <div className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-white/10 backdrop-blur">
+            <span className="text-xs text-white/70">{greeting},</span>
+            <span className="text-sm font-semibold text-white truncate max-w-[140px]">
+              {name}
+            </span>
+          </div>
+        ) : (
+          <div className="mx-auto h-6 w-44 rounded-full bg-white/15 animate-pulse" />
+        )}
       </div>
 
       {/* Navigation links */}

@@ -11,6 +11,7 @@ export default function useFetchOptions(options = {}) {
     fetchStates = false,
     fetchCaseManagers = false,
     fetchRoles = false,
+    fetchName = false
   } = options;
 
   const [lawyers, setLawyers] = useState([]);
@@ -21,6 +22,7 @@ export default function useFetchOptions(options = {}) {
   const [roles, setRoles] = useState([]);
   const [isAffiliate, setIsAffiliate] = useState(false);
   const [isAffiliateLoading, setIsAffiliateLoading] = useState(true);
+  const [name, setName] = useState("");
 
   const calledRef = useRef({});
 
@@ -109,6 +111,18 @@ export default function useFetchOptions(options = {}) {
     })();
   }, [fetchRoles]);
 
+  useEffect(() => {
+    if (!fetchName || !shouldCall("setName")) return;
+    
+    (async () => {
+      try {
+        const res = await apiRequest("lawyerName.php");
+
+        setName(res.lawyer_name);
+      } catch {}
+    })();
+  }, [fetchName]);
+
   return {
     lawyers,
     caseTypes,
@@ -117,6 +131,7 @@ export default function useFetchOptions(options = {}) {
     caseManagerEmails,
     roles,
     isAffiliate,
-    isAffiliateLoading
+    isAffiliateLoading,
+    name,
   };
 }
