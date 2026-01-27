@@ -82,8 +82,8 @@ export default function Cases() {
     setDoiFrom(params.get("doi_from") || "");
     setDoiTo(params.get("doi_to") || "");
     
-    setOrderBy(params.get("order_by") || "");
-    setOrderDir(params.get("order_dir") || "");
+    setOrderBy(params.get("order_by") || orderBy);
+    setOrderDir(params.get("order_dir") || orderDir);
     
     const aff = params.get("affiliates");
     setAffiliateFilter(aff ? aff.split(",") : []);
