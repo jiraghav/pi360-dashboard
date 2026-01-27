@@ -52,7 +52,10 @@ export default function SendToCICModal({ open, onClose }) {
       const month = date.getMonth() + 1;
       const res = await apiRequest(`referral_dates.php?year=${year}&month=${month}`);
       if (Array.isArray(res.dates)) {
-        const parsed = res.dates.map((d) => new Date(d)); // must be JS Date
+        const parsed = res.dates.map((d) => {
+          const [year, month, day] = d.split("-").map(Number);
+          return new Date(year, month - 1, day); // local date
+        });
         setHighlightedDates(parsed);
       }
     } catch (err) {
