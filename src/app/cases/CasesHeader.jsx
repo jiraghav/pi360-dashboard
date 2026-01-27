@@ -227,11 +227,11 @@ export default function CasesHeader({
                 type="button"
                 onClick={() => setShowAffiliateDropdown(v => !v)}
                 className="
-  bg-black border flex items-center justify-between
-  w-full sm:w-auto shrink-0
-  min-w-[200px]
-  px-3 py-2 rounded text-white
-"
+                  bg-black border flex items-center justify-between
+                  w-full sm:w-auto shrink-0
+                  min-w-[200px]
+                  px-3 py-2 rounded text-white
+                "
               >
                 <span>
                   {affiliateFilter.length

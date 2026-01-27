@@ -29,7 +29,7 @@ export default function Analytics() {
 
   return (
     <ProtectedRoute>
-      <main className="px-4 md:px-6 py-8 max-w-7xl mx-auto space-y-8">
+      <main className="px-4 md:px-20 py-8 mx-auto space-y-8">
         <AnalyticsKPIs kpis={analyticsData?.kpis} loading={loading} />
 
         <section className="grid grid-cols-12 gap-6">

@@ -48,6 +48,9 @@ export default function Cases() {
   const { showToast } = useToast();
 
   const casesTableRef = useRef(null);
+  
+  const [orderBy, setOrderBy] = useState("patient_data.referral_date");
+  const [orderDir, setOrderDir] = useState("desc");
 
   // --------------------------------------------------------
   // 🔥 Reset to page 1 whenever search or status filter changes
@@ -63,6 +66,10 @@ export default function Cases() {
   useEffect(() => {
     setPage(1);
   }, [doiFrom, doiTo, affiliateFilter]);
+  
+  useEffect(() => {
+    setPage(1);
+  }, [orderBy, orderDir]);
   // --------------------------------------------------------
 
   // Initialize filter from URL
@@ -75,6 +82,9 @@ export default function Cases() {
     setDoiFrom(params.get("doi_from") || "");
     setDoiTo(params.get("doi_to") || "");
     
+    setOrderBy(params.get("order_by") || "");
+    setOrderDir(params.get("order_dir") || "");
+    
     const aff = params.get("affiliates");
     setAffiliateFilter(aff ? aff.split(",") : []);
 
@@ -85,7 +95,7 @@ export default function Cases() {
   useEffect(() => {
     if (!initialized) return;
     loadCases();
-  }, [page, search, statusFilter, doiFrom, doiTo, affiliateFilter, initialized]);
+  }, [page, search, statusFilter, doiFrom, doiTo, affiliateFilter, initialized, orderBy, orderDir]);
 
   const loadCases = async () => {
     setLoading(true);
@@ -94,6 +104,8 @@ export default function Cases() {
         page: page.toString(),
         limit: limit.toString(),
         search,
+        order_by: orderBy,
+        order_dir: orderDir,
       });
       if (statusFilter) query.append("status", statusFilter);
       if (doiFrom) query.append("doi_from", doiFrom);
@@ -302,7 +314,7 @@ export default function Cases() {
 
   return (
     <ProtectedRoute>
-      <main className="px-4 md:px-6 py-8 max-w-7xl mx-auto space-y-8">
+      <main className="px-4 md:px-20 py-8 mx-auto space-y-8">
         <section className="card p-5">
           <CasesHeader
             statusFilter={statusFilter}
@@ -339,6 +351,10 @@ export default function Cases() {
             setShowEditDemographicsModal={setShowEditDemographicsModal}
             isAffiliate={isAffiliate}
             loadCases={loadCases}
+            orderBy={orderBy}
+            orderDir={orderDir}
+            setOrderBy={setOrderBy}
+            setOrderDir={setOrderDir}
           />
         </section>
       </main>

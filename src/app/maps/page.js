@@ -433,7 +433,7 @@ export default function ServiceLocations() {
 
   return (
     <ProtectedRoute>
-      <main className="px-4 md:px-6 md:py-8 py-4 max-w-7xl mx-auto space-y-8">
+      <main className="px-4 md:px-20 py-8 mx-auto space-y-8">
         <section className="card p-5">
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-semibold">Service Locations</h3>

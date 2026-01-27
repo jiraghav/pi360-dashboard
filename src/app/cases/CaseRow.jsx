@@ -380,11 +380,11 @@ export default function CaseRow({
           </span>
         </div>
 
-        <div className="md:col-span-2">
+        <div className="md:col-span-1">
           <span className="md:hidden font-semibold">First: </span>
           {caseItem.fname}
         </div>
-        <div className="md:col-span-2">
+        <div className="md:col-span-1">
           <span className="md:hidden font-semibold">Last: </span>
           {caseItem.lname}
         </div>
@@ -396,8 +396,11 @@ export default function CaseRow({
           <span className="md:hidden font-semibold">DOI: </span>
           {caseItem.doi}
         </div>
-
         <div className="md:col-span-1">
+          <span className="md:hidden font-semibold">Referral Date: </span>
+          {caseItem.referral_date}
+        </div>
+        <div className="md:col-span-2">
           {caseItem.status && (
             <>
               <span className="md:hidden font-semibold">Status: </span>

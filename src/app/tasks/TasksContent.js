@@ -245,7 +245,7 @@ export default function TasksContent() {
 
   return (
     <ProtectedRoute>
-      <main className="px-4 md:px-6 py-8 max-w-7xl mx-auto space-y-8">
+      <main className="px-4 md:px-20 py-8 mx-auto space-y-8">
         {/* Mobile Tabs */}
         <div className="md:hidden">
           <div className="flex justify-center gap-4 mb-4">
