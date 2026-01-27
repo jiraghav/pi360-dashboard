@@ -7,7 +7,7 @@ import ReviewNotesModal from "../dashboard/ReviewNotesModal";
 import { FileText } from "lucide-react";
 import CaseInfoModal from "./CaseInfoModal";
 import { useRouter } from "next/navigation";
-import { MapPin } from "lucide-react";
+import { MapPin, AlertCircle } from "lucide-react";
 
 export default function ExpandedCaseDetails({
     data,
@@ -164,6 +164,24 @@ export default function ExpandedCaseDetails({
                                           .filter(Boolean)
                                           .join(", ")}
                                       </div>
+                                    </div>
+                                  </div>
+                                )}
+
+                                {section.fac_outside_of_cic == 1 && (
+                                  <div className="relative group">
+                                    <AlertCircle
+                                      size={14}
+                                      className="text-red-500 cursor-pointer"
+                                    />
+                                    <div
+                                      className="absolute z-50 mt-1 left-0 rounded-md
+                                                 bg-slate-800 text-slate-100 text-xs px-2 py-1 shadow-lg
+                                                 whitespace-nowrap
+                                                 opacity-0 invisible
+                                                 group-hover:opacity-100 group-hover:visible"
+                                    >
+                                      Not in CIC Network
                                     </div>
                                   </div>
                                 )}
