@@ -431,6 +431,13 @@ export default function ServiceLocations() {
 
     router.push(`/referrals/new`);
   };
+  
+  const removeLeadingZeros = (value) => {
+    if (value === "") return "";
+
+    // Keep "0." for decimals, remove other leading zeros
+    return value.replace(/^0+(?=\d)/, "");
+  };
 
   return (
     <ProtectedRoute>
@@ -514,7 +521,7 @@ export default function ServiceLocations() {
                              bg-transparent text-center text-gray-200
                              focus:ring-2 focus:ring-sky-500 outline-none"
                   value={withinMiles}
-                  onChange={(e) => setWithinMiles(Number(e.target.value))}
+                  onChange={(e) => setWithinMiles(removeLeadingZeros(e.target.value))}
                 />
             
                 <span className="text-gray-400">miles</span>
@@ -551,7 +558,7 @@ export default function ServiceLocations() {
                              bg-transparent text-center text-gray-200
                              focus:ring-2 focus:ring-sky-500 outline-none"
                   value={locationLimit}
-                  onChange={(e) => setLocationLimit(Number(e.target.value))}
+                  onChange={(e) => setLocationLimit(removeLeadingZeros(e.target.value))}
                 />
             
                 <span className="text-gray-400">locations</span>
@@ -719,9 +726,9 @@ export default function ServiceLocations() {
                   </div>
                 )}
                 {loadingLocations ? (
-                  <p className="text-center py-10">Loading facilities...</p>
+                  <p className="text-center py-10">Loading service locations...</p>
                 ) : filteredLocations.length === 0 ? (
-                  <p className="text-center py-10">No facilities found.</p>
+                  <p className="text-center py-10">No service locations found.</p>
                 ) : (
                   filteredLocations.map((loc) => (
                     <div key={loc.id} className="card p-3">
@@ -798,7 +805,7 @@ export default function ServiceLocations() {
             </div>
           ) : (
             <div className="text-center text-gray-400 py-10">
-              🔍 Please enter an <strong>address</strong> to view nearby facilities on the map.
+              🔍 Please enter an <strong>address</strong> to view nearby service locations on the map.
             </div>
           )}
         </section>
