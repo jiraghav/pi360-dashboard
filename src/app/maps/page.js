@@ -30,7 +30,7 @@ export default function ServiceLocations() {
   const [patientCoords, setPatientCoords] = useState(null);
   const [searchInput, setSearchInput] = useState("");
   const [withinMiles, setWithinMiles] = useState(25);
-  const [filterByDistance, setFilterByDistance] = useState(true);
+  const [locationLimit, setLocationLimit] = useState(10);
 
   const [specialities, setSpecialities] = useState([]);
   const [activeSpecialities, setActiveSpecialities] = useState([]);
@@ -242,7 +242,7 @@ export default function ServiceLocations() {
     }
 
     fetchLocations();
-  }, [filtersReady, activeSpecialities, patientCoords, withinMiles]);
+  }, [filtersReady, activeSpecialities, patientCoords]);
   
   useEffect(() => {
     if (window.innerWidth >= 768) return; // only mobile
@@ -285,13 +285,14 @@ export default function ServiceLocations() {
         : null,
     }))
     .filter((loc) =>
-      filterByDistance && patientCoords ? loc.distance <= withinMiles : true
+      patientCoords ? loc.distance <= withinMiles : true
     )
     .sort((a, b) => {
       if (a.distance === null) return 1;
       if (b.distance === null) return -1;
       return a.distance - b.distance;
-    });
+    })
+    .slice(0, locationLimit);
 
     useEffect(() => {
       if (!mapRef.current || !window.google) return;
@@ -454,36 +455,107 @@ export default function ServiceLocations() {
             }`}
           >
             {/* Search + Filters */}
-            <div className="flex flex-wrap gap-2 mb-4">
-              <input
-                ref={addressInputRef}
-                value={searchInput}
-                onChange={(e) => setSearchInput(e.target.value)}
-                placeholder="Enter address…"
-                className="px-3 py-2 rounded-lg bg-[#0b0f16] border border-stroke w-full md:w-96"
-              />
-              {searchInput && (
-                <button
-                  className="btn ml-2"
-                  onClick={() => {
-                    setSearchInput("");
-                    setPatientCoords(null);
-                    setSelected(null);
-                    setLocations([]);
-                  }}
-                >
-                  Clear
-                </button>
-              )}
-              <label className="badge flex items-center gap-2 ml-2">
+            <div className="flex flex-wrap items-center gap-5 mb-4">
+            
+              {/* Address Search */}
+              <div className="flex items-center gap-2 w-full lg:w-1/3">
                 <input
-                  type="checkbox"
-                  className="accent-sky-500"
-                  checked={filterByDistance}
-                  onChange={() => setFilterByDistance(!filterByDistance)}
+                  ref={addressInputRef}
+                  value={searchInput}
+                  onChange={(e) => setSearchInput(e.target.value)}
+                  placeholder="Enter address…"
+                  className="px-3 py-2 rounded-lg bg-transparent border border-slate-700 
+                             w-full text-sm outline-none"
                 />
-                Within <span className="font-semibold">{withinMiles}</span> miles
-              </label>
+              
+                {searchInput && (
+                  <button
+                    className="px-3 py-2 rounded-lg text-xs bg-slate-700 hover:bg-slate-600 transition"
+                    onClick={() => {
+                      setSearchInput("");
+                      setPatientCoords(null);
+                      setSelected(null);
+                      setLocations([]);
+                    }}
+                  >
+                    Clear
+                  </button>
+                )}
+              </div>
+            
+              {/* Divider */}
+              <div className="hidden lg:block h-8 w-px bg-slate-700" />
+            
+              {/* Distance Filter */}
+              <div className="flex items-center gap-2 text-sm whitespace-nowrap">
+                <span className="text-gray-400">Within</span>
+            
+                <div className="flex rounded-full overflow-hidden border border-slate-600 divide-x divide-slate-600">
+                  {[25, 50].map((miles) => (
+                    <button
+                      key={miles}
+                      type="button"
+                      onClick={() => setWithinMiles(miles)}
+                      className={`px-3 py-1 text-xs transition
+                        ${withinMiles === miles
+                          ? "bg-blue-500 text-white"
+                          : "text-gray-300 hover:bg-slate-700"
+                        }`}
+                    >
+                      {miles}
+                    </button>
+                  ))}
+                </div>
+            
+                <input
+                  type="number"
+                  min="1"
+                  className="w-20 px-2 py-1 text-xs rounded-full border border-slate-600 
+                             bg-transparent text-center text-gray-200
+                             focus:ring-2 focus:ring-sky-500 outline-none"
+                  value={withinMiles}
+                  onChange={(e) => setWithinMiles(Number(e.target.value))}
+                />
+            
+                <span className="text-gray-400">miles</span>
+              </div>
+            
+              {/* Divider */}
+              <div className="hidden lg:block h-8 w-px bg-slate-700" />
+            
+              {/* Results Limit */}
+              <div className="flex items-center gap-2 text-sm whitespace-nowrap">
+                <span className="text-gray-400">Show</span>
+            
+                <div className="flex rounded-full overflow-hidden border border-slate-600 divide-x divide-slate-600">
+                  {[10, 20].map((count) => (
+                    <button
+                      key={count}
+                      type="button"
+                      onClick={() => setLocationLimit(count)}
+                      className={`px-3 py-1 text-xs transition
+                        ${locationLimit === count
+                          ? "bg-blue-500 text-white"
+                          : "text-gray-300 hover:bg-slate-700"
+                        }`}
+                    >
+                      {count}
+                    </button>
+                  ))}
+                </div>
+            
+                <input
+                  type="number"
+                  min="1"
+                  className="w-20 px-2 py-1 text-xs rounded-full border border-slate-600 
+                             bg-transparent text-center text-gray-200
+                             focus:ring-2 focus:ring-sky-500 outline-none"
+                  value={locationLimit}
+                  onChange={(e) => setLocationLimit(Number(e.target.value))}
+                />
+            
+                <span className="text-gray-400">locations</span>
+              </div>
             </div>
           
             {/* Speciality Filters */}
