@@ -160,6 +160,7 @@ export default function Dashboard() {
       <ReviewNotesModal
         isOpen={reviewModalOpen}
         onClose={() => setReviewModalOpen(false)}
+        fetchDashboard={fetchDashboard}
       />
       <NewReferralModal
         isOpen={referralModalOpen}
