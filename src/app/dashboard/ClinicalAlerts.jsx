@@ -81,7 +81,7 @@ export default function ClinicalAlerts({
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           <span className="dot bg-rose-500"></span>
-          <h4 className="font-semibold">Clinical Alerts</h4>
+          <h4 className="font-semibold">From CIC Tasks</h4>
         </div>
       </div>
 
@@ -90,7 +90,7 @@ export default function ClinicalAlerts({
       ) : error ? (
         <p className="text-rose-500">{error}</p>
       ) : alertList.length === 0 ? (
-        <p className="text-mute italic">No clinical alerts</p>
+        <p className="text-mute italic">No From CIC Tasks</p>
       ) : (
         <>
           <ul className="divide-y divide-stroke/70">
