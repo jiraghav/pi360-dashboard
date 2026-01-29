@@ -7,7 +7,7 @@ import ReviewNotesModal from "../dashboard/ReviewNotesModal";
 import { FileText } from "lucide-react";
 import CaseInfoModal from "./CaseInfoModal";
 import { useRouter } from "next/navigation";
-import { MapPin, AlertCircle } from "lucide-react";
+import { MapPin, AlertCircle, RefreshCw, ListTodo, PlusCircle } from "lucide-react";
 
 export default function ExpandedCaseDetails({
     data,
@@ -34,6 +34,7 @@ export default function ExpandedCaseDetails({
 
   const router = useRouter();
   const [showTooltip, setShowTooltip] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
   return (
     <div className="mt-2 md:mt-4 p-3 md:p-4 rounded-xl border border-stroke bg-card">
@@ -51,15 +52,16 @@ export default function ExpandedCaseDetails({
                     router.push(`/tasks?status=open&patient=${query}`);
                   }}
                   title="View Open Tasks"
-                  className="text-xs px-2 py-1 rounded btn cursor-pointer"
+                  className="text-xs px-2 py-1 rounded btn cursor-pointer flex items-center gap-1"
                 >
+                  <ListTodo size={14} />
                   View Tasks
                 </button>
               )
             }
 
             <button
-              className="text-xs px-2 py-1 rounded btn cursor-pointer ml-2"
+              className="text-xs px-2 py-1 rounded btn cursor-pointer ml-2 flex items-center gap-1"
               onClick={() => {
                 setSelectedCaseNewTask({
                   pid: data.detail.pid,
@@ -68,9 +70,32 @@ export default function ExpandedCaseDetails({
                   case_pid: data.detail.pid,
                 });
                 setShowTaskModal(true);
-              }}            >
-              + Add Task
+              }}
+            >
+              <PlusCircle size={14} />
+              Add Task
             </button>
+            
+            <button
+              className="text-xs px-2 py-1 rounded btn cursor-pointer ml-2 disabled:opacity-60 flex items-center gap-1"
+              disabled={refreshing}
+              onClick={async (e) => {
+                e.stopPropagation();
+                try {
+                  setRefreshing(true);
+                  await refreshCaseDetails();
+                } finally {
+                  setRefreshing(false);
+                }
+              }}
+            >
+              <RefreshCw
+                size={14}
+                className={refreshing ? "animate-spin" : ""}
+              />
+              {refreshing ? "Refreshing..." : "Refresh"}
+            </button>
+
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 mt-2">
           {/* Case Info Card */}
