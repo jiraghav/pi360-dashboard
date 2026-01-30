@@ -385,38 +385,53 @@ export default function ExpandedCaseDetails({
                     </button>
                   </div>
                 
-                  {section.document_ids ? (
+                  {section.document_data ? (
                     <div className="flex items-center gap-2 flex-wrap mt-2">
-                      {section.document_ids
-                        .split(",")
-                        .map((docId) => docId.trim())
+                      {section.document_data
+                        ?.split(",")
+                        .map((item) => item.trim())
                         .filter(Boolean)
-                        .map((docId) => (
-                          <a
-                            key={docId}
-                            onClick={() => {
-                              if (isAffiliate && !section.affiliate_has_access) {
-                                return;
-                              }
-                              setSelectedDocNotification({
-                                document_id: docId,
-                                patient_name: `${data.detail.fname} ${data.detail.lname}`,
-                                case_id: data.detail.pid,
-                                id: 0,
-                              });
-                              setDocModalOpen(true);
-                            }}
-                            className={`w-6 h-6 flex items-center justify-center rounded bg-gray-700 text-white text-sm
-                              ${
-                                isAffiliate && !section.affiliate_has_access
-                                  ? "opacity-50 cursor-not-allowed"
-                                  : "hover:bg-gray-900"
-                              }
-                            `}
-                          >
-                            <FileText className="w-3.5 h-3.5" />
-                          </a>
-                        ))}
+                        .map((item) => {
+                          const [docId, url] = item.split("|");
+                          const fileName = decodeURIComponent(url.split("/").pop());
+                    
+                          return (
+                            <div key={docId} className="relative group">
+                              <button
+                                onClick={() => {
+                                  if (isAffiliate && !section.affiliate_has_access) return;
+                    
+                                  setSelectedDocNotification({
+                                    document_id: docId,
+                                    document_url: url,
+                                    patient_name: `${data.detail.fname} ${data.detail.lname}`,
+                                    case_id: data.detail.pid,
+                                    id: 0,
+                                  });
+                    
+                                  setDocModalOpen(true);
+                                }}
+                                className={`w-6 h-6 flex items-center justify-center rounded bg-gray-700 text-white text-sm
+                                  ${
+                                    isAffiliate && !section.affiliate_has_access
+                                      ? "opacity-50 cursor-not-allowed"
+                                      : "hover:bg-gray-900"
+                                  }
+                                `}
+                              >
+                                <FileText className="w-3.5 h-3.5" />
+                              </button>
+                    
+                              {/* Tooltip */}
+                              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 
+                                              hidden group-hover:block 
+                                              bg-black text-white text-xs px-2 py-1 rounded shadow-lg 
+                                              whitespace-nowrap z-50">
+                                {fileName}
+                              </div>
+                            </div>
+                          );
+                        })}
                     </div>
                   ) : (
                     <p className="text-xs text-gray-400 mt-2">No documents</p>
