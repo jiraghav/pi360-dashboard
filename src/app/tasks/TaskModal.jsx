@@ -52,6 +52,11 @@ export default function TaskModal({ isOpen, onClose, onCreated, selectedCase }) 
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    if (!selectedCase && !patient) {
+      showToast("error", "Please select a patient.");
+      return;
+    }
 
     // native validation already blocks invalid form, so only continue if valid
     if (!e.target.checkValidity()) return;
@@ -107,12 +112,13 @@ export default function TaskModal({ isOpen, onClose, onCreated, selectedCase }) 
           ) : (
             <AsyncPaginate
               key={patient?.value || "patient"}
-              placeholder="Select Patient (optional)"
+              placeholder="Select Patient"
               value={patient}
               loadOptions={loadPatients}
               onChange={setPatient}
               isClearable
               additional={{ page: 1 }}
+              required
               styles={{
                 option: (provided) => ({
                   ...provided,

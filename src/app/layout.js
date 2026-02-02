@@ -16,7 +16,7 @@ function LayoutContent({ children }) {
   const pathname = usePathname();
   const route = routeMap[pathname] || { title: "Dashboard" };
   const [pageTitle, setPageTitle] = useState(route.title);
-  const { toast, hideToast } = useState(false);
+  const { toast, hideToast } = useToast(false);
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
