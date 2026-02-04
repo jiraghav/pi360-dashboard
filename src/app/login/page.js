@@ -28,7 +28,14 @@ export default function LoginPage() {
       });
 
       localStorage.setItem("token", data.token);
-      router.push("/dashboard");
+      const redirect = localStorage.getItem("postLoginRedirect");
+
+      if (redirect) {
+        localStorage.removeItem("postLoginRedirect");
+        router.replace(redirect);
+      } else {
+        router.replace("/dashboard");
+      }
     } catch (err) {
       console.error("Login error:", err);
       setError(err.message || "Something went wrong. Please try again.");

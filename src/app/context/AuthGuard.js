@@ -16,6 +16,9 @@ export default function AuthGuard({ children }) {
 
     // ❌ No token & trying to access protected page
     if (!token && !isAuthPage) {
+      const searchParams = window.location.search;
+
+      localStorage.setItem("postLoginRedirect", pathname + searchParams);
       router.replace("/login");
       return;
     }
