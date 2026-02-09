@@ -7,7 +7,7 @@ import ReviewNotesModal from "../dashboard/ReviewNotesModal";
 import { FileText } from "lucide-react";
 import CaseInfoModal from "./CaseInfoModal";
 import { useRouter } from "next/navigation";
-import { MapPin, AlertCircle, RefreshCw, ListTodo, PlusCircle } from "lucide-react";
+import { MapPin, AlertCircle, RefreshCw, ListTodo, PlusCircle, Sigma } from "lucide-react";
 
 export default function ExpandedCaseDetails({
     data,
@@ -224,6 +224,22 @@ export default function ExpandedCaseDetails({
                         </li>
                       );
                     })}
+                    <li className="flex justify-between items-center pt-2 mt-2 border-t border-slate-700 font-semibold">
+                      <span className="flex items-center gap-2">
+                        <span
+                          className="dot"
+                          style={{ backgroundColor: '#94A3B8' }}
+                        />
+                        <span>Total</span>
+                      </span>
+                    
+                      <span className="whitespace-nowrap">
+                        $
+                        {data.sections
+                          ?.reduce((sum, s) => sum + Number(s.balance || 0), 0)
+                          .toFixed(2)}
+                      </span>
+                    </li>
                   </ul>
               </div>
             )
@@ -255,7 +271,7 @@ export default function ExpandedCaseDetails({
                   </span>
                 
                   {/* Button on right */}
-                  {section.has_lop === '0' ? (
+                  {caseItem.has_lop === "0" ? (
                     <button 
                       onClick={() => {
                         if (isAffiliate && !section.affiliate_has_access) {
