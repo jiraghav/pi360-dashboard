@@ -82,7 +82,7 @@ export default function NoteNotificationModal({
           {loadingNote ? (
             <div className="text-gray-400 text-sm">Loading...</div>
           ) : (
-            <div className="text-base text-white bg-white/5 p-3 rounded border border-white/10">
+            <div className="text-base text-white bg-white/5 p-3 rounded border border-white/10 whitespace-pre-line">
               {noteData?.body || "No note found."}
             </div>
           )}
