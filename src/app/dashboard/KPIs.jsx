@@ -1,6 +1,6 @@
 "use client";
 
-import { PlusCircle, MapPin, CarFront, Siren, PhoneCall, BrainCircuit } from "lucide-react";
+import { PlusCircle, MapPin, CarFront, Siren, PhoneCall, BrainCircuit, Video } from "lucide-react";
 import { useToast } from "../hooks/ToastContext";
 import { apiRequest } from "../utils/api";
 
@@ -67,6 +67,11 @@ export default function KPIs({
       label: "Schedule Teleneuro",
       value: <BrainCircuit className="w-7 h-7 inline text-blue-400" />,
       action: () => setShowSendTeleneuroLinkModal(true),
+    },
+    {
+      label: "Schedule Virtual PT",
+      value: <Video className="w-7 h-7 inline text-blue-400" />,
+      path: "/referrals/new?refer_to=virtual_pt",
     },
   ];
 

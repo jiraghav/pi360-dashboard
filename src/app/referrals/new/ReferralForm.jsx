@@ -5,6 +5,7 @@ import { AsyncPaginate } from "react-select-async-paginate";
 import { apiRequest } from "../../utils/api";
 import FacilityInfo from "./FacilityInfo";
 import { useToast } from "../../hooks/ToastContext";
+import { useSearchParams } from "next/navigation";
 
 export default function ReferralForm({ router, pid }) {
   const { showToast } = useToast();
@@ -19,6 +20,7 @@ export default function ReferralForm({ router, pid }) {
     city: null,
   });
 
+  const searchParams = useSearchParams();
   const [referOptions, setReferOptions] = useState([]);
   const [lawyers, setLawyers] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -44,6 +46,23 @@ export default function ReferralForm({ router, pid }) {
     }
     fetchDropdowns();
   }, []);
+  
+  useEffect(() => {
+    const referFromUrl = searchParams.get("refer_to");
+    if (!referFromUrl || referOptions.length === 0) return;
+
+    const matched = referOptions.find(
+      (opt) =>
+        opt.option_id?.toLowerCase().replace(/\s+/g, "_") === referFromUrl.toLowerCase()
+    );
+
+    if (matched) {
+      setForm((prev) => ({
+        ...prev,
+        refer_to: matched.option_id,
+      }));
+    }
+  }, [searchParams, referOptions]);
 
   // ✅ Auto-select patient if pid in URL
   useEffect(() => {
