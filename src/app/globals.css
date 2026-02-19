@@ -76,3 +76,25 @@ body { background: radial-gradient(1200px 600px at 20% -10%, rgba(56,189,248,.12
 .react-datepicker__day--in-selecting-range {
   background-color: #216ba580 !important;
 }
+
+@keyframes pulseHighlight {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+    box-shadow: 0 0 0px rgba(239, 68, 68, 0.7);
+  }
+  50% {
+    opacity: 0.85;
+    transform: scale(1.03);
+    box-shadow: 0 0 12px rgba(239, 68, 68, 0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+    box-shadow: 0 0 0px rgba(239, 68, 68, 0.7);
+  }
+}
+
+.pulse-strong {
+  animation: pulseHighlight 1s ease-in-out infinite;
+}

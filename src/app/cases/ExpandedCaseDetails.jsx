@@ -8,6 +8,8 @@ import { FileText } from "lucide-react";
 import CaseInfoModal from "./CaseInfoModal";
 import { useRouter } from "next/navigation";
 import { MapPin, AlertCircle, RefreshCw, ListTodo, PlusCircle, Sigma } from "lucide-react";
+import UpdateBillingModal from "./UpdateBillingModal";
+import { apiRequest } from "../utils/api";
 
 export default function ExpandedCaseDetails({
     data,
@@ -35,6 +37,14 @@ export default function ExpandedCaseDetails({
   const router = useRouter();
   const [showTooltip, setShowTooltip] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  
+  const [showUpdateModal, setShowUpdateModal] = useState(false);
+  const [selectedSection, setSelectedSection] = useState(null);
+
+  const handleUpdate = (section) => {
+    setSelectedSection(section);
+    setShowUpdateModal(true);
+  };
 
   return (
     <div className="mt-2 md:mt-4 p-3 md:p-4 rounded-xl border border-stroke bg-card">
@@ -244,9 +254,18 @@ export default function ExpandedCaseDetails({
               </div>
             )
           }
-            {data.sections?.map((section, i) => (
+            {data.sections?.map((section, i) => {
+              const shouldHighlight =
+                isAffiliate && section.affiliate_has_access &&
+                (
+                  !section.custom_data_bill_or_encounter_updated_at ||
+                  ((new Date() - new Date(section.custom_data_bill_or_encounter_updated_at)) 
+                    / (1000 * 60 * 60 * 24)) > 7
+                );
+
+              return (
               <div key={i}
-              className={`card p-3
+              className={`card p-3 ${shouldHighlight ? "pulse-strong attention-ring" : ""}
                 ${
                   isAffiliate && !section.affiliate_has_access
                     ? "opacity-50 cursor-not-allowed select-none"
@@ -308,29 +327,93 @@ export default function ExpandedCaseDetails({
                     </button>
                   )}
                 </div>
-                <div className="flex justify-between items-start">
+                <div className="flex flex-col gap-1">
+                  
+                  {/* Top Row */}
                   <div className="font-semibold">{section.status}</div>
                 
-                  {section.has_notes !== '0' && (
-                    <button
-                      onClick={() => {
-                        if (isAffiliate && !section.affiliate_has_access) {
-                          return;
-                        }
-                        setSelectedPid(section.pid);
-                        setShowReviewNotes(true);
-                      }}
-                      className={`text-xs px-2 py-1 mt-1 rounded btn bg-blue-500 text-white
-                        ${
-                          isAffiliate && !section.affiliate_has_access
-                            ? "opacity-50 cursor-not-allowed"
-                            : "cursor-pointer"
-                        }
-                      `}
-                    >
-                      Review Notes
-                    </button>
-                  )}
+                  {/* Bottom Row (Right aligned) */}
+                  <div className="flex items-center justify-end gap-2">
+                    
+                    {section.has_notes !== '0' && (
+                      <button
+                        onClick={() => {
+                          if (isAffiliate && !section.affiliate_has_access) {
+                            return;
+                          }
+                          setSelectedPid(section.pid);
+                          setShowReviewNotes(true);
+                        }}
+                        className={`text-xs px-2 py-1 rounded bg-blue-500 text-white
+                          ${
+                            isAffiliate && !section.affiliate_has_access
+                              ? "opacity-50 cursor-not-allowed"
+                              : "cursor-pointer"
+                          }
+                        `}
+                      >
+                        Review Notes
+                      </button>
+                    )}
+                
+                    {
+                      isAffiliate && (
+                        <div className="relative inline-flex items-center">
+                        
+                          <button
+                            onClick={() => {
+                                if (isAffiliate && !section.affiliate_has_access) {
+                                  return;
+                                }
+                              handleUpdate(section)}
+                            }
+                            className={`
+                              flex items-center gap-1.5
+                              px-3 py-1 text-xs font-semibold rounded-full
+                              text-white
+                              transition-all duration-200
+                              active:scale-95
+                              ${
+                                shouldHighlight
+                                  ? "bg-red-600 shadow-lg shadow-red-500/30 ring-2 ring-red-400/40"
+                                  : "bg-gray-600"
+                              }
+                              ${
+                                isAffiliate && !section.affiliate_has_access
+                                  ? "opacity-50 cursor-not-allowed"
+                                  : "cursor-pointer"
+                              }
+                              hover:bg-red-700
+                            `}
+                          >
+                            <AlertCircle size={14} className={shouldHighlight ? "animate-pulse" : ""} />
+                            Update Bills & Visits
+                          </button>
+                        
+                          {/* Tooltip */}
+                          {shouldHighlight && (
+                            <div
+                              className="
+                                pointer-events-none
+                                absolute left-1/2 -translate-x-1/2 top-full mt-2
+                                px-2.5 py-1.5 rounded-md
+                                bg-slate-900 text-white text-xs
+                                shadow-xl border border-slate-700
+                                opacity-0 scale-95
+                                transition-all duration-150
+                                group-hover:opacity-100 group-hover:scale-100
+                              "
+                            >
+                              {!section.custom_data_bill_or_encounter_updated_at
+                                ? "No billing or visit data available"
+                                : "Billing or visit data not updated in last 7 days"}
+                            </div>
+                          )}
+                        
+                        </div>
+                      )
+                    }
+                  </div>
                 </div>
 
                 {(section.last_visit || section.visits || section.balance) && (
@@ -454,7 +537,8 @@ export default function ExpandedCaseDetails({
                   )}
                 </div>
               </div>
-            ))}
+            )}
+          )}
           </div>
           <DocumentNotificationModal
             open={docModalOpen}
@@ -481,6 +565,21 @@ export default function ExpandedCaseDetails({
         </>
       ) : (
         <div className="py-3 text-center text-mute text-sm">Loading details...</div>
+      )}
+      {showUpdateModal && selectedSection && (
+        <UpdateBillingModal
+          section={selectedSection}
+          onClose={() => setShowUpdateModal(false)}
+          onConfirm={async (data) => {
+            await apiRequest("update-billing.php", {
+              method: "POST",
+              body: data,
+            });
+
+            setShowUpdateModal(false);
+            refreshCaseDetails(); // already using this
+          }}
+        />
       )}
     </div>
   );
