@@ -426,13 +426,23 @@ export default function CaseRow({
               <div className="absolute right-0 mt-1 w-44 bg-slate-800 border border-stroke/30 rounded-md shadow-lg z-20">
                 {
                   isAffiliate && (
-                    <a href={`https://emr.cic.clinic/interface/main/tabs/main.php?open_patient_id=${caseItem.uuid}`}
-                      target="_blank"
-                      className={
-                        `block w-full text-left px-3 py-2 text-sm transition`
-                      }>
-                        Open Patient Profile
-                    </a>
+                    <button
+                      onClick={async (e) => {
+                        e.stopPropagation();
+
+                        let response = await apiRequest(`generate_magic_link.php`);
+                        window.open(
+                          `https://emr.cic.clinic/interface/main/tabs/main.php?open_patient_id=${caseItem.uuid}&magic_link=${response.magic_link}`,
+                          "_blank",
+                          "noopener,noreferrer"
+                        );
+
+                        setMenuOpen(false);
+                      }}
+                      className="block w-full text-left px-3 py-2 text-sm text-slate-100 hover:bg-slate-700 hover:text-mint-300 transition"
+                    >
+                      Open Patient Profile
+                    </button>
                   )
                 }
                 <button
