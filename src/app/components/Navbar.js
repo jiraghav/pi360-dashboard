@@ -18,6 +18,7 @@ import DocumentNotificationModal from "./DocumentNotificationModal";
 import { useRouter } from "next/navigation";
 
 import { useNotificationUI } from "../context/NotificationContext";
+import useFetchOptions from "../hooks/useFetchOptions";
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -36,6 +37,8 @@ export default function Navbar() {
 
   const dropdownRef = useRef(null);
   const router = useRouter();
+  
+  const { isAffiliate, isAffiliateLoading } = useFetchOptions({ fetchRoles: true });
   
   useEffect(() => {
     if (notificationPatient) {
@@ -246,11 +249,25 @@ export default function Navbar() {
         </button>
 
           {/* Title */}
-          <div>
-            <div className="text-xs font-semibold md:text-xl md:font-bold md:tracking-wide">
+          <div className="flex flex-col">
+            {/* Title */}
+            <div className="text-sm md:text-xl font-semibold md:font-bold text-white tracking-wide">
               Complete Injury Centers
             </div>
-            <h1 className="text-xs text-mute">Powered by PI360</h1>
+          
+            {/* Meta row */}
+            <div className="flex items-center text-[11px] md:text-xs text-gray-400 mt-1">
+              <span>Powered by PI360</span>
+          
+              {!isAffiliateLoading && (
+                <>
+                  <span className="mx-2 h-3 w-px bg-gray-600"></span>
+                  <span className="text-gray-300">
+                    {isAffiliate ? "Affiliate Dashboard" : "Lawyer Dashboard"}
+                  </span>
+                </>
+              )}
+            </div>
           </div>
 
           {/* Right Side */}
