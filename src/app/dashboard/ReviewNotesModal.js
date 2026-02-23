@@ -167,7 +167,7 @@ export default function ReviewNotesModal({ isOpen, onClose, pid, fetchDashboard 
 
                     <div className="pl-4 pr-4 py-3">
                       <div className="flex items-start justify-between gap-3">
-                        <p className="font-medium leading-relaxed text-sm">
+                        <p className="font-medium leading-relaxed text-sm whitespace-pre-wrap break-words">
                           {note.body || "Untitled Note"}
                         </p>
 
