@@ -192,7 +192,7 @@ export default function Navbar() {
         break;
 
       default:
-        console.warn("Unknown notification type:", n.notification_type);
+        markAsRead(n.id);
         break;
     }
   }
@@ -210,6 +210,24 @@ export default function Navbar() {
   const unread = notifications.filter((n) => n.is_read == 0);
   const read = notifications.filter((n) => n.is_read == 1);
   const unreadCount = unread.length;
+  
+  const markAsRead = async (id) => {
+    try {
+      await apiRequest("mark_notification_read.php", {
+        method: "POST",
+        body: { id },
+      });
+
+      // Optimistic UI update (instant)
+      setNotifications((prev) =>
+        prev.map((n) =>
+          n.id === id ? { ...n, is_read: 1 } : n
+        )
+      );
+    } catch (err) {
+      console.error("Failed to mark notification as read", err);
+    }
+  };
 
   // -------------------------------
   return (
