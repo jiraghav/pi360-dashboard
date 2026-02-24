@@ -154,12 +154,19 @@ export default function ExpandedCaseDetails({
           </div>
           {
             data.sections.length > 0 && (
-              <div className="card p-3">
+              <div className="card p-3 flex flex-col h-full min-h-[250px]">
+          
+                {/* Top Content (grows) */}
+                <div className="flex-1 flex flex-col">
+          
+                  {/* Header */}
                   <div className="flex items-center justify-between mb-3">
-                    <div className="text-xs text-slate-500 font-medium">CIC Medical Summary</div>
+                    <div className="text-xs text-slate-500 font-medium">
+                      CIC Medical Summary
+                    </div>
                   </div>
-                  
-                  <ul className="text-sm space-y-2">
+          
+                  <ul className="text-sm space-y-2 flex-1">
                     {data.sections?.map((section, i) => {
                       return (
                         <li key={i} className="flex justify-between items-start">
@@ -174,14 +181,14 @@ export default function ExpandedCaseDetails({
                                   />
                                 )}
                                 <span>{section.title}</span>
-                        
+          
                                 {section.fac_street && (
                                   <div className="relative group">
                                     <MapPin
                                       size={14}
                                       className="text-slate-400 hover:text-mint-400 cursor-pointer"
                                     />
-                        
+          
                                     <div
                                       className="absolute z-50 mt-1 left-0 w-64 rounded-md
                                                  bg-slate-800 text-slate-100 text-xs p-2 shadow-lg
@@ -202,7 +209,7 @@ export default function ExpandedCaseDetails({
                                     </div>
                                   </div>
                                 )}
-
+          
                                 {section.fac_outside_of_cic == 1 && (
                                   <div className="relative group">
                                     <AlertCircle
@@ -221,13 +228,13 @@ export default function ExpandedCaseDetails({
                                   </div>
                                 )}
                               </div>
-                        
+          
                               <div className="ml-5 text-xs text-slate-400">
                                 {section.fac_name}
                               </div>
                             </div>
                           </span>
-                        
+          
                           <span className="whitespace-nowrap font-medium">
                             ${section.balance || '0.00'}
                           </span>
@@ -242,7 +249,7 @@ export default function ExpandedCaseDetails({
                         />
                         <span>Total</span>
                       </span>
-                    
+          
                       <span className="whitespace-nowrap">
                         $
                         {data.sections
@@ -251,6 +258,17 @@ export default function ExpandedCaseDetails({
                       </span>
                     </li>
                   </ul>
+                </div>
+          
+                {
+                  !isAffiliate && data.detail.has_case_team == "1" && (
+                    <div className="pt-3 mt-3 border-t border-slate-700 text-center">
+                      <span className="text-xs text-slate-400">
+                        Updates/Tasks Go to Case Team
+                      </span>
+                    </div>
+                  )
+                }
               </div>
             )
           }
