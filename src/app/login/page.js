@@ -24,7 +24,7 @@ export default function LoginPage() {
     try {
       const data = await apiRequest("login.php", {
         method: "POST",
-        body: { user: form.username, pass: form.password },
+        body: { user: form.username.trim(), pass: form.password.trim() },
       });
 
       localStorage.setItem("token", data.token);
