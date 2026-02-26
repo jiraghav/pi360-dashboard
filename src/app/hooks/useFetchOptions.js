@@ -9,16 +9,17 @@ export default function useFetchOptions(options = {}) {
     fetchCaseTypes = false,
     fetchLanguages = false,
     fetchStates = false,
-    fetchCaseManagers = false,
+    fetchLawyerEmails = false,
     fetchRoles = false,
-    fetchName = false
+    fetchName = false,
+    pid = null
   } = options;
 
   const [lawyers, setLawyers] = useState([]);
   const [caseTypes, setCaseTypes] = useState([]);
   const [languages, setLanguages] = useState([]);
   const [states, setStates] = useState([]);
-  const [caseManagerEmails, setCaseManagerEmails] = useState([]);
+  const [lawyerEmails, setLawyerEmails] = useState([]);
   const [roles, setRoles] = useState([]);
   const [isAffiliate, setIsAffiliate] = useState(false);
   const [isAffiliateLoading, setIsAffiliateLoading] = useState(true);
@@ -82,15 +83,17 @@ export default function useFetchOptions(options = {}) {
 
   // Case Manager Emails
   useEffect(() => {
-    if (!fetchCaseManagers || !shouldCall("caseManagers")) return;
+    if (!fetchLawyerEmails || !shouldCall("caseManagers")) return;
 
     (async () => {
       try {
-        const res = await apiRequest("case_manager_emails.php");
-        setCaseManagerEmails(res.data?.case_manager_emails || []);
+        const res = await apiRequest(
+          pid ? `case_manager_emails.php?pid=${pid}` : "case_manager_emails.php"
+        );
+        setLawyerEmails(res.data || []);
       } catch {}
     })();
-  }, [fetchCaseManagers]);
+  }, [fetchLawyerEmails]);
 
   // Roles
   useEffect(() => {
@@ -128,7 +131,7 @@ export default function useFetchOptions(options = {}) {
     caseTypes,
     languages,
     states,
-    caseManagerEmails,
+    lawyerEmails,
     roles,
     isAffiliate,
     isAffiliateLoading,

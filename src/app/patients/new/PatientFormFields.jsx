@@ -8,11 +8,17 @@ export default function PatientFormFields({
   caseTypes,
   languages,
   states,
-  caseManagerEmails
+  lawyerEmails
 }) {
   
   const [caseManagerEmail, setCaseManagerEmail] = useState("");
   const [emailError, setEmailError] = useState("");
+  
+  const [lawyerEmail, setLawyerEmail] = useState("");
+  const [lawyerEmailError, setLawyerEmailError] = useState("");
+
+  const [paralegalEmail, setParalegalEmail] = useState("");
+  const [paralegalEmailError, setParalegalEmailError] = useState("");
   
   const isValidEmail = (email) =>
   /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -29,17 +35,33 @@ export default function PatientFormFields({
   }, [languages]);
   
   useEffect(() => {
-    if (
-      Array.isArray(caseManagerEmails) &&
-      caseManagerEmails.length &&
-      !selectedCase.case_manager_emails
-    ) {
-      setSelectedCase(prev => ({
-        ...prev,
-        case_manager_emails: caseManagerEmails
-      }));
-    }
-  }, [caseManagerEmails]);
+    if (!lawyerEmails) return;
+  
+    setSelectedCase(prev => ({
+      ...prev,
+  
+      case_manager_emails:
+        prev.case_manager_emails?.length
+          ? prev.case_manager_emails
+          : (Array.isArray(lawyerEmails.case_manager_emails)
+              ? lawyerEmails.case_manager_emails
+              : []),
+  
+      lawyer_emails:
+        prev.lawyer_emails?.length
+          ? prev.lawyer_emails
+          : (Array.isArray(lawyerEmails.lawyer_emails)
+              ? lawyerEmails.lawyer_emails
+              : []),
+  
+      paralegal_emails:
+        prev.paralegal_emails?.length
+          ? prev.paralegal_emails
+          : (Array.isArray(lawyerEmails.paralegal_emails)
+              ? lawyerEmails.paralegal_emails
+              : [])
+    }));
+  }, [lawyerEmails]);
 
   // Helper to update form fields
   const handleChange = (e) => {
@@ -100,6 +122,44 @@ export default function PatientFormFields({
       case_manager_emails: prev.case_manager_emails.filter(
         e => e !== emailToRemove
       )
+    }));
+  };
+  
+  const handleAddEmail = (e, type, value, setValue, errorSetter) => {
+    if (e.key !== "Enter") return;
+
+    e.preventDefault();
+
+    const email = value.trim();
+
+    if (!email) {
+      errorSetter("Email cannot be empty");
+      return;
+    }
+
+    if (!isValidEmail(email)) {
+      errorSetter("Enter a valid email address");
+      return;
+    }
+
+    if (selectedCase[type]?.includes(email)) {
+      errorSetter("This email is already added");
+      return;
+    }
+
+    setSelectedCase(prev => ({
+      ...prev,
+      [type]: [...(prev[type] || []), email]
+    }));
+
+    setValue("");
+    errorSetter("");
+  };
+  
+  const handleRemoveEmail = (type, emailToRemove) => {
+    setSelectedCase(prev => ({
+      ...prev,
+      [type]: prev[type].filter(e => e !== emailToRemove)
     }));
   };
 
@@ -200,58 +260,161 @@ export default function PatientFormFields({
         </select>
       </div>
       
-      <div className="md:col-span-2">
-        <label className="block mb-1 text-sm font-medium text-gray-300">
-          Case Manager Emails *
-        </label>
-
-        {/* Chips */}
-        <div className="flex flex-wrap gap-2 mb-2">
-          {(selectedCase.case_manager_emails || []).map((email, idx) => (
-            <span
-              key={idx}
-              className="flex items-center gap-2 bg-gray-800 text-sm text-white px-3 py-1 rounded-full"
-            >
-              {email}
-              <button
-                type="button"
-                onClick={() => removeCaseManagerEmail(email)}
-                className="text-red-400 hover:text-red-300"
-              >
-                ✕
-              </button>
-            </span>
-          ))}
+      <div className="md:col-span-2 border border-gray-700 rounded-xl p-4">
+        
+        {/* ✅ Group Title */}
+        <h3 className="text-lg font-semibold text-white mb-4 border-b border-gray-700 pb-2">
+          Case Team
+        </h3>
+      
+        {/* Lawyer Emails */}
+        <div className="mb-4">
+          <label className="block mb-1 text-sm font-medium text-gray-300">
+            Lawyer Emails
+          </label>
+      
+          <div className="flex flex-wrap gap-2 mb-2">
+            {(selectedCase.lawyer_emails || []).map((email, idx) => (
+              <span key={idx} className="flex items-center gap-2 bg-gray-800 text-sm text-white px-3 py-1 rounded-full">
+                {email}
+                <button
+                  type="button"
+                  onClick={() => handleRemoveEmail("lawyer_emails", email)}
+                  className="text-red-400 hover:text-red-300"
+                >
+                  ✕
+                </button>
+              </span>
+            ))}
+          </div>
+      
+          <input
+            type="hidden"
+            name="lawyer_emails"
+            value={(selectedCase.lawyer_emails || []).join(",")}
+          />
+      
+          <input
+            type="email"
+            value={lawyerEmail}
+            onChange={(e) => {
+              setLawyerEmail(e.target.value);
+              if (lawyerEmailError) setLawyerEmailError("");
+            }}
+            onKeyDown={(e) =>
+              handleAddEmail(e, "lawyer_emails", lawyerEmail, setLawyerEmail, setLawyerEmailError)
+            }
+            placeholder="Type email and press Enter"
+            className="w-full border rounded px-3 py-2 bg-black text-white"
+          />
+      
+          {lawyerEmailError && (
+            <p className="text-xs text-red-400 mt-1">{lawyerEmailError}</p>
+          )}
         </div>
-        
-        <input
-          type="hidden"
-          name="case_manager_emails"
-          value={(selectedCase.case_manager_emails || []).join(",")}
-        />
-
-        {/* Input */}
-        <input
-          type="email"
-          value={caseManagerEmail}
-          onChange={(e) => {
-            setCaseManagerEmail(e.target.value);
-            if (emailError) setEmailError("");
-          }}
-          onKeyDown={addCaseManagerEmail}
-          placeholder="Type email and press Enter"
-          className="w-full border rounded px-3 py-2 bg-black text-white"
-        />
-        
-        {emailError && (
-          <p className="text-xs text-red-400 mt-1">{emailError}</p>
-        )}
-
-        <p className="text-xs text-gray-500 mt-1">
-          Press Enter to add multiple emails
-        </p>
+      
+        {/* Paralegal Emails */}
+        <div className="mb-4">
+          <label className="block mb-1 text-sm font-medium text-gray-300">
+            Paralegal Emails
+          </label>
+      
+          <div className="flex flex-wrap gap-2 mb-2">
+            {(selectedCase.paralegal_emails || []).map((email, idx) => (
+              <span key={idx} className="flex items-center gap-2 bg-gray-800 text-sm text-white px-3 py-1 rounded-full">
+                {email}
+                <button
+                  type="button"
+                  onClick={() => handleRemoveEmail("paralegal_emails", email)}
+                  className="text-red-400 hover:text-red-300"
+                >
+                  ✕
+                </button>
+              </span>
+            ))}
+          </div>
+      
+          <input
+            type="hidden"
+            name="paralegal_emails"
+            value={(selectedCase.paralegal_emails || []).join(",")}
+          />
+      
+          <input
+            type="email"
+            value={paralegalEmail}
+            onChange={(e) => {
+              setParalegalEmail(e.target.value);
+              if (paralegalEmailError) setParalegalEmailError("");
+            }}
+            onKeyDown={(e) =>
+              handleAddEmail(e, "paralegal_emails", paralegalEmail, setParalegalEmail, setParalegalEmailError)
+            }
+            placeholder="Type email and press Enter"
+            className="w-full border rounded px-3 py-2 bg-black text-white"
+          />
+      
+          {paralegalEmailError && (
+            <p className="text-xs text-red-400 mt-1">{paralegalEmailError}</p>
+          )}
+        </div>
+      
+        {/* Case Manager Emails */}
+        <div>
+          <label className="block mb-1 text-sm font-medium text-gray-300">
+            Case Manager Emails *
+          </label>
+      
+          <div className="flex flex-wrap gap-2 mb-2">
+            {(selectedCase.case_manager_emails || []).map((email, idx) => (
+              <span
+                key={idx}
+                className="flex items-center gap-2 bg-gray-800 text-sm text-white px-3 py-1 rounded-full"
+              >
+                {email}
+                <button
+                  type="button"
+                  onClick={() => handleRemoveEmail("case_manager_emails", email)}
+                  className="text-red-400 hover:text-red-300"
+                >
+                  ✕
+                </button>
+              </span>
+            ))}
+          </div>
+      
+          <input
+            type="hidden"
+            name="case_manager_emails"
+            value={(selectedCase.case_manager_emails || []).join(",")}
+          />
+      
+          <input
+            type="email"
+            value={caseManagerEmail}
+            onChange={(e) => {
+              setCaseManagerEmail(e.target.value);
+              if (emailError) setEmailError("");
+            }}
+            onKeyDown={(e) =>
+              handleAddEmail(
+                e,
+                "case_manager_emails",
+                caseManagerEmail,
+                setCaseManagerEmail,
+                setEmailError
+              )
+            }
+            placeholder="Type email and press Enter"
+            className="w-full border rounded px-3 py-2 bg-black text-white"
+          />
+      
+          {emailError && (
+            <p className="text-xs text-red-400 mt-1">{emailError}</p>
+          )}
+        </div>
+      
       </div>
-
 
       {/* Address */}
       <div className="md:col-span-2">

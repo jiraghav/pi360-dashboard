@@ -11,12 +11,12 @@ export default function NewPatientForm() {
   const router = useRouter();
   const { showToast } = useToast();
 
-  const { lawyers, caseTypes, languages, states, caseManagerEmails } = useFetchOptions({
+  const { lawyers, caseTypes, languages, states, lawyerEmails } = useFetchOptions({
     fetchLawyers: true,
     fetchCaseTypes: true,
     fetchLanguages: true,
     fetchStates: true,
-    fetchCaseManagers: true,
+    fetchLawyerEmails: true,
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -58,10 +58,6 @@ export default function NewPatientForm() {
 
       let message = "Patient created successfully!";
       
-      if (response.case_manager_emails_updated) {
-        message += " Case manager was also added or updated to your profile.";
-      }
-      
       showToast("success", message);
 
       if (redirectToReferral) {
@@ -94,7 +90,7 @@ export default function NewPatientForm() {
         caseTypes={caseTypes}
         languages={languages}
         states={states}
-        caseManagerEmails={caseManagerEmails}
+        lawyerEmails={lawyerEmails}
       />
 
         {/* Buttons */}

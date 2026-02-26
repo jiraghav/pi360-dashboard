@@ -150,6 +150,40 @@ export default function ExpandedCaseDetails({
                       : "No"}
                   </span>
                 </li>
+                {!isAffiliate && data.detail.has_case_team == "1" && (
+                  <>
+                    <li className="pt-3 mt-2 border-t border-slate-700 text-center text-xs text-slate-400">
+                      Updates/Tasks Go to Case Team
+                    </li>
+
+                    {data.detail.lawyer_email && (
+                      <li className="flex justify-between">
+                        <span className="text-slate-500">Lawyer:</span>
+                        <span className="font-medium break-all">
+                          {data.detail.lawyer_email}
+                        </span>
+                      </li>
+                    )}
+
+                    {data.detail.paralegal_email && (
+                      <li className="flex justify-between">
+                        <span className="text-slate-500">Paralegal:</span>
+                        <span className="font-medium break-all">
+                          {data.detail.paralegal_email}
+                        </span>
+                      </li>
+                    )}
+
+                    {data.detail.case_manager && (
+                      <li className="flex justify-between">
+                        <span className="text-slate-500">Case Manager:</span>
+                        <span className="font-medium break-all">
+                          {data.detail.case_manager}
+                        </span>
+                      </li>
+                    )}
+                  </>
+                )}
               </ul>
           </div>
           {
@@ -259,16 +293,6 @@ export default function ExpandedCaseDetails({
                     </li>
                   </ul>
                 </div>
-          
-                {
-                  !isAffiliate && data.detail.has_case_team == "1" && (
-                    <div className="pt-3 mt-3 border-t border-slate-700 text-center">
-                      <span className="text-xs text-slate-400">
-                        Updates/Tasks Go to Case Team
-                      </span>
-                    </div>
-                  )
-                }
               </div>
             )
           }
