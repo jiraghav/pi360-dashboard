@@ -14,11 +14,31 @@ export default function AuthGuard({ children }) {
     const token = localStorage.getItem("token");
     const isAuthPage = AUTH_PAGES.includes(pathname);
 
+    // 🔹 Special handling for magic login
+    if (pathname === "/magic-login") {
+      const urlParams = new URLSearchParams(window.location.search);
+      const magicToken = urlParams.get("token");
+
+      // ❌ No magic token → redirect to login
+      if (!magicToken) {
+        router.replace("/login");
+        return;
+      }
+
+      // ✅ Allow access (magic login page will handle auth)
+      setChecking(false);
+      return;
+    }
+
     // ❌ No token & trying to access protected page
     if (!token && !isAuthPage) {
       const searchParams = window.location.search;
 
-      localStorage.setItem("postLoginRedirect", pathname + searchParams);
+      localStorage.setItem(
+        "postLoginRedirect",
+        pathname + searchParams
+      );
+
       router.replace("/login");
       return;
     }
@@ -32,7 +52,7 @@ export default function AuthGuard({ children }) {
     setChecking(false);
   }, [pathname]);
 
-  if (checking) return null; // or loader
+  if (checking) return null;
 
   return children;
 }
