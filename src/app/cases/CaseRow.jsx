@@ -25,7 +25,8 @@ export default function CaseRow({
   setShowDroppedCaseModal,
   setShowEditDemographicsModal,
   isAffiliate,
-  loadCases
+  loadCases,
+  autoOpenTexts
 }) {
   const [expandedData, setExpandedData] = useState({});
   const isExpanded = expandedRows[caseItem.pid];
@@ -110,6 +111,19 @@ export default function CaseRow({
       return updated;
     });
   };
+  
+  useEffect(() => {
+    if (autoOpenTexts && caseItem.has_messages !== "0") {
+      // Expand row
+      setExpandedRows({ [caseItem.pid]: true });
+
+      // Fetch details
+      fetchCaseDetails(caseItem.pid);
+
+      // Open messages modal
+      setShowMessagesModal(true);
+    }
+  }, [autoOpenTexts]);
 
   return (
     <div

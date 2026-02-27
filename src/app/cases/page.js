@@ -15,6 +15,7 @@ import UploadDocumentModal from "./UploadDocumentModal";
 import DroppedCaseModal from "./DroppedCaseModal";
 import EditDemographicsModal from "./EditDemographicsModal";
 import useFetchOptions from "../hooks/useFetchOptions";
+import { useSearchParams } from "next/navigation";
 
 export default function Cases() {
   const [cases, setCases] = useState([]);
@@ -22,6 +23,7 @@ export default function Cases() {
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
   const [search, setSearch] = useState("");
+  const [tab, setTab] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [initialized, setInitialized] = useState(false);
   
@@ -73,23 +75,26 @@ export default function Cases() {
   // --------------------------------------------------------
 
   // Initialize filter from URL
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
+  const searchParams = useSearchParams();
 
-    setSearch(params.get("search") || "");
-    setStatusFilter(params.get("status") || "");
-    
-    setDoiFrom(params.get("doi_from") || "");
-    setDoiTo(params.get("doi_to") || "");
-    
-    setOrderBy(params.get("order_by") || orderBy);
-    setOrderDir(params.get("order_dir") || orderDir);
-    
-    const aff = params.get("affiliates");
+  useEffect(() => {
+    if (!searchParams) return;
+
+    setSearch(searchParams.get("search") || "");
+    setStatusFilter(searchParams.get("status") || "");
+    setDoiFrom(searchParams.get("doi_from") || "");
+    setDoiTo(searchParams.get("doi_to") || "");
+
+    setOrderBy(searchParams.get("order_by") || "patient_data.referral_date");
+    setOrderDir(searchParams.get("order_dir") || "desc");
+
+    setTab(searchParams.get("tab") || "");
+
+    const aff = searchParams.get("affiliates");
     setAffiliateFilter(aff ? aff.split(",") : []);
 
     setInitialized(true);
-  }, []);
+  }, [searchParams]);
 
   // Fetch cases
   useEffect(() => {
@@ -356,6 +361,7 @@ export default function Cases() {
             orderDir={orderDir}
             setOrderBy={setOrderBy}
             setOrderDir={setOrderDir}
+            autoOpenTexts={tab === "texts"}
           />
         </section>
       </main>

@@ -31,6 +31,7 @@ const CasesTable = forwardRef(function CasesTable(
     orderDir,
     setOrderBy,
     setOrderDir,
+    autoOpenTexts
   },
   ref
 ) {
@@ -105,7 +106,7 @@ const CasesTable = forwardRef(function CasesTable(
       ) : cases.length === 0 ? (
         <div className="py-4 text-center text-mute">No cases found</div>
       ) : (
-        cases.map((c) => (
+        cases.map((c, index) => (
           <CaseRow
             key={c.pid}
             caseItem={c}
@@ -123,6 +124,7 @@ const CasesTable = forwardRef(function CasesTable(
             setShowEditDemographicsModal={setShowEditDemographicsModal}
             isAffiliate={isAffiliate}
             loadCases={loadCases}
+            autoOpenTexts={autoOpenTexts && index === 0}
           />
         ))
       )}

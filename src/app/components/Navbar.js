@@ -194,6 +194,12 @@ export default function Navbar() {
         setDocumentModalOpen(true);
         break;
 
+      case "text":
+        markAsRead(n.id);
+        const query = encodeURIComponent(n.patient_name);
+        router.push(`/cases?search=${query}&tab=texts`);
+        break;
+
       default:
         markAsRead(n.id);
         break;
