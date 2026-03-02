@@ -42,6 +42,10 @@ export default function ClinicalAlerts({
         return <span className="badge text-blue-500">Pending</span>;
       case "2":
         return <span className="badge text-green-500">Done</span>;
+      case "4":
+        return <span className="badge text-emerald-500">Accepted</span>;
+      case "5":
+        return <span className="badge text-red-500">Declined</span>;
       default:
         return <span className="badge text-gray-400">Unknown</span>;
     }
@@ -74,6 +78,29 @@ export default function ClinicalAlerts({
   const onOpenTask = (task) => {
     setSelectedTask(task);
     setTaskModalOpen(true);
+  };
+  
+  const handleAuthorization = async (taskId, action) => {
+    const confirmMsg =
+      action === "accept"
+        ? "Are you sure you want to accept this authorization?"
+        : "Are you sure you want to decline this authorization?";
+
+    if (!confirm(confirmMsg)) return;
+
+    try {
+      await apiRequest("update_authorization.php", {
+        method: "POST",
+        body: {
+          task_id: taskId,
+          status: action,
+        },
+      });
+
+      reloadDashboard();
+    } catch (err) {
+      console.error("Authorization update failed:", err);
+    }
   };
 
   return (
@@ -137,13 +164,32 @@ export default function ClinicalAlerts({
                     {getPriorityBadge(alert.priority)}
                     {getStatusBadge(alert.status)}
 
-                    {alert.status === "1" && (
-                      <button
-                        className="btn"
-                        onClick={() => markTaskDone(alert.id)}
-                      >
-                        Mark Done
-                      </button>
+                    {alert.authorization == "1" ? (
+                      alert.status === "1" && (
+                        <>
+                          <button
+                            className="btn btn-success"
+                            onClick={() => handleAuthorization(alert.id, 4)}
+                          >
+                            Accept
+                          </button>
+                          <button
+                            className="btn btn-danger"
+                            onClick={() => handleAuthorization(alert.id, 5)}
+                          >
+                            Decline
+                          </button>
+                        </>
+                      )
+                    ) : (
+                      alert.status === "1" && (
+                        <button
+                          className="btn"
+                          onClick={() => markTaskDone(alert.id)}
+                        >
+                          Mark Done
+                        </button>
+                      )
                     )}
                   </div>
                 </li>
@@ -180,6 +226,7 @@ export default function ClinicalAlerts({
                     task_description: selectedTask.description,
                     created_at: selectedTask.created_at,
                     task_type: selectedTask.type,
+                    task_authorization: selectedTask.authorization,
                   }
                 : null
             }

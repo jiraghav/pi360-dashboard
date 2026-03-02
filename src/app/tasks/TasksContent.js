@@ -89,6 +89,10 @@ export default function TasksContent() {
         return <span className="badge whitespace-nowrap text-green-500">Done</span>;
       case "3":
         return <span className="badge whitespace-nowrap text-yellow-400">In Progress</span>;
+      case "4":
+        return <span className="badge text-emerald-500">Accepted</span>;
+      case "5":
+        return <span className="badge text-red-500">Declined</span>;
       default:
         return <span className="badge whitespace-nowrap text-gray-400">Unknown</span>;
     }
@@ -99,6 +103,29 @@ export default function TasksContent() {
 
     const query = encodeURIComponent(p.patient_name);
     router.push(`/cases?search=${query}`);
+  };
+  
+  const handleAuthorization = async (taskId, action) => {
+    const confirmMsg =
+      action === "accept"
+        ? "Are you sure you want to accept this authorization?"
+        : "Are you sure you want to decline this authorization?";
+
+    if (!confirm(confirmMsg)) return;
+
+    try {
+      await apiRequest("update_authorization.php", {
+        method: "POST",
+        body: {
+          task_id: taskId,
+          status: action,
+        },
+      });
+
+      fetchFromCIC();
+    } catch (err) {
+      console.error("Authorization update failed:", err);
+    }
   };
 
   // ---- Render Shared UI ----
@@ -209,13 +236,34 @@ export default function TasksContent() {
                         : "LOW"}
                     </span>
                     {getStatusBadge(task.status)}
-                    {!isToCIC && task.status === "1" && (
-                      <button
-                        className="btn btn-sm"
-                        onClick={() => markTaskDone(task.id)}
-                      >
-                        Mark Done
-                      </button>
+                    {!isToCIC && (
+                      task.authorization === "1" ? (
+                        task.status === "1" && (
+                          <>
+                            <button
+                              className="btn btn-sm btn-success"
+                              onClick={() => handleAuthorization(task.id, 4)}
+                            >
+                              Accept
+                            </button>
+                            <button
+                              className="btn btn-sm btn-danger"
+                              onClick={() => handleAuthorization(task.id, 5)}
+                            >
+                              Decline
+                            </button>
+                          </>
+                        )
+                      ) : (
+                        task.status === "1" && (
+                          <button
+                            className="btn btn-sm"
+                            onClick={() => markTaskDone(task.id)}
+                          >
+                            Mark Done
+                          </button>
+                        )
+                      )
                     )}
                   </div>
                 </li>
@@ -302,6 +350,7 @@ export default function TasksContent() {
                 task_description: selectedTask.description,
                 created_at: selectedTask.created_at,
                 task_type: selectedTask.type,
+                task_authorization: selectedTask.authorization,
               }
             : null
         }        fetchNotifications={() => {

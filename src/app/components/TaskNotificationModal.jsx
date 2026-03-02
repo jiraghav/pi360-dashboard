@@ -67,6 +67,10 @@ export default function TaskNotificationModal({
         return <span className="badge text-green-500">Done</span>;
       case "3":
         return <span className="badge text-yellow-400">In Progress</span>;
+      case "4":
+        return <span className="badge text-emerald-500">Accepted</span>;
+      case "5":
+        return <span className="badge text-red-500">Declined</span>;
       default:
         return <span className="badge text-gray-400">Unknown</span>;
     }
@@ -135,6 +139,36 @@ export default function TaskNotificationModal({
       console.error("Failed to add note:", err);
     } finally {
       setAddingNote(false);
+    }
+  };
+  
+  const handleAuthorization = async (taskId, action) => {
+    const isAccept = action === 4;
+  
+    const confirmMsg = isAccept
+      ? "Are you sure you want to accept this authorization?"
+      : "Are you sure you want to decline this authorization?";
+  
+    if (!confirm(confirmMsg)) return;
+  
+    try {
+      await apiRequest("update_authorization.php", {
+        method: "POST",
+        body: {
+          task_id: taskId,
+          status: action,
+        },
+      });
+  
+      showToast(
+        "success",
+        isAccept ? "Authorization accepted successfully!" : "Authorization declined successfully!"
+      );
+  
+      onClose();
+    } catch (err) {
+      console.error("Authorization update failed:", err);
+      showToast("error", "Failed to update authorization.");
     }
   };
 
@@ -261,14 +295,35 @@ export default function TaskNotificationModal({
         </div>
 
         {/* Mark as Done */}
-        {notification.status !== "2" && (notification.task_type == 2 || notification.task_type == 5) && (
-          <button
-            className="btn btn-primary w-full mt-2"
-            onClick={handleMarkDone}
-            disabled={loading}
-          >
-            {loading ? "Processing..." : "Mark as Done"}
-          </button>
+        {notification.status === "1" && (
+          notification.task_authorization === "1" ? (
+            <div className="flex gap-2 mt-2">
+              <button
+                className="btn btn-success w-full"
+                onClick={() => handleAuthorization(notification.task_id, 4)}
+                disabled={loading}
+              >
+                {loading ? "Processing..." : "Accept"}
+              </button>
+              <button
+                className="btn btn-danger w-full"
+                onClick={() => handleAuthorization(notification.task_id, 5)}
+                disabled={loading}
+              >
+                {loading ? "Processing..." : "Decline"}
+              </button>
+            </div>
+          ) : (
+            (notification.task_type == 2 || notification.task_type == 5) && (
+              <button
+                className="btn btn-primary w-full mt-2"
+                onClick={handleMarkDone}
+                disabled={loading}
+              >
+                {loading ? "Processing..." : "Mark as Done"}
+              </button>
+            )
+          )
         )}
       </div>
     </div>
