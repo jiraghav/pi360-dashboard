@@ -107,7 +107,7 @@ export default function TasksContent() {
   
   const handleAuthorization = async (taskId, action) => {
     const confirmMsg =
-      action === "accept"
+      action === 4
         ? "Are you sure you want to accept this authorization?"
         : "Are you sure you want to decline this authorization?";
 
