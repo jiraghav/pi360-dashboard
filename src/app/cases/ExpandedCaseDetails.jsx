@@ -23,7 +23,8 @@ export default function ExpandedCaseDetails({
     showTaskModal,
     setShowTaskModal,
     selectedCase,
-    setSelectedCaseNewTask
+    setSelectedCaseNewTask,
+    setShowEditDemographicsModal
   }) {
   
   const [docModalOpen, setDocModalOpen] = useState(false);
@@ -152,8 +153,18 @@ export default function ExpandedCaseDetails({
                 </li>
                 {!isAffiliate && data.detail.has_case_team == "1" && (
                   <>
-                    <li className="pt-3 mt-2 border-t border-slate-700 text-center text-xs text-slate-400">
-                      Updates/Tasks Go to Case Team
+                    <li className="pt-3 mt-2 border-t border-slate-700 flex justify-between items-center text-xs text-slate-400">
+                      <span>Updates/Tasks Go to Case Team</span>
+
+                      <button
+                        onClick={() => {
+                          setSelectedCase(caseItem);
+                          setShowEditDemographicsModal(true);
+                        }}
+                        className="ml-2 px-2 py-1 text-xs rounded bg-blue-500 text-white hover:bg-blue-600"
+                      >
+                        Update
+                      </button>
                     </li>
 
                     {data.detail.lawyer_email && (

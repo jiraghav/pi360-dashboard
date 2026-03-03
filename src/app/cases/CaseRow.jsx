@@ -592,6 +592,7 @@ export default function CaseRow({
           setShowTaskModal={setShowTaskModal}
           selectedCase={selectedCase}
           setSelectedCaseNewTask={setSelectedCaseNewTask}
+          setShowEditDemographicsModal={setShowEditDemographicsModal}
         />
       )}
       
