@@ -53,7 +53,7 @@ export default function ExpandedCaseDetails({
         <>
           <div className="flex items-center justify-end mb-1">            
             {
-              caseItem.tasks_count > 0 && (
+              caseItem.tasks_count > 0 ? (
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
@@ -68,6 +68,14 @@ export default function ExpandedCaseDetails({
                   <ListTodo size={14} />
                   View Tasks
                 </button>
+              ) : (
+                <span
+                  className="text-xs px-2 py-1 rounded bg-gray-800 text-gray-400 flex items-center gap-1"
+                  title="No pending tasks"
+                >
+                  <ListTodo size={14} />
+                  No Pending Tasks
+                </span>
               )
             }
 
