@@ -143,17 +143,23 @@ export default function Sidebar() {
         )}
         
         {!isAffiliateLoading && !isAffiliate && (
-          <div className="mt-6">
+          <div className="mt-6 bg-gray-900 border border-gray-700 rounded-xl p-4">
+        
+            <p className="text-[12px] text-gray-300 mb-3">
+              Global Case Team Contacts / General case updates go here unless a Patient Case Team is assigned.
+            </p>
+        
             <button
               onClick={() => setIsCaseTeamOpen(true)}
-              className="w-full inline-flex justify-center items-center 
-                         bg-blue-600 hover:bg-blue-700 
-                         text-white font-semibold 
-                         py-2 px-3 rounded-lg 
+              className="inline-flex items-center 
+                         bg-blue-600 hover:bg-blue-500 
+                         text-white text-sm font-medium
+                         py-1.5 px-3 rounded-md
                          transition-colors duration-200"
             >
               Update Global Case Team Contacts
             </button>
+        
           </div>
         )}
 

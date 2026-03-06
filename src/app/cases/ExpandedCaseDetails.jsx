@@ -162,7 +162,7 @@ export default function ExpandedCaseDetails({
                 {!isAffiliate && data.detail.has_case_team == "1" && (
                   <>
                     <li className="pt-3 mt-2 border-t border-slate-700 flex justify-between items-center text-xs text-slate-400">
-                      <span>Updates/Tasks Go to Case Team</span>
+                      <span>Patient Case Team / Patient-specific updates go here</span>
 
                       <button
                         onClick={() => {
@@ -178,8 +178,12 @@ export default function ExpandedCaseDetails({
                     {data.detail.lawyer_email && (
                       <li className="flex justify-between">
                         <span className="text-slate-500">Lawyer:</span>
-                        <span className="font-medium break-all">
-                          {data.detail.lawyer_email}
+                        <span className="font-medium break-all text-right">
+                          {data.detail.lawyer_email.split(',').map((email, index) => (
+                            <div key={index} className="break-all">
+                              {email.trim()}
+                            </div>
+                          ))}
                         </span>
                       </li>
                     )}
@@ -187,8 +191,12 @@ export default function ExpandedCaseDetails({
                     {data.detail.paralegal_email && (
                       <li className="flex justify-between">
                         <span className="text-slate-500">Paralegal:</span>
-                        <span className="font-medium break-all">
-                          {data.detail.paralegal_email}
+                        <span className="font-medium break-all text-right">
+                          {data.detail.paralegal_email.split(',').map((email, index) => (
+                            <div key={index} className="break-all">
+                              {email.trim()}
+                            </div>
+                          ))}
                         </span>
                       </li>
                     )}
@@ -196,8 +204,12 @@ export default function ExpandedCaseDetails({
                     {data.detail.case_manager && (
                       <li className="flex justify-between">
                         <span className="text-slate-500">Case Manager:</span>
-                        <span className="font-medium break-all">
-                          {data.detail.case_manager}
+                        <span className="font-medium break-all text-right">
+                          {data.detail.case_manager.split(',').map((email, index) => (
+                            <div key={index} className="break-all">
+                              {email.trim()}
+                            </div>
+                          ))}
                         </span>
                       </li>
                     )}
