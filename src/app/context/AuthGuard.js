@@ -3,7 +3,7 @@
 import { useRouter, usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
-const AUTH_PAGES = ["/login", "/register"];
+const AUTH_PAGES = ["/login", "/register", '/onboarding'];
 
 export default function AuthGuard({ children }) {
   const router = useRouter();
@@ -13,6 +13,11 @@ export default function AuthGuard({ children }) {
   useEffect(() => {
     const token = localStorage.getItem("token");
     const isAuthPage = AUTH_PAGES.includes(pathname);
+    
+    if (pathname === "/onboarding") {
+      setChecking(false);
+      return;
+    }
 
     // 🔹 Special handling for magic login
     if (pathname === "/magic-login") {

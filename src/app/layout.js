@@ -36,7 +36,8 @@ function LayoutContent({ children }) {
   const hideLayout =
     pathname === "/login" ||
     pathname === "/register" ||
-    pathname === "/magic-login";
+    pathname === "/magic-login" ||
+    pathname === "/onboarding";
 
   return (
     <>
