@@ -142,8 +142,8 @@ export default function Cases() {
     if (!selectedCase) return;
     try {
       const formData = new FormData();
-      formData.append("pid", selectedCase.pid);
-      formData.append("pid_group", selectedCase.pid_group);
+      formData.append("pid", selectedCase.facilityPid || selectedCase.pid);
+      formData.append("record_type", selectedCase.recordType);
       formData.append("note", selectedCase.description || "");
       const res = await apiRequest("request_records.php", {
         method: "POST",
