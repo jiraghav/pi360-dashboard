@@ -8,4 +8,5 @@ export const routeMap = {
   "/patients/new": { title: "Add Patient" },
   "/login": { title: "Login" },
   "/register": { title: "Register" },
+  "/onboarding": { title: "Clinic Onboarding" },
 };
