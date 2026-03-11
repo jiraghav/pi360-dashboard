@@ -6,14 +6,18 @@ import { apiRequest } from "../../utils/api";
 import FacilityInfo from "./FacilityInfo";
 import { useToast } from "../../hooks/ToastContext";
 import { useSearchParams } from "next/navigation";
+import useFetchOptions from "../../hooks/useFetchOptions";
 
 export default function ReferralForm({ router, pid }) {
   const { showToast } = useToast();
+  const { isAffiliate } = useFetchOptions({ fetchRoles: true });
+
   const [form, setForm] = useState({
     patient: null,
     refer_to: "",
-    priority_level: "",
+    priority_level: "standard",
     lawyer_id: "",
+    facility_id: "",
     notes: "",
     attachment: null,
     state: null,
@@ -25,6 +29,7 @@ export default function ReferralForm({ router, pid }) {
   const [lawyers, setLawyers] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [facility, setFacility] = useState(null);
+  const [affiliateFacilities, setAffiliateFacilities] = useState([]);
 
   // ✅ Load facility from localStorage
   useEffect(() => {
@@ -156,6 +161,7 @@ export default function ReferralForm({ router, pid }) {
       fd.append("refer_to", form.refer_to);
       fd.append("priority_level", form.priority_level);
       fd.append("lawyer_id", form.lawyer_id);
+      fd.append("from_facility_id", form.facility_id);
       fd.append("referral_detail", form.notes);
       if (form.attachment) fd.append("referral_attachment", form.attachment);
       if (!facility) {
@@ -183,6 +189,21 @@ export default function ReferralForm({ router, pid }) {
     placeholder: (p) => ({ ...p, color: "#eee" }),
     control: (p) => ({ ...p, backgroundColor: "black", color: "white" }),
   };
+  
+  useEffect(() => {
+    async function fetchFacilities() {
+      if (!isAffiliate) return;
+
+      try {
+        const data = await apiRequest("getFacilities.php");
+        setAffiliateFacilities(data.facilities || []);
+      } catch (err) {
+        console.error("Failed to load affiliate facilities", err);
+      }
+    }
+
+    fetchFacilities();
+  }, [isAffiliate]);
 
   return (
     <form className="grid grid-cols-1 md:grid-cols-2 gap-4" onSubmit={handleSubmit}>
@@ -227,22 +248,39 @@ export default function ReferralForm({ router, pid }) {
         <option value="standard">Standard</option>
         <option value="urgent">Urgent</option>
       </select>
+      
+      {isAffiliate ? (
+        <select
+          name="facility_id"
+          value={form.facility_id}
+          onChange={handleChange}
+          className="border rounded px-3 py-2 bg-black text-white md:col-span-2"
+        >
+          <option value="">Select Facility</option>
 
-      {/* Lawyer */}
-      <select
-        name="lawyer_id"
-        value={form.lawyer_id}
-        onChange={handleChange}
-        required
-        className="border rounded px-3 py-2 bg-black text-white"
-      >
-        <option value="">Select Law Firm</option>
-        {lawyers.map((lawyer) => (
-          <option key={lawyer.id} value={lawyer.id}>
-            {lawyer.organization}
-          </option>
-        ))}
-      </select>
+          {affiliateFacilities.map((facility) => (
+            <option key={facility.id} value={facility.id}>
+              {facility.name}
+            </option>
+          ))}
+
+        </select>
+      ) : (
+        <select
+          name="lawyer_id"
+          value={form.lawyer_id}
+          onChange={handleChange}
+          required
+          className="border rounded px-3 py-2 bg-black text-white md:col-span-2"
+        >
+          <option value="">Select Law Firm</option>
+          {lawyers.map((lawyer) => (
+            <option key={lawyer.id} value={lawyer.id}>
+              {lawyer.organization}
+            </option>
+          ))}
+        </select>
+      )}
 
       {/* Notes */}
       <textarea
