@@ -15,7 +15,8 @@ export default function ReferralForm({ router, pid }) {
   const [form, setForm] = useState({
     patient: null,
     refer_to: "",
-    priority_level: "standard",
+    priority_level: "",
+    preferred_language: "",
     lawyer_id: "",
     facility_id: "",
     notes: "",
@@ -160,6 +161,7 @@ export default function ReferralForm({ router, pid }) {
       fd.append("form_pid", form.patient.value);
       fd.append("refer_to", form.refer_to);
       fd.append("priority_level", form.priority_level);
+      fd.append("preferred_language", form.preferred_language);
       fd.append("lawyer_id", form.lawyer_id);
       fd.append("from_facility_id", form.facility_id);
       fd.append("referral_detail", form.notes);
@@ -218,6 +220,7 @@ export default function ReferralForm({ router, pid }) {
         additional={{ page: 1 }}
         className="col-span-1 md:col-span-2"
         styles={asyncStyles}
+        required
       />
 
       {/* Refer To */}
@@ -249,12 +252,30 @@ export default function ReferralForm({ router, pid }) {
         <option value="urgent">Urgent</option>
       </select>
       
+      <select
+        name="preferred_language"
+        value={form.preferred_language}
+        onChange={handleChange}
+        required
+        className="border rounded px-3 py-2 bg-black text-white md:col-span-2"
+      >
+        <option value="">Preferred Language</option>
+        <option value="English">English</option>
+        <option value="Spanish">Spanish</option>
+        <option value="French">French</option>
+        <option value="Arabic">Arabic</option>
+        <option value="Farsi">Farsi</option>
+        <option value="Vietnamese">Vietnamese</option>
+        <option value="Chinese">Chinese</option>
+      </select>
+      
       {!isAffiliateLoading && (
         isAffiliate ? (
           <select
             name="facility_id"
             value={form.facility_id}
             onChange={handleChange}
+            required
             className="border rounded px-3 py-2 bg-black text-white md:col-span-2"
           >
             <option value="">Select Affiliate</option>
