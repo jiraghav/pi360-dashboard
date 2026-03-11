@@ -12,8 +12,9 @@ export default function ClinicOnboardingForm() {
   const [step, setStep] = useState(1);
 
   const [clinic, setClinic] = useState({
-    organization_name: "",
+    clinic_name: "",
     website: "",
+    service: "",
 
     primary_contact_name: "",
     primary_contact_title: "",
@@ -41,8 +42,7 @@ export default function ClinicOnboardingForm() {
         phone: "",
         email: "",
         website: "",
-        use_defaults: true,
-        specialties: []
+        services: []
       }
     ],
 

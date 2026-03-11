@@ -1,21 +1,8 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Select from "react-select";
-
-const specialtyOptions = [
-  { value: "chiropractic", label: "Chiropractic" },
-  { value: "physical_therapy", label: "Physical Therapy" },
-  { value: "pain_management", label: "Pain Management" },
-  { value: "orthopedics", label: "Orthopedics" },
-  { value: "neurology", label: "Neurology" },
-  { value: "neurosurgery", label: "Neurosurgery" },
-  { value: "sports_medicine", label: "Sports Medicine" },
-  { value: "family_medicine", label: "Family Medicine" },
-  { value: "psychiatry", label: "Psychiatry" },
-  { value: "psychology", label: "Psychology" },
-  { value: "pediatrics", label: "Pediatrics" },
-  { value: "geriatrics", label: "Geriatrics" }
-];
+import { apiRequest } from "../utils/api";
 
 export default function LocationCard({
   index,
@@ -23,6 +10,28 @@ export default function LocationCard({
   updateLocation,
   removeLocation
 }) {
+  const [serviceOptions, setServiceOptions] = useState([]);
+
+  useEffect(() => {
+    const fetchServices = async () => {
+      try {
+        const res = await apiRequest("services.php");
+
+        if (res.status) {
+          const options = res.services.map((s) => ({
+            value: s.id,
+            label: s.name
+          }));
+
+          setServiceOptions(options);
+        }
+      } catch (err) {
+        console.error("Failed to load services", err);
+      }
+    };
+
+    fetchServices();
+  }, []);
 
   const handleChange = (field, value) => {
     updateLocation(index, field, value);
@@ -118,91 +127,10 @@ export default function LocationCard({
 
       </div>
 
-
-      {/* USE DEFAULTS */}
-
-      <h4 className="font-semibold mb-2">
-        2) Use organization defaults?
-      </h4>
-
-      <div className="flex gap-6 mb-6">
-
-        <label className="flex gap-2">
-          <input
-            type="radio"
-            checked={location.use_defaults === true}
-            onChange={() => handleChange("use_defaults", true)}
-          />
-          Yes
-        </label>
-
-        <label className="flex gap-2">
-          <input
-            type="radio"
-            checked={location.use_defaults === false}
-            onChange={() => handleChange("use_defaults", false)}
-          />
-          No
-        </label>
-
-      </div>
-
-
-      {/* OVERRIDES */}
-
-      {!location.use_defaults && (
-
-        <div className="space-y-4 mb-6">
-
-          <h4 className="font-semibold">
-            3) Referral + Communication Overrides
-          </h4>
-
-          <select
-            value={location.referral_method}
-            onChange={(e) => handleChange("referral_method", e.target.value)}
-            className="border rounded px-3 py-2 bg-black text-white w-full"
-          >
-            <option value="">Referral Method</option>
-            <option>Email</option>
-            <option>Phone</option>
-            <option>Fax</option>
-            <option>Other</option>
-          </select>
-
-          {location.referral_method === "Other" && (
-            <input
-              placeholder="Other method"
-              value={location.referral_other}
-              onChange={(e) => handleChange("referral_other", e.target.value)}
-              className="border rounded px-3 py-2 bg-black text-white"
-            />
-          )}
-
-          <input
-            placeholder="Referrals should go to"
-            value={location.referral_contact}
-            onChange={(e) => handleChange("referral_contact", e.target.value)}
-            className="border rounded px-3 py-2 bg-black text-white"
-          />
-
-          <textarea
-            placeholder="Location-specific emails + purpose"
-            value={location.location_emails}
-            onChange={(e) => handleChange("location_emails", e.target.value)}
-            rows={2}
-            className="border rounded px-3 py-2 bg-black text-white w-full"
-          />
-
-        </div>
-
-      )}
-
-
       {/* SERVICES */}
 
       <h4 className="font-semibold mb-3">
-        4) Services & Preferences
+        2) Services & Preferences
       </h4>
 
       <div className="space-y-4">
@@ -210,16 +138,17 @@ export default function LocationCard({
       <Select
         isMulti
         required
-        options={specialtyOptions}
-        value={specialtyOptions.filter(opt =>
-          location.specialties.includes(opt.value)
+        options={serviceOptions}
+        value={serviceOptions.filter(opt =>
+          location.services.includes(opt.value)
         )}
         onChange={(selected) =>
           handleChange(
-            "specialties",
+            "services",
             selected ? selected.map(s => s.value) : []
           )
         }
+        placeholder="Select Services..."
         styles={{
           control: (base) => ({
             ...base,
@@ -266,10 +195,10 @@ export default function LocationCard({
       />
 
         <input
-          placeholder="Other specialty"
-          value={location.specialty_other}
+          placeholder="Other service"
+          value={location.service_other}
           onChange={(e) =>
-            handleChange("specialty_other", e.target.value)
+            handleChange("service_other", e.target.value)
           }
           className="border rounded px-3 py-2 bg-black text-white"
         />

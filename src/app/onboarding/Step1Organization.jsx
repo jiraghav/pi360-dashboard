@@ -1,4 +1,25 @@
+import { useState, useEffect } from "react";
+import { apiRequest } from "../utils/api";
+
 export default function Step1Organization({ clinic, updateField }) {
+  
+  const [services, setServices] = useState([]);
+
+  useEffect(() => {
+    const fetchServices = async () => {
+      try {
+        const res = await apiRequest("specialities.php");
+
+        if (res.status) {
+          setServices(res.specialities);
+        }
+      } catch (error) {
+        console.error("Failed to load services", error);
+      }
+    };
+
+    fetchServices();
+  }, []);
 
   const inputClass =
     "border rounded px-3 py-2 bg-black text-white w-full border-gray-600";
@@ -18,11 +39,12 @@ export default function Step1Organization({ clinic, updateField }) {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
           <input
-            name="organization_name"
-            placeholder="Organization / Parent Company Name (if any)"
-            value={clinic.organization_name}
-            onChange={(e) => updateField("organization_name", e.target.value)}
+            name="clinic_name"
+            placeholder="Facility Name"
+            value={clinic.clinic_name}
+            onChange={(e) => updateField("clinic_name", e.target.value)}
             className={inputClass}
+            required
           />
 
           <input
@@ -33,6 +55,24 @@ export default function Step1Organization({ clinic, updateField }) {
             onChange={(e) => updateField("website", e.target.value)}
             className={inputClass}
           />
+          
+          <div>
+            <select
+              name="service"
+              value={clinic.service}
+              onChange={(e) => updateField("service", e.target.value)}
+              className={inputClass}
+              required
+            >
+              <option value="">Select Service</option>
+
+              {services.map((service) => (
+                <option key={service.id} value={service.id}>
+                  {service.description}
+                </option>
+              ))}
+            </select>
+          </div>
 
         </div>
       </div>
@@ -99,7 +139,7 @@ export default function Step1Organization({ clinic, updateField }) {
 
       <div>
         <h3 className="font-semibold mb-3">
-          C) Defaults (apply to all locations unless overridden)
+          C) Defaults (apply to all locations)
         </h3>
 
         <div className="space-y-4">

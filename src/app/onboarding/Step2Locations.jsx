@@ -19,15 +19,8 @@ export default function Step2Locations({ clinic, setClinic }) {
           email: "",
           website: "",
 
-          use_defaults: true,
-
-          referral_method: "",
-          referral_other: "",
-          referral_contact: "",
-          location_emails: "",
-
-          specialties: [],
-          specialty_other: "",
+          services: [],
+          service_other: "",
 
           age_range: "",
           languages_enabled: false,

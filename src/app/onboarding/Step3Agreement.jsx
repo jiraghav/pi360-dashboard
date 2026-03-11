@@ -64,8 +64,9 @@ export default function Step3Agreement({ clinic, updateField }) {
         </h3>
 
         <p className="text-gray-300 mb-4">
-          “I agree to use the designated EMR system for all patients referred
-          through this management program for documentation and communication.”
+          “I agree to use the designated EMR system for all patients referred through this
+           management program for documentation and communication. If requested, weekly 
+           updates must be provided within 48 hours.”
         </p>
 
         <div className="flex gap-6">
