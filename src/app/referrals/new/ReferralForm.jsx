@@ -10,7 +10,7 @@ import useFetchOptions from "../../hooks/useFetchOptions";
 
 export default function ReferralForm({ router, pid }) {
   const { showToast } = useToast();
-  const { isAffiliate } = useFetchOptions({ fetchRoles: true });
+  const { isAffiliate, isAffiliateLoading } = useFetchOptions({ fetchRoles: true });
 
   const [form, setForm] = useState({
     patient: null,
@@ -249,37 +249,39 @@ export default function ReferralForm({ router, pid }) {
         <option value="urgent">Urgent</option>
       </select>
       
-      {isAffiliate ? (
-        <select
-          name="facility_id"
-          value={form.facility_id}
-          onChange={handleChange}
-          className="border rounded px-3 py-2 bg-black text-white md:col-span-2"
-        >
-          <option value="">Select Facility</option>
-
-          {affiliateFacilities.map((facility) => (
-            <option key={facility.id} value={facility.id}>
-              {facility.name}
-            </option>
-          ))}
-
-        </select>
-      ) : (
-        <select
-          name="lawyer_id"
-          value={form.lawyer_id}
-          onChange={handleChange}
-          required
-          className="border rounded px-3 py-2 bg-black text-white md:col-span-2"
-        >
-          <option value="">Select Law Firm</option>
-          {lawyers.map((lawyer) => (
-            <option key={lawyer.id} value={lawyer.id}>
-              {lawyer.organization}
-            </option>
-          ))}
-        </select>
+      {!isAffiliateLoading && (
+        isAffiliate ? (
+          <select
+            name="facility_id"
+            value={form.facility_id}
+            onChange={handleChange}
+            className="border rounded px-3 py-2 bg-black text-white md:col-span-2"
+          >
+            <option value="">Select Affiliate</option>
+  
+            {affiliateFacilities.map((facility) => (
+              <option key={facility.id} value={facility.id}>
+                {facility.name}
+              </option>
+            ))}
+  
+          </select>
+        ) : (
+          <select
+            name="lawyer_id"
+            value={form.lawyer_id}
+            onChange={handleChange}
+            required
+            className="border rounded px-3 py-2 bg-black text-white md:col-span-2"
+          >
+            <option value="">Select Law Firm</option>
+            {lawyers.map((lawyer) => (
+              <option key={lawyer.id} value={lawyer.id}>
+                {lawyer.organization}
+              </option>
+            ))}
+          </select>
+        )
       )}
 
       {/* Notes */}
