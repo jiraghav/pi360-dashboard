@@ -18,6 +18,7 @@ export default function Sidebar() {
     { label: "Tasks", path: "/tasks" },
     { label: "Maps", path: "/maps" },
     { label: "Analytics", path: "/analytics" },
+    { label: "Change Password", path: "/change-password" },
   ];
 
   const handleLogout = () => {
