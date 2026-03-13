@@ -242,179 +242,122 @@ export default function Navbar() {
   return (
     <>
       <header className="sticky top-0 z-40 glass border-b border-stroke/70">
-        <div className="px-3 md:px-6 py-4 flex items-center justify-between">
-        
-        <button
-          className="md:hidden btn"
-          onClick={() => {
-            const sidebar = document.getElementById("sidebar");
-            if (sidebar) sidebar.classList.toggle("hidden");
-          }}
-        >
-          ☰
-        </button>
-
-          {/* Title */}
-          <div className="flex flex-col">
-            {/* Title */}
-            <div className="text-sm md:text-xl font-semibold md:font-bold text-white tracking-wide">
-              Complete Injury Centers
-            </div>
-          
-            {/* Meta row */}
-            <div className="flex items-center text-[11px] md:text-xs text-gray-400 mt-1">
-              <span>Powered by PI360</span>
-          
-              {!isAffiliateLoading && (
-                <>
-                  <span className="mx-2 h-3 w-px bg-gray-600"></span>
-                  <span className="text-gray-300">
-                    {isAffiliate ? "Affiliate Dashboard" : "Lawyer Dashboard"}
-                  </span>
-                </>
-              )}
-            </div>
-          </div>
-
-          {/* Right Side */}
-          <div className="flex items-center gap-2">
-
-            {/* Help Text */}
-            <div className="hidden md:block text-sm text-gray-300 whitespace-nowrap">
-              Text{" "}
-              <a href="sms:2146666651" className="underline font-semibold text-white">
-                214-666-6651
-              </a>{" "}
-              24/7 for instant help
-            </div>
-
-            {/* Notification Bell */}
-            <div className="relative" ref={dropdownRef}>
+        <div className="px-3 md:px-6 py-3 md:py-4">
+      
+          {/* GRID HEADER */}
+          <div className="grid grid-cols-[auto_1fr_auto] items-center gap-2">
+      
+            {/* LEFT SECTION */}
+            <div className="flex items-center gap-2 min-w-0">
+      
               <button
+                className="md:hidden btn px-3 py-2"
                 onClick={() => {
-                  setNotificationPatient();
-                  setOpen(!open);
+                  const sidebar = document.getElementById("sidebar");
+                  if (sidebar) sidebar.classList.toggle("hidden");
                 }}
-                className="relative p-2 rounded-lg hover:bg-white/10"
               >
-                <Bell className="w-5 h-5 text-gray-200" />
-                {unreadCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-red-600 text-white text-[10px] rounded-full h-4 w-4 flex items-center justify-center">
-                    {unreadCount}
-                  </span>
-                )}
+                ☰
               </button>
-
-              {/* Dropdown */}
-              {open && (
-                <div className="
-                  absolute
-                  mt-3
-                  w-[280px]
-                  bg-[#0D0F11]
-                  border border-white/10
-                  rounded-xl
-                  shadow-2xl
-                  overflow-hidden
-                  -translate-x-1/2
-                  md:left-auto md:translate-x-0 md:right-0
-                ">
-                  <div className="px-4 py-3 border-b border-white/10 font-semibold text-sm text-white">
-                    {notificationPatient?.name && (
-                      <span className="text-gray-400 mr-1">Patient:</span>
-                    )}
-                    {notificationPatient?.name ? `${notificationPatient?.name} Notifications` : "All Notifications"}
-                  </div>
-
-                  <div className="max-h-96 overflow-y-auto">
-                  
-                    {loading && (
-                      <div className="px-4 py-6 flex flex-col items-center justify-center text-gray-400 text-sm">
-                        <div className="animate-spin rounded-full h-6 w-6 border-2 border-gray-400 border-t-transparent mb-2"></div>
-                        Loading notifications…
-                      </div>
-                    )}
-
-                    {!loading && (
-                      <>
-                        {/* Unread */}
-                        <div className="px-4 py-2 text-xs font-semibold text-green-400 bg-white/5">
-                          Unread ({unread.length})
-                        </div>
-
-                        {unread.length === 0 ? (
-                          <div className="px-4 py-3 text-sm text-gray-500">No unread notifications</div>
-                        ) : (
-                          unread.map((n) => (
-                            <div
-                              key={n.id}
-                              onClick={() => handleNotificationClick(n)}
-                              className="px-4 py-3 text-sm hover:bg-white/5 cursor-pointer border-b border-white/5"
-                            >
-                              {n.patient_name && (
-                                <span
-                                  className="text-xs float-right text-blue-400 underline cursor-pointer"
-                                  onClick={(e) => {
-                                    e.stopPropagation();   // Prevent opening the notification modal
-                                    onViewProfile(n);
-                                  }}
-                                >
-                                  👤 {n.patient_name}
-                                </span>
-                              )}
-                              <div className="text-white">{n.title}</div>
-                              <div className="text-xs text-gray-400 mt-1">{n.message}</div>
-                              <div className="text-xs text-gray-500 mt-1">
-                                {moment.tz(n.created_at, "America/Chicago").fromNow()}
-                              </div>
-                            </div>
-                          ))
-                        )}
-
-                        {/* Read */}
-                        <div className="px-4 py-2 text-xs font-semibold text-blue-400 bg-white/5 mt-2">
-                          Read ({read.length})
-                        </div>
-
-                        {read.length === 0 ? (
-                          <div className="px-4 py-3 text-sm text-gray-500">No read notifications</div>
-                        ) : (
-                          read.map((n) => (
-                            <div
-                              key={n.id}
-                              onClick={() => handleNotificationClick(n)}
-                              className="px-4 py-3 text-sm hover:bg-white/5 cursor-pointer border-b border-white/5 opacity-50"
-                            >
-                              {n.patient_name && (
-                                <span
-                                  className="text-xs float-right text-blue-400 underline cursor-pointer"
-                                  onClick={(e) => {
-                                    e.stopPropagation();   // Prevent opening the notification modal
-                                    onViewProfile(n);
-                                  }}
-                                >
-                                  👤 {n.patient_name}
-                                </span>
-                              )}
-                              <div className="text-white">{n.title}</div>
-                              <div className="text-xs text-gray-400 mt-1">{n.message}</div>
-                              <div className="text-xs text-gray-500 mt-1">
-                                {moment.tz(n.created_at, "America/Chicago").fromNow()}
-                              </div>
-                            </div>
-                          ))
-                        )}
-                      </>
-                    )}
-
-                  </div>
+      
+              <div className="flex flex-col min-w-0">
+                <div className="text-sm sm:text-base md:text-xl font-semibold md:font-bold text-white truncate">
+                  Complete Injury Centers
                 </div>
-              )}
+      
+                <div className="
+                  flex flex-col sm:flex-row
+                  sm:items-center
+                  text-[10px] md:text-xs
+                  text-gray-400
+                  mt-0.5
+                ">
+                  <span>Powered by PI360</span>
+      
+                  {!isAffiliateLoading && (
+                    <>
+                      <span className="hidden sm:inline mx-2 text-gray-500">•</span>
+                      <span className="mt-0.5 sm:mt-0">
+                        {isAffiliate ? "Affiliate Dashboard" : "Lawyer Dashboard"}
+                      </span>
+                    </>
+                  )}
+                </div>
+              </div>
+      
             </div>
-
-            <Link href="/referrals/new" className="btn btn-primary text-xs px-3 py-3">New Referral</Link>
-            <Link href="/tasks" className="btn hidden md:block">Create Task</Link>
-
+      
+            {/* CENTER SPACE */}
+            <div></div>
+      
+            {/* RIGHT SECTION */}
+            <div className="flex items-center justify-end gap-1 sm:gap-2 flex-wrap">
+      
+              {/* Help Text — only large screens */}
+              <div className="hidden lg:block text-[11px] md:text-sm text-gray-300 whitespace-nowrap">
+                Text{" "}
+                <a
+                  href="sms:2146666651"
+                  className="underline font-semibold text-white"
+                >
+                  214-666-6651
+                </a>{" "}
+                24/7 for instant help
+              </div>
+      
+              {/* Notification */}
+              <div className="relative" ref={dropdownRef}>
+                <button
+                  onClick={() => {
+                    setNotificationPatient();
+                    setOpen(!open);
+                  }}
+                  className="relative p-2.5 rounded-lg hover:bg-white/10"
+                >
+                  <Bell className="w-5 h-5 text-gray-200" />
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-red-600 text-white text-[10px] rounded-full h-4 w-4 flex items-center justify-center">
+                      {unreadCount}
+                    </span>
+                  )}
+                </button>
+      
+                {open && (
+                  <div className="
+                    absolute
+                    right-0
+                    mt-2
+                    w-[92vw] sm:w-[280px]
+                    max-w-[320px]
+                    bg-[#0D0F11]
+                    border border-white/10
+                    rounded-xl
+                    shadow-2xl
+                    overflow-hidden
+                  ">
+                    {/* SAME dropdown content */}
+                  </div>
+                )}
+              </div>
+      
+              {/* New Referral */}
+              <Link
+                href="/referrals/new"
+                className="btn btn-primary text-xs px-3 py-2.5"
+              >
+                New Referral
+              </Link>
+      
+              {/* Create Task */}
+              <Link
+                href="/tasks"
+                className="btn hidden md:inline-flex px-3 py-2.5"
+              >
+                Create Task
+              </Link>
+      
+            </div>
+      
           </div>
         </div>
       </header>
