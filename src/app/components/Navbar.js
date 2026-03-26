@@ -254,7 +254,17 @@ export default function Navbar() {
                 className="md:hidden btn px-3 py-2"
                 onClick={() => {
                   const sidebar = document.getElementById("sidebar");
-                  if (sidebar) sidebar.classList.toggle("hidden");
+                  if (!sidebar) return;
+
+                  const isHidden = sidebar.classList.contains("hidden");
+
+                  if (isHidden) {
+                    sidebar.classList.remove("hidden");
+                    sidebar.classList.add("flex");
+                  } else {
+                    sidebar.classList.add("hidden");
+                    sidebar.classList.remove("flex");
+                  }
                 }}
               >
                 ☰
@@ -294,7 +304,7 @@ export default function Navbar() {
             <div className="flex items-center justify-end gap-1 sm:gap-2 flex-wrap">
       
               {/* Help Text — only large screens */}
-              <div className="hidden lg:block text-[11px] md:text-sm text-gray-300 whitespace-nowrap">
+              <div className="hidden lg:flex items-center gap-2 text-[11px] md:text-sm text-gray-300 flex-wrap justify-end">
                 Text{" "}
                 <a
                   href="sms:2146666651"
@@ -303,6 +313,27 @@ export default function Navbar() {
                   214-666-6651
                 </a>{" "}
                 24/7 for instant help
+                <span className="text-gray-500">|</span>
+                <a
+                  href="mailto:schedule@cic.clinic"
+                  className="underline text-white"
+                >
+                  schedule@cic.clinic
+                </a>
+                <span className="text-gray-500">|</span>
+                <a
+                  href="mailto:records@cic.clinic"
+                  className="underline text-white"
+                >
+                  records@cic.clinic
+                </a>
+                <span className="text-gray-500">|</span>
+                <a
+                  href="mailto:reduction@cic.clinic"
+                  className="underline text-white"
+                >
+                  reduction@cic.clinic
+                </a>
               </div>
       
               {/* Notification */}
