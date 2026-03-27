@@ -43,6 +43,7 @@ export default function Step5Confirmation({
           onChange={(e) =>
             updateField("confirm_date", e.target.value)
           }
+          disabled
           className={`border rounded px-3 py-2 bg-black text-white ${errors?.confirm_date ? "border-red-500" : "border-gray-600"}`}
         />
 
