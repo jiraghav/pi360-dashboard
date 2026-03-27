@@ -2,7 +2,7 @@
 
 import LocationCard from "./LocationCard";
 
-export default function Step2Locations({ clinic, setClinic }) {
+export default function Step2Locations({ clinic, setClinic, errors }) {
 
   const addLocation = () => {
     setClinic(prev => ({
@@ -72,19 +72,20 @@ export default function Step2Locations({ clinic, setClinic }) {
             location={loc}
             updateLocation={updateLocation}
             removeLocation={removeLocation}
+            errors={errors?.locations?.[index] || {}}
             canRemove={clinic.locations.length > 1}
           />
         ))}
 
       </div>
 
-      <button
+      {/* <button
         type="button"
         onClick={addLocation}
         className="mt-6 bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded"
       >
         + Add Another Clinic Location
-      </button>
+      </button> */}
 
     </div>
 

@@ -2,7 +2,8 @@
 
 export default function Step5Confirmation({
   clinic,
-  updateField
+  updateField,
+  errors
 }) {
 
   const today = new Date().toISOString().split("T")[0];
@@ -23,7 +24,7 @@ export default function Step5Confirmation({
           onChange={(e) =>
             updateField("confirm_name", e.target.value)
           }
-          className="border rounded px-3 py-2 bg-black text-white"
+          className={`border rounded px-3 py-2 bg-black text-white ${errors?.confirm_name ? "border-red-500" : "border-gray-600"}`}
         />
 
         <input
@@ -33,7 +34,7 @@ export default function Step5Confirmation({
           onChange={(e) =>
             updateField("confirm_title", e.target.value)
           }
-          className="border rounded px-3 py-2 bg-black text-white"
+          className={`border rounded px-3 py-2 bg-black text-white ${errors?.confirm_title ? "border-red-500" : "border-gray-600"}`}
         />
 
         <input
@@ -42,8 +43,12 @@ export default function Step5Confirmation({
           onChange={(e) =>
             updateField("confirm_date", e.target.value)
           }
-          className="border rounded px-3 py-2 bg-black text-white"
+          className={`border rounded px-3 py-2 bg-black text-white ${errors?.confirm_date ? "border-red-500" : "border-gray-600"}`}
         />
+
+        {errors?.confirm_name && <p className="text-sm text-red-400 md:col-span-2">{errors.confirm_name}</p>}
+        {errors?.confirm_title && <p className="text-sm text-red-400 md:col-span-2">{errors.confirm_title}</p>}
+        {errors?.confirm_date && <p className="text-sm text-red-400 md:col-span-2">{errors.confirm_date}</p>}
 
       </div>
 

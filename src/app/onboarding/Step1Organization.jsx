@@ -1,17 +1,19 @@
 import { useState, useEffect } from "react";
-import { apiRequest } from "../utils/api";
 
-export default function Step1Organization({ clinic, updateField }) {
+export default function Step1Organization({ clinic, updateField, errors }) {
   
   const [services, setServices] = useState([]);
 
   useEffect(() => {
     const fetchServices = async () => {
       try {
-        const res = await apiRequest("specialities.php");
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_BASE_URL}specialities.php`
+        );
+        const data = await res.json();
 
-        if (res.status) {
-          setServices(res.specialities);
+        if (data.status) {
+          setServices(data.specialities);
         }
       } catch (error) {
         console.error("Failed to load services", error);
@@ -23,6 +25,8 @@ export default function Step1Organization({ clinic, updateField }) {
 
   const inputClass =
     "border rounded px-3 py-2 bg-black text-white w-full border-gray-600";
+  const getInputClass = (field) =>
+    `${inputClass} ${errors?.[field] ? "border-red-500" : ""}`;
 
   return (
     <div className="space-y-8">
@@ -43,7 +47,7 @@ export default function Step1Organization({ clinic, updateField }) {
             placeholder="Facility Name"
             value={clinic.clinic_name}
             onChange={(e) => updateField("clinic_name", e.target.value)}
-            className={inputClass}
+            className={getInputClass("clinic_name")}
             required
           />
 
@@ -53,7 +57,7 @@ export default function Step1Organization({ clinic, updateField }) {
             placeholder="Main Website (optional)"
             value={clinic.website}
             onChange={(e) => updateField("website", e.target.value)}
-            className={inputClass}
+            className={getInputClass("website")}
           />
           
           <div>
@@ -61,7 +65,7 @@ export default function Step1Organization({ clinic, updateField }) {
               name="service"
               value={clinic.service}
               onChange={(e) => updateField("service", e.target.value)}
-              className={inputClass}
+              className={getInputClass("service")}
               required
             >
               <option value="">Select Service</option>
@@ -72,7 +76,11 @@ export default function Step1Organization({ clinic, updateField }) {
                 </option>
               ))}
             </select>
+            {errors?.service && <p className="mt-1 text-sm text-red-400">{errors.service}</p>}
           </div>
+
+          {errors?.clinic_name && <p className="text-sm text-red-400 md:col-span-2">{errors.clinic_name}</p>}
+          {errors?.website && <p className="text-sm text-red-400 md:col-span-2">{errors.website}</p>}
 
         </div>
       </div>
@@ -93,7 +101,7 @@ export default function Step1Organization({ clinic, updateField }) {
             onChange={(e) =>
               updateField("primary_contact_name", e.target.value)
             }
-            className={inputClass}
+            className={getInputClass("primary_contact_name")}
           />
 
           <input
@@ -104,7 +112,7 @@ export default function Step1Organization({ clinic, updateField }) {
             onChange={(e) =>
               updateField("primary_contact_title", e.target.value)
             }
-            className={inputClass}
+            className={getInputClass("primary_contact_title")}
           />
 
           <input
@@ -116,7 +124,7 @@ export default function Step1Organization({ clinic, updateField }) {
             onChange={(e) =>
               updateField("primary_contact_phone", e.target.value)
             }
-            className={inputClass}
+            className={getInputClass("primary_contact_phone")}
           />
 
           <input
@@ -128,8 +136,13 @@ export default function Step1Organization({ clinic, updateField }) {
             onChange={(e) =>
               updateField("primary_contact_email", e.target.value)
             }
-            className={inputClass}
+            className={getInputClass("primary_contact_email")}
           />
+
+          {errors?.primary_contact_name && <p className="text-sm text-red-400 md:col-span-2">{errors.primary_contact_name}</p>}
+          {errors?.primary_contact_title && <p className="text-sm text-red-400 md:col-span-2">{errors.primary_contact_title}</p>}
+          {errors?.primary_contact_phone && <p className="text-sm text-red-400 md:col-span-2">{errors.primary_contact_phone}</p>}
+          {errors?.primary_contact_email && <p className="text-sm text-red-400 md:col-span-2">{errors.primary_contact_email}</p>}
 
         </div>
       </div>
@@ -156,7 +169,7 @@ export default function Step1Organization({ clinic, updateField }) {
               onChange={(e) =>
                 updateField("referral_method", e.target.value)
               }
-              className={inputClass}
+              className={getInputClass("referral_method")}
             >
               <option value="">Select Method</option>
               <option>Email</option>
@@ -173,9 +186,11 @@ export default function Step1Organization({ clinic, updateField }) {
                 onChange={(e) =>
                   updateField("referral_method_other", e.target.value)
                 }
-                className={`${inputClass} mt-2`}
+                className={`${getInputClass("referral_method_other")} mt-2`}
               />
             )}
+            {errors?.referral_method && <p className="mt-1 text-sm text-red-400">{errors.referral_method}</p>}
+            {errors?.referral_method_other && <p className="mt-1 text-sm text-red-400">{errors.referral_method_other}</p>}
           </div>
 
           <input
@@ -186,7 +201,7 @@ export default function Step1Organization({ clinic, updateField }) {
             onChange={(e) =>
               updateField("default_referral_recipient", e.target.value)
             }
-            className={inputClass}
+            className={getInputClass("default_referral_recipient")}
           />
 
           <textarea
@@ -198,8 +213,11 @@ export default function Step1Organization({ clinic, updateField }) {
               updateField("default_emails", e.target.value)
             }
             rows={3}
-            className={inputClass}
+            className={getInputClass("default_emails")}
           />
+
+          {errors?.default_referral_recipient && <p className="text-sm text-red-400">{errors.default_referral_recipient}</p>}
+          {errors?.default_emails && <p className="text-sm text-red-400">{errors.default_emails}</p>}
 
         </div>
       </div>
@@ -233,13 +251,17 @@ export default function Step1Organization({ clinic, updateField }) {
               name="emr_usage"
               required
               value="no"
-              checked={clinic.emr_usage === "no"}
-              onChange={(e) => updateField("emr_usage", e.target.value)}
-            />
-            No
-          </label>
+            checked={clinic.emr_usage === "no"}
+            onChange={(e) => updateField("emr_usage", e.target.value)}
+          />
+          No
+        </label>
 
         </div>
+
+        {errors?.emr_usage && (
+          <p className="mb-3 text-sm text-red-400">{errors.emr_usage}</p>
+        )}
 
         <textarea
           name="emr_notes"
@@ -267,7 +289,7 @@ export default function Step1Organization({ clinic, updateField }) {
           placeholder="Pay-to Name"
           value={clinic.check_pay_to}
           onChange={(e) => updateField("check_pay_to", e.target.value)}
-          className={inputClass}
+          className={getInputClass("check_pay_to")}
         />
 
         <textarea
@@ -276,8 +298,11 @@ export default function Step1Organization({ clinic, updateField }) {
           value={clinic.check_address}
           onChange={(e) => updateField("check_address", e.target.value)}
           rows={3}
-          className={`${inputClass} mt-2`}
+          className={`${getInputClass("check_address")} mt-2`}
         />
+
+        {errors?.check_pay_to && <p className="mt-2 text-sm text-red-400">{errors.check_pay_to}</p>}
+        {errors?.check_address && <p className="mt-2 text-sm text-red-400">{errors.check_address}</p>}
 
       </div>
 

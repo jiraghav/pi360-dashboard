@@ -1,6 +1,6 @@
 "use client";
 
-export default function Step3Agreement({ clinic, updateField }) {
+export default function Step3Agreement({ clinic, updateField, errors }) {
 
   return (
     <div className="space-y-8">
@@ -52,6 +52,12 @@ export default function Step3Agreement({ clinic, updateField }) {
 
         </div>
 
+        {errors?.communication_agree && (
+          <p className="mt-4 text-red-400 font-medium text-sm">
+            {errors.communication_agree}
+          </p>
+        )}
+
       </div>
 
 
@@ -96,6 +102,12 @@ export default function Step3Agreement({ clinic, updateField }) {
           </label>
 
         </div>
+
+        {errors?.emr_agree && (
+          <p className="mt-4 text-red-400 font-medium text-sm">
+            {errors.emr_agree}
+          </p>
+        )}
 
       </div>
 

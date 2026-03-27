@@ -2,23 +2,30 @@
 
 import { useEffect, useState } from "react";
 import Select from "react-select";
-import { apiRequest } from "../utils/api";
 
 export default function LocationCard({
   index,
   location,
   updateLocation,
-  removeLocation
+  removeLocation,
+  errors = {}
 }) {
   const [serviceOptions, setServiceOptions] = useState([]);
+  const [stateOptions, setStateOptions] = useState([]);
+  const [cityOptions, setCityOptions] = useState([]);
+
+  const publicApiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL.replace(/lawyer_apis\/?$/, "");
 
   useEffect(() => {
     const fetchServices = async () => {
       try {
-        const res = await apiRequest("services.php");
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_BASE_URL}services.php`
+        );
+        const data = await res.json();
 
-        if (res.status) {
-          const options = res.services.map((s) => ({
+        if (data.status) {
+          const options = data.services.map((s) => ({
             value: s.id,
             label: s.name
           }));
@@ -33,9 +40,67 @@ export default function LocationCard({
     fetchServices();
   }, []);
 
+  useEffect(() => {
+    const fetchStates = async () => {
+      try {
+        const res = await fetch(`${publicApiBaseUrl}get_states.php`);
+        const data = await res.json();
+
+        const options = (Array.isArray(data) ? data : []).map((state) => ({
+          value: state.state_id,
+          label: state.state_name,
+        }));
+
+        setStateOptions(options);
+      } catch (err) {
+        console.error("Failed to load states", err);
+      }
+    };
+
+    fetchStates();
+  }, [publicApiBaseUrl]);
+
+  useEffect(() => {
+    const fetchCities = async () => {
+      if (!location.state) {
+        setCityOptions([]);
+        return;
+      }
+
+      try {
+        const res = await fetch(`${publicApiBaseUrl}get_cities.php`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ state: location.state }),
+        });
+        const data = await res.json();
+
+        const options = (Array.isArray(data) ? data : []).map((city) => ({
+          value: city,
+          label: city,
+        }));
+
+        setCityOptions(options);
+      } catch (err) {
+        console.error("Failed to load cities", err);
+      }
+    };
+
+    fetchCities();
+  }, [location.state, publicApiBaseUrl]);
+
   const handleChange = (field, value) => {
+    if (field === "website") {
+      value = normalizeUrl(value);
+    }
+
     updateLocation(index, field, value);
   };
+
+  const inputClass = (field) =>
+    `border rounded px-3 py-2 bg-black text-white ${errors?.[field] ? "border-red-500" : "border-gray-600"}`;
 
   return (
 
@@ -67,7 +132,7 @@ export default function LocationCard({
           required
           value={location.clinic_name}
           onChange={(e) => handleChange("clinic_name", e.target.value)}
-          className="border rounded px-3 py-2 bg-black text-white"
+          className={inputClass("clinic_name")}
         />
 
         <input
@@ -75,23 +140,27 @@ export default function LocationCard({
           required
           value={location.street}
           onChange={(e) => handleChange("street", e.target.value)}
-          className="border rounded px-3 py-2 bg-black text-white"
+          className={inputClass("street")}
         />
 
-        <input
-          placeholder="City"
-          required
-          value={location.city}
-          onChange={(e) => handleChange("city", e.target.value)}
-          className="border rounded px-3 py-2 bg-black text-white"
+        <Select
+          options={stateOptions}
+          value={stateOptions.find((option) => option.value === location.state) || null}
+          onChange={(selected) => {
+            handleChange("state", selected?.value || "");
+            handleChange("city", "");
+          }}
+          placeholder="Select State"
+          styles={selectStyles(errors?.state)}
         />
 
-        <input
-          placeholder="State"
-          required
-          value={location.state}
-          onChange={(e) => handleChange("state", e.target.value)}
-          className="border rounded px-3 py-2 bg-black text-white"
+        <Select
+          options={cityOptions}
+          value={cityOptions.find((option) => option.value === location.city) || null}
+          onChange={(selected) => handleChange("city", selected?.value || "")}
+          placeholder="Select City"
+          isDisabled={!location.state}
+          styles={selectStyles(errors?.city)}
         />
 
         <input
@@ -99,7 +168,7 @@ export default function LocationCard({
           required
           value={location.zip}
           onChange={(e) => handleChange("zip", e.target.value)}
-          className="border rounded px-3 py-2 bg-black text-white"
+          className={inputClass("zip")}
         />
 
         <input
@@ -107,23 +176,38 @@ export default function LocationCard({
           required
           value={location.phone}
           onChange={(e) => handleChange("phone", e.target.value)}
-          className="border rounded px-3 py-2 bg-black text-white"
+          className={inputClass("phone")}
         />
 
         <input
+          type="email"
           placeholder="Location Email"
           required
           value={location.email}
           onChange={(e) => handleChange("email", e.target.value)}
-          className="border rounded px-3 py-2 bg-black text-white"
+          className={inputClass("email")}
         />
 
         <input
+          type="url"
           placeholder="Website (optional)"
           value={location.website}
           onChange={(e) => handleChange("website", e.target.value)}
-          className="border rounded px-3 py-2 bg-black text-white"
+          className={inputClass("website")}
         />
+
+        {Object.values(errors).length > 0 && (
+          <div className="md:col-span-2 space-y-1">
+            {errors.clinic_name && <p className="text-sm text-red-400">{errors.clinic_name}</p>}
+            {errors.street && <p className="text-sm text-red-400">{errors.street}</p>}
+            {errors.city && <p className="text-sm text-red-400">{errors.city}</p>}
+            {errors.state && <p className="text-sm text-red-400">{errors.state}</p>}
+            {errors.zip && <p className="text-sm text-red-400">{errors.zip}</p>}
+            {errors.phone && <p className="text-sm text-red-400">{errors.phone}</p>}
+            {errors.email && <p className="text-sm text-red-400">{errors.email}</p>}
+            {errors.website && <p className="text-sm text-red-400">{errors.website}</p>}
+          </div>
+        )}
 
       </div>
 
@@ -137,7 +221,6 @@ export default function LocationCard({
 
       <Select
         isMulti
-        required
         options={serviceOptions}
         value={serviceOptions.filter(opt =>
           location.services.includes(opt.value)
@@ -149,50 +232,12 @@ export default function LocationCard({
           )
         }
         placeholder="Select Services..."
-        styles={{
-          control: (base) => ({
-            ...base,
-            backgroundColor: "#000",
-            borderColor: "#374151",
-            color: "#fff"
-          }),
-          menu: (base) => ({
-            ...base,
-            backgroundColor: "#000",
-            color: "#fff"
-          }),
-          option: (base, state) => ({
-            ...base,
-            backgroundColor: state.isFocused ? "#1f2937" : "#000",
-            color: "#fff",
-            cursor: "pointer"
-          }),
-          multiValue: (base) => ({
-            ...base,
-            backgroundColor: "#1f2937"
-          }),
-          multiValueLabel: (base) => ({
-            ...base,
-            color: "#fff"
-          }),
-          multiValueRemove: (base) => ({
-            ...base,
-            color: "#9ca3af",
-            ":hover": {
-              backgroundColor: "#ef4444",
-              color: "#fff"
-            }
-          }),
-          input: (base) => ({
-            ...base,
-            color: "#fff"
-          }),
-          singleValue: (base) => ({
-            ...base,
-            color: "#fff"
-          })
-        }}
+        styles={selectStyles(errors?.services)}
       />
+
+        {errors?.services && (
+          <p className="text-sm text-red-400">{errors.services}</p>
+        )}
 
         <input
           placeholder="Other service"
@@ -261,4 +306,68 @@ export default function LocationCard({
 
     </div>
   );
+}
+
+function selectStyles(hasError) {
+  return {
+    control: (base) => ({
+      ...base,
+      backgroundColor: "#000",
+      borderColor: hasError ? "#ef4444" : "#374151",
+      color: "#fff"
+    }),
+    menu: (base) => ({
+      ...base,
+      backgroundColor: "#000",
+      color: "#fff"
+    }),
+    option: (base, state) => ({
+      ...base,
+      backgroundColor: state.isFocused ? "#1f2937" : "#000",
+      color: "#fff",
+      cursor: "pointer"
+    }),
+    multiValue: (base) => ({
+      ...base,
+      backgroundColor: "#1f2937"
+    }),
+    multiValueLabel: (base) => ({
+      ...base,
+      color: "#fff"
+    }),
+    multiValueRemove: (base) => ({
+      ...base,
+      color: "#9ca3af",
+      ":hover": {
+        backgroundColor: "#ef4444",
+        color: "#fff"
+      }
+    }),
+    input: (base) => ({
+      ...base,
+      color: "#fff"
+    }),
+    singleValue: (base) => ({
+      ...base,
+      color: "#fff"
+    })
+  };
+}
+
+function normalizeUrl(value) {
+  const trimmedValue = (value || "").trim();
+
+  if (!trimmedValue) {
+    return "";
+  }
+
+  if (/^https?:\/\//i.test(trimmedValue)) {
+    return trimmedValue;
+  }
+
+  if (/^[a-z0-9.-]+\.[a-z]{2,}(\/.*)?$/i.test(trimmedValue)) {
+    return `https://${trimmedValue}`;
+  }
+
+  return trimmedValue;
 }
