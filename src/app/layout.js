@@ -14,16 +14,17 @@ import AuthGuard from "./context/AuthGuard";
 
 function LayoutContent({ children }) {
   const pathname = usePathname();
-  const route = routeMap[pathname] || { title: "Dashboard" };
+  const isOnboardingPath = pathname === "/onboarding" || pathname.startsWith("/onboarding/");
+  const route = routeMap[pathname] || (isOnboardingPath ? { title: "Clinic Onboarding" } : { title: "Dashboard" });
   const [pageTitle, setPageTitle] = useState(route.title);
   const { toast, hideToast } = useToast(false);
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
-    const route = routeMap[pathname] || { title: "Dashboard" };
+    const route = routeMap[pathname] || (isOnboardingPath ? { title: "Clinic Onboarding" } : { title: "Dashboard" });
     setPageTitle(route.title);
     document.title = route.title;
-  }, [pathname]);
+  }, [pathname, isOnboardingPath]);
   
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768); // Tailwind md breakpoint
@@ -37,7 +38,7 @@ function LayoutContent({ children }) {
     pathname === "/login" ||
     pathname === "/register" ||
     pathname === "/magic-login" ||
-    pathname === "/onboarding";
+    isOnboardingPath;
 
   return (
     <>

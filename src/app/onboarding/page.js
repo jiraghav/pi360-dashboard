@@ -7,7 +7,7 @@ import Step3Agreement from "./Step3Agreement";
 import Step4Notes from "./Step4Notes";
 import Step5Confirmation from "./Step5Confirmation";
 
-export default function ClinicOnboardingForm() {
+export default function ClinicOnboardingForm({ linkedUserUuid = "" }) {
 
   const [step, setStep] = useState(1);
   const [errors, setErrors] = useState({});
@@ -134,6 +134,7 @@ export default function ClinicOnboardingForm() {
   };
 
   const [clinic, setClinic] = useState({
+    user_uuid: linkedUserUuid,
     clinic_name: "",
     website: "",
     service: "",
@@ -178,6 +179,13 @@ export default function ClinicOnboardingForm() {
     confirm_date: (new Date().toISOString().split("T")[0])
 ,
   });
+
+  useEffect(() => {
+    setClinic((prev) => ({
+      ...prev,
+      user_uuid: linkedUserUuid || "",
+    }));
+  }, [linkedUserUuid]);
 
   const back = () => {
     setErrors({});
