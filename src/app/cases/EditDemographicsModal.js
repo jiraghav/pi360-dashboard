@@ -19,11 +19,14 @@ export default function EditDemographicsModal({
   const fnameRef = useRef(null);
 
   const { showToast } = useToast();
-  const { lawyers, caseTypes, languages, states, lawyerEmails } = useFetchOptions({
+  const { lawyers, caseTypes, languages, states, lawyerEmails: globalCaseTeamEmails } = useFetchOptions({
     fetchLawyers: true,
     fetchCaseTypes: true,
     fetchLanguages: true,
     fetchStates: true,
+    fetchLawyerEmails: true,
+  });
+  const { lawyerEmails: patientCaseTeamEmails } = useFetchOptions({
     fetchLawyerEmails: true,
     pid: selectedCase?.pid
   });
@@ -76,13 +79,25 @@ export default function EditDemographicsModal({
     }
     
     const caseManagers = selectedCase.case_manager_emails;
+    const hasPatientTeamEmails =
+      (Array.isArray(selectedCase?.lawyer_emails) && selectedCase.lawyer_emails.length > 0) ||
+      (typeof selectedCase?.lawyer_emails === "string" && selectedCase.lawyer_emails.trim() !== "") ||
+      (Array.isArray(selectedCase?.paralegal_emails) && selectedCase.paralegal_emails.length > 0) ||
+      (typeof selectedCase?.paralegal_emails === "string" && selectedCase.paralegal_emails.trim() !== "") ||
+      (Array.isArray(caseManagers) && caseManagers.length > 0) ||
+      (typeof caseManagers === "string" && caseManagers.trim() !== "");
+    const usePatientCaseTeam =
+      selectedCase?.use_patient_case_team === true ||
+      selectedCase?.use_patient_case_team === 1 ||
+      selectedCase?.use_patient_case_team === "1" ||
+      hasPatientTeamEmails;
 
     const hasCaseManager =
       Array.isArray(caseManagers)
         ? caseManagers.length > 0
         : typeof caseManagers === "string" && caseManagers.trim() !== "";
 
-    if (!hasCaseManager) {
+    if (usePatientCaseTeam && !hasCaseManager) {
       showToast("error", "Please add at least one case manager before saving.");
       return;
     }
@@ -156,7 +171,8 @@ export default function EditDemographicsModal({
                 caseTypes={caseTypes}
                 languages={languages}
                 states={states}
-                lawyerEmails={lawyerEmails}
+                lawyerEmails={globalCaseTeamEmails}
+                patientCaseTeamEmails={patientCaseTeamEmails}
               />
 
               {/* Buttons */}

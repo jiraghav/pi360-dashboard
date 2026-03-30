@@ -42,9 +42,10 @@ export default function NewPatientForm() {
     try {
       const formData = new FormData(formEl);
       
-      const caseManagers = formData.get("case_manager_emails"); // hidden field name
+      const usePatientCaseTeam = formData.get("use_patient_case_team") === "1";
+      const caseManagers = formData.get("case_manager_emails");
 
-      if (!caseManagers || caseManagers.trim() === "") {
+      if (usePatientCaseTeam && (!caseManagers || caseManagers.trim() === "")) {
         showToast("error", "Please add at least one case manager before continuing.");
         return;
       }
