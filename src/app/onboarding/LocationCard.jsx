@@ -219,7 +219,7 @@ export default function LocationCard({
           className={inputClass("phone")}
         />
 
-        <div className="md:col-span-2">
+        <div>
           <div className="flex flex-wrap gap-2 mb-2">
             {locationEmails.map((email, emailIndex) => (
               <span
