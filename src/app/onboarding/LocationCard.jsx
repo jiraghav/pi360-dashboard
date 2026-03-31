@@ -13,8 +13,11 @@ export default function LocationCard({
   const [serviceOptions, setServiceOptions] = useState([]);
   const [stateOptions, setStateOptions] = useState([]);
   const [cityOptions, setCityOptions] = useState([]);
+  const [emailInput, setEmailInput] = useState("");
+  const [emailError, setEmailError] = useState("");
 
   const publicApiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL.replace(/lawyer_apis\/?$/, "");
+  const locationEmails = normalizeEmailList(location.email);
 
   useEffect(() => {
     const fetchServices = async () => {
@@ -99,6 +102,41 @@ export default function LocationCard({
     updateLocation(index, field, value);
   };
 
+  const handleAddEmail = (e) => {
+    if (e.key !== "Enter") return;
+
+    e.preventDefault();
+
+    const email = emailInput.trim();
+
+    if (!email) {
+      setEmailError("Email cannot be empty.");
+      return;
+    }
+
+    if (!isValidEmail(email)) {
+      setEmailError("Enter a valid email address.");
+      return;
+    }
+
+    if (locationEmails.includes(email)) {
+      setEmailError("This email is already added.");
+      return;
+    }
+
+    handleChange("email", [...locationEmails, email].join(", "));
+    setEmailInput("");
+    setEmailError("");
+  };
+
+  const handleRemoveEmail = (emailToRemove) => {
+    handleChange(
+      "email",
+      locationEmails.filter((email) => email !== emailToRemove).join(", ")
+    );
+    setEmailError("");
+  };
+
   const inputClass = (field) =>
     `border rounded px-3 py-2 bg-black text-white ${errors?.[field] ? "border-red-500" : "border-gray-600"}`;
 
@@ -152,6 +190,7 @@ export default function LocationCard({
           }}
           placeholder="Select State"
           styles={selectStyles(errors?.state)}
+          required
         />
 
         <Select
@@ -161,6 +200,7 @@ export default function LocationCard({
           placeholder="Select City"
           isDisabled={!location.state}
           styles={selectStyles(errors?.city)}
+          required
         />
 
         <input
@@ -179,14 +219,42 @@ export default function LocationCard({
           className={inputClass("phone")}
         />
 
-        <input
-          type="email"
-          placeholder="Location Email"
-          required
-          value={location.email}
-          onChange={(e) => handleChange("email", e.target.value)}
-          className={inputClass("email")}
-        />
+        <div className="md:col-span-2">
+          <div className="flex flex-wrap gap-2 mb-2">
+            {locationEmails.map((email, emailIndex) => (
+              <span
+                key={`${email}-${emailIndex}`}
+                className="flex items-center gap-2 bg-gray-800 text-sm text-white px-3 py-1 rounded-full"
+              >
+                {email}
+                <button
+                  type="button"
+                  onClick={() => handleRemoveEmail(email)}
+                  className="text-red-400 hover:text-red-300"
+                >
+                  x
+                </button>
+              </span>
+            ))}
+          </div>
+
+          <input
+            type="email"
+            placeholder="Location Email (press Enter to add)"
+            required={locationEmails.length === 0}
+            value={emailInput}
+            onChange={(e) => {
+              setEmailInput(e.target.value);
+              if (emailError) setEmailError("");
+            }}
+            onKeyDown={handleAddEmail}
+            className={`w-full ${inputClass("email")}`}
+          />
+
+          {(emailError || errors?.email) && (
+            <p className="text-sm text-red-400 mt-1">{emailError || errors.email}</p>
+          )}
+        </div>
 
         <input
           type="url"
@@ -204,7 +272,6 @@ export default function LocationCard({
             {errors.state && <p className="text-sm text-red-400">{errors.state}</p>}
             {errors.zip && <p className="text-sm text-red-400">{errors.zip}</p>}
             {errors.phone && <p className="text-sm text-red-400">{errors.phone}</p>}
-            {errors.email && <p className="text-sm text-red-400">{errors.email}</p>}
             {errors.website && <p className="text-sm text-red-400">{errors.website}</p>}
           </div>
         )}
@@ -370,4 +437,23 @@ function normalizeUrl(value) {
   }
 
   return trimmedValue;
+}
+
+function normalizeEmailList(value) {
+  if (Array.isArray(value)) {
+    return value.map((email) => email.trim()).filter(Boolean);
+  }
+
+  if (typeof value === "string") {
+    return value
+      .split(",")
+      .map((email) => email.trim())
+      .filter(Boolean);
+  }
+
+  return [];
+}
+
+function isValidEmail(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test((email || "").trim());
 }

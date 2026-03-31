@@ -5,7 +5,8 @@ import Step1Organization from "./Step1Organization";
 import Step2Locations from "./Step2Locations";
 import Step3Agreement from "./Step3Agreement";
 import Step4Notes from "./Step4Notes";
-import Step5Confirmation from "./Step5Confirmation";
+import Step5ContractSign from "./Step5ContractSign";
+import Step6Confirmation from "./Step6Confirmation";
 
 export default function ClinicOnboardingForm({ linkedUserUuid = "" }) {
 
@@ -17,6 +18,21 @@ export default function ClinicOnboardingForm({ linkedUserUuid = "" }) {
 
   const isValidEmail = (value) =>
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test((value || "").trim());
+
+  const normalizeEmailList = (value) => {
+    if (Array.isArray(value)) {
+      return value.map((email) => email.trim()).filter(Boolean);
+    }
+
+    if (typeof value === "string") {
+      return value
+        .split(",")
+        .map((email) => email.trim())
+        .filter(Boolean);
+    }
+
+    return [];
+  };
 
   const getPhoneDigits = (value) => (value || "").replace(/\D/g, "");
 
@@ -87,7 +103,10 @@ export default function ClinicOnboardingForm({ linkedUserUuid = "" }) {
       if (!hasText(location.state, 2)) entry.state = "Select a state.";
       if (!/^\d{5}(-\d{4})?$/.test((location.zip || "").trim())) entry.zip = "Enter a valid ZIP code.";
       if (getPhoneDigits(location.phone).length < 10) entry.phone = "Enter a valid phone number.";
-      if (!isValidEmail(location.email)) entry.email = "Enter a valid email address.";
+      const locationEmails = normalizeEmailList(location.email);
+      if (locationEmails.length === 0 || !locationEmails.every(isValidEmail)) {
+        entry.email = "Enter at least one valid email address.";
+      }
       if (location.website && !isValidUrl(location.website)) entry.website = "Enter a valid website URL.";
       if (!Array.isArray(location.services) || location.services.length === 0) entry.services = "Select at least one speciality.";
 
@@ -115,6 +134,16 @@ export default function ClinicOnboardingForm({ linkedUserUuid = "" }) {
 
   const validateStep5 = () => {
     const nextErrors = {};
+
+    if (!clinic.signature_data_url) {
+      nextErrors.signature_data_url = "Please add your signature before continuing.";
+    }
+
+    return nextErrors;
+  };
+
+  const validateStep6 = () => {
+    const nextErrors = {};
     const today = new Date().toISOString().split("T")[0];
 
     if (!hasText(clinic.confirm_name, 3)) nextErrors.confirm_name = "Enter the full name of the person completing this form.";
@@ -130,6 +159,7 @@ export default function ClinicOnboardingForm({ linkedUserUuid = "" }) {
     if (currentStep === 2) return validateStep2();
     if (currentStep === 3) return validateStep3();
     if (currentStep === 5) return validateStep5();
+    if (currentStep === 6) return validateStep6();
     return {};
   };
 
@@ -165,7 +195,13 @@ export default function ClinicOnboardingForm({ linkedUserUuid = "" }) {
         phone: "",
         email: "",
         website: "",
-        services: []
+        services: [],
+        service_other: "",
+        age_range: "",
+        languages_enabled: false,
+        languages: "",
+        insurance: "",
+        requirements: ""
       }
     ],
 
@@ -173,6 +209,7 @@ export default function ClinicOnboardingForm({ linkedUserUuid = "" }) {
     emr_agree: "",
 
     additional_notes: "",
+    signature_data_url: "",
 
     confirm_name: "",
     confirm_title: "",
@@ -231,10 +268,10 @@ export default function ClinicOnboardingForm({ linkedUserUuid = "" }) {
     setStep((s) => s + 1);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const nextErrors = getStepErrors(5);
+    const nextErrors = getStepErrors(6);
 
     if (Object.keys(nextErrors).length > 0) {
       setErrors(nextErrors);
@@ -244,28 +281,27 @@ export default function ClinicOnboardingForm({ linkedUserUuid = "" }) {
     setSubmitError("");
     setIsSubmitting(true);
 
-    fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}create_facility.php`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(clinic),
-    })
-      .then(async (response) => {
-        const data = await response.json();
-
-        if (!response.ok || data?.status === false) {
-          throw new Error(data?.message || data?.error || "Something went wrong while submitting the onboarding form.");
-        }
-
-        setSubmitSuccess(data?.data?.facility || data?.facility || null);
-      })
-      .catch((error) => {
-        setSubmitError(error.message || "Something went wrong while submitting the onboarding form.");
-      })
-      .finally(() => {
-        setIsSubmitting(false);
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}create_facility.php`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(clinic),
       });
+
+      const data = await response.json();
+
+      if (!response.ok || data?.status === false) {
+        throw new Error(data?.message || data?.error || "Something went wrong while submitting the onboarding form.");
+      }
+
+      setSubmitSuccess(data?.data?.facility || data?.facility || null);
+    } catch (error) {
+      setSubmitError(error.message || "Something went wrong while submitting the onboarding form.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
   
   useEffect(() => {
@@ -303,10 +339,11 @@ export default function ClinicOnboardingForm({ linkedUserUuid = "" }) {
             <div className={step >= 2 ? "font-bold text-blue-400" : ""}>2. Locations</div>
             <div className={step >= 3 ? "font-bold text-blue-400" : ""}>3. Review</div>
             <div className={step >= 4 ? "font-bold text-blue-400" : ""}>4. Notes</div>
-            <div className={step >= 5 ? "font-bold text-blue-400" : ""}>5. Confirmation</div>
+            <div className={step >= 5 ? "font-bold text-blue-400" : ""}>5. Contract Sign</div>
+            <div className={step >= 6 ? "font-bold text-blue-400" : ""}>6. Confirmation</div>
           </div>
 
-          <form onSubmit={step === 5 ? handleSubmit : handleNext}>
+          <form onSubmit={step === 6 ? handleSubmit : handleNext}>
 
             {step === 1 && (
               <Step1Organization
@@ -341,7 +378,15 @@ export default function ClinicOnboardingForm({ linkedUserUuid = "" }) {
             )}
 
             {step === 5 && (
-              <Step5Confirmation
+              <Step5ContractSign
+                clinic={clinic}
+                updateField={updateField}
+                errors={errors}
+              />
+            )}
+
+            {step === 6 && (
+              <Step6Confirmation
                 clinic={clinic}
                 updateField={updateField}
                 errors={errors}
@@ -373,7 +418,7 @@ export default function ClinicOnboardingForm({ linkedUserUuid = "" }) {
                 className="bg-blue-600 hover:bg-blue-700 px-6 py-2 rounded w-full sm:w-auto disabled:opacity-60"
                 disabled={isSubmitting}
               >
-                {step === 5 ? (isSubmitting ? "Submitting..." : "Submit") : "Next Step"}
+                {step === 6 ? (isSubmitting ? "Submitting..." : "Submit") : "Next Step"}
               </button>
 
             </div>

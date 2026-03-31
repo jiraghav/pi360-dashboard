@@ -1,6 +1,6 @@
 "use client";
 
-export default function Step5Confirmation({
+export default function Step6Confirmation({
   clinic,
   updateField,
   errors
@@ -12,7 +12,7 @@ export default function Step5Confirmation({
     <div className="space-y-8">
 
       <h2 className="text-xl font-bold">
-        Step 5: Confirmation
+        Step 6: Confirmation
       </h2>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -64,13 +64,9 @@ export default function Step5Confirmation({
           you agree to the terms above.
         </p>
 
-        <p className="mb-2">
-          Submission instructions: Return via email / fax / upload.
-        </p>
-
         <p>
-          After submission: CIC will attach the contract selected
-          in the facility profile.
+          On submission, the signed contract PDF will be saved together
+          with your onboarding form.
         </p>
 
       </div>
