@@ -10,9 +10,13 @@ export default function Step1Organization({
   errors
 }) {
   const [services, setServices] = useState([]);
+  const [addressInputValue, setAddressInputValue] = useState(clinic.check_address || "");
   const addressInputRef = useRef(null);
   const autocompleteRef = useRef(null);
   const geocoderRef = useRef(null);
+  const blurTimeoutRef = useRef(null);
+  const selectingSuggestionRef = useRef(false);
+  const resolveAddressRef = useRef(null);
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY,
     libraries,
@@ -55,6 +59,31 @@ export default function Step1Organization({
         : components.postalCode,
   });
 
+  const applyResolvedAddress = (placeLike = {}) => {
+    const addressComponents = normalizeAddressComponents(
+      mapAddressComponents(placeLike.address_components || [])
+    );
+    const composedAddress = buildAddressFromComponents(addressComponents);
+    const selectedAddress =
+      composedAddress || placeLike.formatted_address || addressInputRef.current?.value || "";
+
+    if (!selectedAddress) {
+      return;
+    }
+
+    setAddressInputValue(selectedAddress);
+    updateField("check_address", selectedAddress);
+    setCheckAddressMeta({
+      placeId: placeLike.place_id || "",
+      formattedAddress: selectedAddress,
+      addressComponents,
+    });
+  };
+
+  useEffect(() => {
+    setAddressInputValue(clinic.check_address || "");
+  }, [clinic.check_address]);
+
   useEffect(() => {
     const fetchServices = async () => {
       try {
@@ -93,23 +122,20 @@ export default function Step1Organization({
     autocompleteRef.current = autocomplete;
 
     const listener = autocomplete.addListener("place_changed", () => {
-      const place = autocomplete.getPlace();
-      const addressComponents = normalizeAddressComponents(
-        mapAddressComponents(place.address_components || [])
-      );
-      const composedAddress = buildAddressFromComponents(addressComponents);
-      const selectedAddress =
-        composedAddress || place.formatted_address || addressInputRef.current.value;
+      if (blurTimeoutRef.current) {
+        clearTimeout(blurTimeoutRef.current);
+        blurTimeoutRef.current = null;
+      }
 
-      updateField("check_address", selectedAddress);
-      setCheckAddressMeta({
-        placeId: place.place_id || "",
-        formattedAddress: selectedAddress,
-        addressComponents,
-      });
+      const place = autocomplete.getPlace();
+      applyResolvedAddress(place);
     });
 
     return () => {
+      if (blurTimeoutRef.current) {
+        clearTimeout(blurTimeoutRef.current);
+        blurTimeoutRef.current = null;
+      }
       window.google.maps.event.removeListener(listener);
       autocompleteRef.current = null;
     };
@@ -138,23 +164,51 @@ export default function Step1Organization({
         }
 
         const result = results[0];
-        const addressComponents = normalizeAddressComponents(
-          mapAddressComponents(result.address_components || [])
-        );
-        const resolvedAddress =
-          buildAddressFromComponents(addressComponents) ||
-          result.formatted_address ||
-          inputValue;
-
-        updateField("check_address", resolvedAddress);
-        setCheckAddressMeta({
-          placeId: result.place_id || "",
-          formattedAddress: resolvedAddress,
-          addressComponents,
-        });
+        applyResolvedAddress(result);
       }
     );
   };
+
+  resolveAddressRef.current = resolveTypedAddress;
+
+  useEffect(() => {
+    const handleMouseDown = (event) => {
+      if (event.target instanceof Element && event.target.closest(".pac-item")) {
+        selectingSuggestionRef.current = true;
+      }
+    };
+
+    const handleMouseUp = () => {
+      window.setTimeout(() => {
+        selectingSuggestionRef.current = false;
+      }, 0);
+    };
+
+    const handleSuggestionClick = (event) => {
+      if (!(event.target instanceof Element) || !event.target.closest(".pac-item")) {
+        return;
+      }
+
+      window.setTimeout(() => {
+        const inputValue = addressInputRef.current?.value || "";
+        setAddressInputValue(inputValue);
+        updateField("check_address", inputValue);
+        resolveAddressRef.current?.(inputValue);
+      }, 150);
+    };
+
+    document.addEventListener("mousedown", handleMouseDown);
+    document.addEventListener("pointerdown", handleMouseDown);
+    document.addEventListener("mouseup", handleMouseUp);
+    document.addEventListener("click", handleSuggestionClick);
+
+    return () => {
+      document.removeEventListener("mousedown", handleMouseDown);
+      document.removeEventListener("pointerdown", handleMouseDown);
+      document.removeEventListener("mouseup", handleMouseUp);
+      document.removeEventListener("click", handleSuggestionClick);
+    };
+  }, []);
 
   const inputClass =
     "border rounded px-3 py-2 bg-black text-white w-full border-gray-600";
@@ -438,9 +492,26 @@ export default function Step1Organization({
           autoComplete="street-address"
           placeholder="Start typing a full mailing address"
           ref={addressInputRef}
-          value={clinic.check_address}
-          onChange={(e) => updateField("check_address", e.target.value)}
-          onBlur={(e) => resolveTypedAddress(e.target.value)}
+          value={addressInputValue}
+          onChange={(e) => {
+            const nextValue = e.target.value;
+            setAddressInputValue(nextValue);
+            updateField("check_address", nextValue);
+          }}
+          onBlur={(e) => {
+            const inputValue = e.target.value;
+            setAddressInputValue(inputValue);
+            updateField("check_address", inputValue);
+
+            if (selectingSuggestionRef.current) {
+              return;
+            }
+
+            blurTimeoutRef.current = setTimeout(() => {
+              resolveTypedAddress(inputValue);
+              blurTimeoutRef.current = null;
+            }, 300);
+          }}
           className={`${getInputClass("check_address")} mt-2`}
         />
 

@@ -62,14 +62,13 @@ export default function ClinicOnboardingForm({ linkedUserUuid = "" }) {
     const matchesSelectedPlace =
       meta?.formattedAddress &&
       meta.formattedAddress.trim().toLowerCase() === trimmedValue.toLowerCase();
-    const hasGoogleCompleteAddress =
+    const hasGoogleStructuredAddress =
       matchesSelectedPlace &&
       !!placeComponents.city &&
       !!placeComponents.state &&
-      !!placeComponents.postalCode &&
       ((!!placeComponents.streetNumber && !!placeComponents.route) || !!placeComponents.poBox);
 
-    if (hasGoogleCompleteAddress) {
+    if (hasGoogleStructuredAddress) {
       return true;
     }
 
@@ -79,12 +78,20 @@ export default function ClinicOnboardingForm({ linkedUserUuid = "" }) {
       `^\\s*\\d+\\s+[^,]+,\\s*[^,]+,\\s*${statePattern}\\s+\\d{5}(?:-\\d{4})?${countryPattern}\\s*$`,
       "i"
     );
+    const streetAddressWithoutZipPattern = new RegExp(
+      `^\\s*\\d+\\s+[^,]+,\\s*[^,]+,\\s*${statePattern}${countryPattern}\\s*$`,
+      "i"
+    );
     const poBoxPattern = new RegExp(
       `^\\s*P\\.?\\s*O\\.?\\s*Box\\s+[^,]+,\\s*[^,]+,\\s*${statePattern}\\s+\\d{5}(?:-\\d{4})?${countryPattern}\\s*$`,
       "i"
     );
 
-    return streetAddressPattern.test(trimmedValue) || poBoxPattern.test(trimmedValue);
+    return (
+      streetAddressPattern.test(trimmedValue) ||
+      streetAddressWithoutZipPattern.test(trimmedValue) ||
+      poBoxPattern.test(trimmedValue)
+    );
   };
 
   const isValidUrl = (value) => {
@@ -137,7 +144,7 @@ export default function ClinicOnboardingForm({ linkedUserUuid = "" }) {
 
     if (!clinic.emr_usage) nextErrors.emr_usage = "Select whether you will use CIC EMR.";
     if (!hasText(clinic.check_pay_to, 2)) nextErrors.check_pay_to = "Enter the pay-to name.";
-    if (!isValidMailingAddress(clinic.check_address, checkAddressMeta)) nextErrors.check_address = "Enter a complete mailing address with city, state, and ZIP.";
+    if (!isValidMailingAddress(clinic.check_address, checkAddressMeta)) nextErrors.check_address = "Enter a complete mailing address with city and state.";
 
     return nextErrors;
   };
