@@ -15,6 +15,7 @@ export default function ClinicOnboardingForm({ linkedUserUuid = "" }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
   const [submitSuccess, setSubmitSuccess] = useState(null);
+  const [checkAddressMeta, setCheckAddressMeta] = useState(null);
 
   const isValidEmail = (value) =>
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test((value || "").trim());
@@ -37,6 +38,54 @@ export default function ClinicOnboardingForm({ linkedUserUuid = "" }) {
   const getPhoneDigits = (value) => (value || "").replace(/\D/g, "");
 
   const hasText = (value, min = 2) => (value || "").trim().length >= min;
+  const isValidStreetAddress = (value) => {
+    const trimmedValue = (value || "").trim();
+
+    if (!hasText(trimmedValue, 6)) {
+      return false;
+    }
+
+    return /^\d+\s+.+/.test(trimmedValue);
+  };
+  const buildLocationFullAddress = (location) =>
+    [location.street, location.city, location.state && location.zip ? `${location.state} ${location.zip}` : location.state || location.zip]
+      .filter(Boolean)
+      .join(", ");
+  const isValidMailingAddress = (value, meta) => {
+    const trimmedValue = (value || "").trim();
+
+    if (!hasText(trimmedValue, 8)) {
+      return false;
+    }
+
+    const placeComponents = meta?.addressComponents || {};
+    const matchesSelectedPlace =
+      meta?.formattedAddress &&
+      meta.formattedAddress.trim().toLowerCase() === trimmedValue.toLowerCase();
+    const hasGoogleCompleteAddress =
+      matchesSelectedPlace &&
+      !!placeComponents.city &&
+      !!placeComponents.state &&
+      !!placeComponents.postalCode &&
+      ((!!placeComponents.streetNumber && !!placeComponents.route) || !!placeComponents.poBox);
+
+    if (hasGoogleCompleteAddress) {
+      return true;
+    }
+
+    const statePattern = "(?:[A-Z]{2}|[A-Za-z][A-Za-z\\s.-]+)";
+    const countryPattern = "(?:,\\s*(?:USA|US|United States|United States of America))?";
+    const streetAddressPattern = new RegExp(
+      `^\\s*\\d+\\s+[^,]+,\\s*[^,]+,\\s*${statePattern}\\s+\\d{5}(?:-\\d{4})?${countryPattern}\\s*$`,
+      "i"
+    );
+    const poBoxPattern = new RegExp(
+      `^\\s*P\\.?\\s*O\\.?\\s*Box\\s+[^,]+,\\s*[^,]+,\\s*${statePattern}\\s+\\d{5}(?:-\\d{4})?${countryPattern}\\s*$`,
+      "i"
+    );
+
+    return streetAddressPattern.test(trimmedValue) || poBoxPattern.test(trimmedValue);
+  };
 
   const isValidUrl = (value) => {
     if (!value) return true;
@@ -88,7 +137,7 @@ export default function ClinicOnboardingForm({ linkedUserUuid = "" }) {
 
     if (!clinic.emr_usage) nextErrors.emr_usage = "Select whether you will use CIC EMR.";
     if (!hasText(clinic.check_pay_to, 2)) nextErrors.check_pay_to = "Enter the pay-to name.";
-    if (!hasText(clinic.check_address, 8)) nextErrors.check_address = "Enter a valid mailing address.";
+    if (!isValidMailingAddress(clinic.check_address, checkAddressMeta)) nextErrors.check_address = "Enter a complete mailing address with city, state, and ZIP.";
 
     return nextErrors;
   };
@@ -96,9 +145,17 @@ export default function ClinicOnboardingForm({ linkedUserUuid = "" }) {
   const validateStep2 = () => {
     const locationErrors = clinic.locations.map((location) => {
       const entry = {};
+      const normalizedValidatedAddress = (location.full_address || "").trim().toLowerCase();
+      const normalizedCurrentAddress = buildLocationFullAddress(location).trim().toLowerCase();
 
       if (!hasText(location.clinic_name, 3)) entry.clinic_name = "Enter a valid location name.";
-      if (!hasText(location.street, 6)) entry.street = "Enter a valid street address.";
+      if (!location.address_validated) entry.street = "Enter a complete valid address and select a Google suggestion.";
+      if (
+        location.address_validated &&
+        normalizedValidatedAddress &&
+        normalizedCurrentAddress !== normalizedValidatedAddress
+      ) entry.street = "Address changed after validation. Please select the address again.";
+      if (!isValidStreetAddress(location.street)) entry.street = "Enter a valid street address.";
       if (!hasText(location.city, 2)) entry.city = "Select a city.";
       if (!hasText(location.state, 2)) entry.state = "Select a state.";
       if (!/^\d{5}(-\d{4})?$/.test((location.zip || "").trim())) entry.zip = "Enter a valid ZIP code.";
@@ -188,6 +245,8 @@ export default function ClinicOnboardingForm({ linkedUserUuid = "" }) {
     locations: [
       {
         clinic_name: "",
+        full_address: "",
+        address_validated: false,
         street: "",
         city: "",
         state: "",
@@ -231,6 +290,15 @@ export default function ClinicOnboardingForm({ linkedUserUuid = "" }) {
 
   const updateField = (field, value) => {
     const normalizedValue = field === "website" ? normalizeUrl(value) : value;
+
+    if (field === "check_address") {
+      const trimmedValue = (value || "").trim();
+      const selectedAddress = checkAddressMeta?.formattedAddress?.trim() || "";
+
+      if (!selectedAddress || trimmedValue.toLowerCase() !== selectedAddress.toLowerCase()) {
+        setCheckAddressMeta(null);
+      }
+    }
 
     setClinic((prev) => ({
       ...prev,
@@ -349,6 +417,7 @@ export default function ClinicOnboardingForm({ linkedUserUuid = "" }) {
               <Step1Organization
                 clinic={clinic}
                 updateField={updateField}
+                setCheckAddressMeta={setCheckAddressMeta}
                 errors={errors}
               />
             )}

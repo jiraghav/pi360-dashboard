@@ -1,8 +1,50 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { useLoadScript } from "@react-google-maps/api";
 
-export default function Step1Organization({ clinic, updateField, errors }) {
-  
+const libraries = ["places"];
+
+export default function Step1Organization({
+  clinic,
+  updateField,
+  setCheckAddressMeta,
+  errors
+}) {
   const [services, setServices] = useState([]);
+  const addressInputRef = useRef(null);
+  const autocompleteRef = useRef(null);
+  const geocoderRef = useRef(null);
+  const { isLoaded } = useLoadScript({
+    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY,
+    libraries,
+  });
+
+  const buildAddressFromComponents = (components = {}) => {
+    const streetLine = components.poBox
+      ? `PO Box ${components.poBox}`
+      : [components.streetNumber, components.route].filter(Boolean).join(" ");
+    const stateZipLine = [components.state, components.postalCode]
+      .filter(Boolean)
+      .join(" ");
+
+    return [streetLine, components.city, stateZipLine, components.country]
+      .filter(Boolean)
+      .join(", ");
+  };
+
+  const mapAddressComponents = (googleComponents = []) =>
+    googleComponents.reduce((acc, component) => {
+      const types = component.types || [];
+
+      if (types.includes("street_number")) acc.streetNumber = component.long_name;
+      if (types.includes("route")) acc.route = component.long_name;
+      if (types.includes("locality")) acc.city = component.long_name;
+      if (types.includes("administrative_area_level_1")) acc.state = component.short_name;
+      if (types.includes("postal_code")) acc.postalCode = component.long_name;
+      if (types.includes("post_box")) acc.poBox = component.long_name;
+      if (types.includes("country")) acc.country = component.long_name;
+
+      return acc;
+    }, {});
 
   useEffect(() => {
     const fetchServices = async () => {
@@ -22,6 +64,84 @@ export default function Step1Organization({ clinic, updateField, errors }) {
 
     fetchServices();
   }, []);
+
+  useEffect(() => {
+    if (!isLoaded || !addressInputRef.current || autocompleteRef.current) {
+      return undefined;
+    }
+
+    geocoderRef.current = new window.google.maps.Geocoder();
+
+    const autocomplete = new window.google.maps.places.Autocomplete(
+      addressInputRef.current,
+      {
+        types: ["address"],
+        fields: ["address_components", "formatted_address", "place_id"],
+        componentRestrictions: { country: "us" }
+      }
+    );
+
+    autocompleteRef.current = autocomplete;
+
+    const listener = autocomplete.addListener("place_changed", () => {
+      const place = autocomplete.getPlace();
+      const addressComponents = mapAddressComponents(place.address_components || []);
+      const composedAddress = buildAddressFromComponents(addressComponents);
+      const selectedAddress =
+        composedAddress || place.formatted_address || addressInputRef.current.value;
+
+      updateField("check_address", selectedAddress);
+      setCheckAddressMeta({
+        placeId: place.place_id || "",
+        formattedAddress: selectedAddress,
+        addressComponents,
+      });
+    });
+
+    return () => {
+      window.google.maps.event.removeListener(listener);
+      autocompleteRef.current = null;
+    };
+  }, [isLoaded, setCheckAddressMeta, updateField]);
+
+  const resolveTypedAddress = async (rawValue) => {
+    const inputValue = (rawValue || "").trim();
+
+    if (!inputValue || !geocoderRef.current) {
+      return;
+    }
+
+    const selectedAddress = clinic.check_address?.trim() || "";
+    if (selectedAddress && inputValue.toLowerCase() === selectedAddress.toLowerCase()) {
+      return;
+    }
+
+    geocoderRef.current.geocode(
+      {
+        address: inputValue,
+        componentRestrictions: { country: "US" },
+      },
+      (results, status) => {
+        if (status !== "OK" || !results?.[0]) {
+          return;
+        }
+
+        const result = results[0];
+        const addressComponents = mapAddressComponents(result.address_components || []);
+        const resolvedAddress =
+          buildAddressFromComponents(addressComponents) ||
+          result.formatted_address ||
+          inputValue;
+
+        updateField("check_address", resolvedAddress);
+        setCheckAddressMeta({
+          placeId: result.place_id || "",
+          formattedAddress: resolvedAddress,
+          addressComponents,
+        });
+      }
+    );
+  };
 
   const inputClass =
     "border rounded px-3 py-2 bg-black text-white w-full border-gray-600";
@@ -231,6 +351,13 @@ export default function Step1Organization({ clinic, updateField, errors }) {
           Will you use CIC EMR for notes & billing?
         </label>
 
+        <p className="mb-3 text-sm text-gray-300">
+          Your facility will receive a login regardless of whether you use the
+          EMR. If selected, the EMR provides a simple way to complete notes,
+          manage billing, track finances, and communicate directly with the CIC
+          back office.
+        </p>
+
         <div className="flex gap-6 mb-3">
 
           <label className="flex gap-2">
@@ -265,7 +392,7 @@ export default function Step1Organization({ clinic, updateField, errors }) {
 
         <textarea
           name="emr_notes"
-          placeholder="Notes"
+          placeholder="Questions, help, needs, etc."
           value={clinic.emr_notes}
           onChange={(e) => updateField("emr_notes", e.target.value)}
           rows={2}
@@ -292,14 +419,22 @@ export default function Step1Organization({ clinic, updateField, errors }) {
           className={getInputClass("check_pay_to")}
         />
 
-        <textarea
+        <input
           name="check_address"
-          placeholder="Mailing Address"
+          required
+          autoComplete="street-address"
+          placeholder="Start typing a full mailing address"
+          ref={addressInputRef}
           value={clinic.check_address}
           onChange={(e) => updateField("check_address", e.target.value)}
-          rows={3}
+          onBlur={(e) => resolveTypedAddress(e.target.value)}
           className={`${getInputClass("check_address")} mt-2`}
         />
+
+        <p className="mt-2 text-sm text-gray-300">
+          Enter a complete mailing address with city, state, and ZIP. Google
+          address suggestions will appear as you type.
+        </p>
 
         {errors?.check_pay_to && <p className="mt-2 text-sm text-red-400">{errors.check_pay_to}</p>}
         {errors?.check_address && <p className="mt-2 text-sm text-red-400">{errors.check_address}</p>}

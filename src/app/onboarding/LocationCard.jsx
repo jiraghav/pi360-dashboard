@@ -1,7 +1,65 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useLoadScript } from "@react-google-maps/api";
 import Select from "react-select";
+
+const libraries = ["places"];
+const languageOptions = [
+  "Arabic",
+  "Bengali",
+  "Cantonese",
+  "French",
+  "German",
+  "Gujarati",
+  "Hindi",
+  "Hmong",
+  "Italian",
+  "Japanese",
+  "Korean",
+  "Mandarin",
+  "Marathi",
+  "Polish",
+  "Portuguese",
+  "Punjabi",
+  "Russian",
+  "Spanish",
+  "Tagalog",
+  "Tamil",
+  "Telugu",
+  "Turkish",
+  "Ukrainian",
+  "Urdu",
+  "Vietnamese",
+  "Yoruba",
+  "Afrikaans",
+  "Amharic",
+  "Armenian",
+  "Burmese",
+  "Croatian",
+  "Czech",
+  "Danish",
+  "Dutch",
+  "Farsi",
+  "Greek",
+  "Haitian Creole",
+  "Hebrew",
+  "Hungarian",
+  "Indonesian",
+  "Khmer",
+  "Lao",
+  "Malay",
+  "Malayalam",
+  "Nepali",
+  "Pashto",
+  "Romanian",
+  "Serbian",
+  "Somali",
+  "Swahili"
+].map((language) => ({
+  value: language,
+  label: language,
+}));
 
 export default function LocationCard({
   index,
@@ -15,9 +73,32 @@ export default function LocationCard({
   const [cityOptions, setCityOptions] = useState([]);
   const [emailInput, setEmailInput] = useState("");
   const [emailError, setEmailError] = useState("");
+  const [addressError, setAddressError] = useState("");
+  const [pendingAddressComponents, setPendingAddressComponents] = useState(null);
+  const streetInputRef = useRef(null);
+  const autocompleteRef = useRef(null);
+  const geocoderRef = useRef(null);
+  const blurTimeoutRef = useRef(null);
+  const selectingSuggestionRef = useRef(false);
+  const resolveAddressRef = useRef(null);
+  const stateOptionsRef = useRef(stateOptions);
+  const updateLocationRef = useRef(updateLocation);
+  const { isLoaded } = useLoadScript({
+    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY,
+    libraries,
+  });
 
   const publicApiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL.replace(/lawyer_apis\/?$/, "");
   const locationEmails = normalizeEmailList(location.email);
+  const selectedLanguages = normalizeLanguageList(location.languages);
+
+  useEffect(() => {
+    stateOptionsRef.current = stateOptions;
+  }, [stateOptions]);
+
+  useEffect(() => {
+    updateLocationRef.current = updateLocation;
+  }, [updateLocation]);
 
   useEffect(() => {
     const fetchServices = async () => {
@@ -94,13 +175,269 @@ export default function LocationCard({
     fetchCities();
   }, [location.state, publicApiBaseUrl]);
 
+  useEffect(() => {
+    if (!pendingAddressComponents || stateOptions.length === 0) {
+      return;
+    }
+
+    const streetParts = [
+      pendingAddressComponents.streetNumber,
+      pendingAddressComponents.route,
+    ].filter(Boolean);
+    const stateOption = stateOptions.find(
+      (option) =>
+        option.value === pendingAddressComponents.stateCode ||
+        option.label.toLowerCase() === (pendingAddressComponents.stateName || "").toLowerCase()
+    );
+
+    if (streetParts.length === 0 || !pendingAddressComponents.city || !pendingAddressComponents.zip || !stateOption) {
+      return;
+    }
+
+    const fullAddress = `${streetParts.join(" ")}, ${pendingAddressComponents.city}, ${stateOption.value} ${pendingAddressComponents.zip}`;
+
+    setAddressError("");
+    updateLocationRef.current(index, "full_address", fullAddress);
+    updateLocationRef.current(index, "address_validated", true);
+    updateLocationRef.current(index, "street", streetParts.join(" "));
+    updateLocationRef.current(index, "city", pendingAddressComponents.city);
+    updateLocationRef.current(index, "state", stateOption.value);
+    updateLocationRef.current(index, "zip", pendingAddressComponents.zip);
+    setPendingAddressComponents(null);
+  }, [index, pendingAddressComponents, stateOptions]);
+
+  useEffect(() => {
+    if (!isLoaded || !streetInputRef.current || autocompleteRef.current) {
+      return undefined;
+    }
+
+    geocoderRef.current = new window.google.maps.Geocoder();
+
+    const autocomplete = new window.google.maps.places.Autocomplete(
+      streetInputRef.current,
+      {
+        types: ["address"],
+        componentRestrictions: { country: "us" },
+        fields: ["address_components"],
+      }
+    );
+
+    autocompleteRef.current = autocomplete;
+
+    const mapAddressComponents = (components = []) =>
+      components.reduce((acc, component) => {
+        const types = component.types || [];
+
+        if (types.includes("street_number")) acc.streetNumber = component.long_name;
+        if (types.includes("route")) acc.route = component.long_name;
+        if (types.includes("locality")) acc.city = component.long_name;
+        if (types.includes("administrative_area_level_1")) {
+          acc.stateCode = component.short_name;
+          acc.stateName = component.long_name;
+        }
+        if (types.includes("postal_code")) acc.zip = component.long_name;
+
+        return acc;
+      }, {});
+
+    const findStateOption = (components) =>
+      stateOptionsRef.current.find(
+        (option) =>
+          option.value === components.stateCode ||
+          option.label.toLowerCase() === (components.stateName || "").toLowerCase()
+      );
+
+    const applyResolvedAddress = (components) => {
+      const streetParts = [components.streetNumber, components.route].filter(Boolean);
+      const stateOption = findStateOption(components);
+
+      if (streetParts.length === 0 || !components.city || !components.zip) {
+        setAddressError("Enter a complete valid address and select a Google suggestion.");
+        return false;
+      }
+
+      if (!stateOption) {
+        setPendingAddressComponents(components);
+        return true;
+      }
+
+      const fullAddress = `${streetParts.join(" ")}, ${components.city}, ${stateOption.value} ${components.zip}`;
+
+      setAddressError("");
+      setPendingAddressComponents(null);
+      updateLocationRef.current(index, "full_address", fullAddress);
+      updateLocationRef.current(index, "address_validated", true);
+      updateLocationRef.current(index, "street", streetParts.join(" "));
+      updateLocationRef.current(index, "city", components.city);
+      updateLocationRef.current(index, "state", stateOption.value);
+      updateLocationRef.current(index, "zip", components.zip);
+      return true;
+    };
+
+    const listener = autocomplete.addListener("place_changed", () => {
+      if (blurTimeoutRef.current) {
+        clearTimeout(blurTimeoutRef.current);
+        blurTimeoutRef.current = null;
+      }
+
+      const place = autocomplete.getPlace();
+      const addressComponents = mapAddressComponents(place.address_components || []);
+      applyResolvedAddress(addressComponents);
+    });
+
+    return () => {
+      if (blurTimeoutRef.current) {
+        clearTimeout(blurTimeoutRef.current);
+        blurTimeoutRef.current = null;
+      }
+      window.google.maps.event.removeListener(listener);
+      autocompleteRef.current = null;
+    };
+  }, [index, isLoaded]);
+
+  useEffect(() => {
+    const handleMouseDown = (event) => {
+      if (event.target instanceof Element && event.target.closest(".pac-item")) {
+        selectingSuggestionRef.current = true;
+      }
+    };
+
+    const handleMouseUp = () => {
+      window.setTimeout(() => {
+        selectingSuggestionRef.current = false;
+      }, 0);
+    };
+
+    const handleSuggestionClick = (event) => {
+      if (!(event.target instanceof Element) || !event.target.closest(".pac-item")) {
+        return;
+      }
+
+      window.setTimeout(() => {
+        const inputValue = streetInputRef.current?.value || "";
+        resolveAddressRef.current?.(inputValue);
+      }, 150);
+    };
+
+    document.addEventListener("mousedown", handleMouseDown);
+    document.addEventListener("pointerdown", handleMouseDown);
+    document.addEventListener("mouseup", handleMouseUp);
+    document.addEventListener("click", handleSuggestionClick);
+
+    return () => {
+      document.removeEventListener("mousedown", handleMouseDown);
+      document.removeEventListener("pointerdown", handleMouseDown);
+      document.removeEventListener("mouseup", handleMouseUp);
+      document.removeEventListener("click", handleSuggestionClick);
+    };
+  }, []);
+
   const handleChange = (field, value) => {
     if (field === "website") {
       value = normalizeUrl(value);
     }
 
+    if (["street", "city", "state", "zip"].includes(field)) {
+      setAddressError("");
+      updateLocation(index, "address_validated", false);
+      updateLocation(index, "full_address", "");
+    }
+
     updateLocation(index, field, value);
   };
+
+  const resolveTypedAddress = (rawValue) => {
+    const trimmedValue = (rawValue || "").trim();
+
+    if (!trimmedValue) {
+      setAddressError("");
+      updateLocation(index, "full_address", "");
+      updateLocation(index, "address_validated", false);
+      return;
+    }
+
+    if (!geocoderRef.current) {
+      return;
+    }
+
+    geocoderRef.current.geocode(
+      {
+        address: trimmedValue,
+        componentRestrictions: { country: "US" },
+      },
+      (results, status) => {
+        if (status !== "OK" || !results?.[0]) {
+          setAddressError("Enter a complete valid address and select a Google suggestion.");
+          updateLocation(index, "address_validated", false);
+          updateLocation(index, "full_address", "");
+          return;
+        }
+
+        const resolvedAddress = results[0].formatted_address || "";
+        const typedNormalized = trimmedValue.replace(/\s+/g, " ").trim().toLowerCase();
+        const resolvedNormalized = resolvedAddress.replace(/\s+/g, " ").trim().toLowerCase();
+
+        const components = (results[0].address_components || []).reduce((acc, component) => {
+          const types = component.types || [];
+
+          if (types.includes("street_number")) acc.streetNumber = component.long_name;
+          if (types.includes("route")) acc.route = component.long_name;
+          if (types.includes("locality")) acc.city = component.long_name;
+          if (types.includes("administrative_area_level_1")) {
+            acc.stateCode = component.short_name;
+            acc.stateName = component.long_name;
+          }
+          if (types.includes("postal_code")) acc.zip = component.long_name;
+
+          return acc;
+        }, {});
+
+        const stateOption = stateOptions.find(
+          (option) =>
+            option.value === components.stateCode ||
+            option.label.toLowerCase() === (components.stateName || "").toLowerCase()
+        );
+        const streetParts = [components.streetNumber, components.route].filter(Boolean);
+
+        const typedIncludesCityStateZip =
+          typedNormalized.includes((components.city || "").toLowerCase()) &&
+          typedNormalized.includes((components.stateCode || "").toLowerCase()) &&
+          typedNormalized.includes((components.zip || "").toLowerCase());
+        const exactStreetStart = typedNormalized.startsWith(streetParts.join(" ").toLowerCase());
+
+        if (
+          streetParts.length === 0 ||
+          !components.city ||
+          !components.zip ||
+          (!typedIncludesCityStateZip && typedNormalized !== resolvedNormalized) ||
+          !exactStreetStart
+        ) {
+          setAddressError("Enter a complete valid address and select a Google suggestion.");
+          updateLocation(index, "address_validated", false);
+          updateLocation(index, "full_address", "");
+          return;
+        }
+
+        if (!stateOption) {
+          setPendingAddressComponents(components);
+          return;
+        }
+
+        const fullAddress = `${streetParts.join(" ")}, ${components.city}, ${stateOption.value} ${components.zip}`;
+
+        setAddressError("");
+        setPendingAddressComponents(null);
+        updateLocation(index, "full_address", fullAddress);
+        updateLocation(index, "address_validated", true);
+        updateLocation(index, "street", streetParts.join(" "));
+        updateLocation(index, "city", components.city);
+        updateLocation(index, "state", stateOption.value);
+        updateLocation(index, "zip", components.zip);
+      }
+    );
+  };
+
+  resolveAddressRef.current = resolveTypedAddress;
 
   const handleAddEmail = (e) => {
     if (e.key !== "Enter") return;
@@ -138,7 +475,9 @@ export default function LocationCard({
   };
 
   const inputClass = (field) =>
-    `border rounded px-3 py-2 bg-black text-white ${errors?.[field] ? "border-red-500" : "border-gray-600"}`;
+    `border rounded px-3 py-2 bg-black text-white ${
+      errors?.[field] || (field === "street" && addressError) ? "border-red-500" : "border-gray-600"
+    }`;
 
   return (
 
@@ -174,10 +513,26 @@ export default function LocationCard({
         />
 
         <input
-          placeholder="Street"
+          placeholder="Start typing full address"
           required
+          autoComplete="street-address"
+          ref={streetInputRef}
           value={location.street}
-          onChange={(e) => handleChange("street", e.target.value)}
+          onChange={(e) => {
+            handleChange("street", e.target.value);
+          }}
+          onBlur={(e) => {
+            const inputValue = e.target.value;
+
+            if (selectingSuggestionRef.current) {
+              return;
+            }
+
+            blurTimeoutRef.current = setTimeout(() => {
+              resolveTypedAddress(inputValue);
+              blurTimeoutRef.current = null;
+            }, 300);
+          }}
           className={inputClass("street")}
         />
 
@@ -267,6 +622,9 @@ export default function LocationCard({
         {Object.values(errors).length > 0 && (
           <div className="md:col-span-2 space-y-1">
             {errors.clinic_name && <p className="text-sm text-red-400">{errors.clinic_name}</p>}
+            {addressError && addressError !== errors.street && (
+              <p className="text-sm text-red-400">{addressError}</p>
+            )}
             {errors.street && <p className="text-sm text-red-400">{errors.street}</p>}
             {errors.city && <p className="text-sm text-red-400">{errors.city}</p>}
             {errors.state && <p className="text-sm text-red-400">{errors.state}</p>}
@@ -275,6 +633,10 @@ export default function LocationCard({
             {errors.website && <p className="text-sm text-red-400">{errors.website}</p>}
           </div>
         )}
+
+        <p className="md:col-span-2 text-sm text-gray-300">
+          Enter a full address. A valid Google address will auto-fill street, city, state, and ZIP.
+        </p>
 
       </div>
 
@@ -307,19 +669,10 @@ export default function LocationCard({
         )}
 
         <input
-          placeholder="Other service"
+          placeholder="Any other services?"
           value={location.service_other}
           onChange={(e) =>
             handleChange("service_other", e.target.value)
-          }
-          className="border rounded px-3 py-2 bg-black text-white"
-        />
-
-        <input
-          placeholder="Patient age range served"
-          value={location.age_range}
-          onChange={(e) =>
-            handleChange("age_range", e.target.value)
           }
           className="border rounded px-3 py-2 bg-black text-white"
         />
@@ -338,26 +691,35 @@ export default function LocationCard({
           </label>
 
           {location.languages_enabled && (
-            <input
-              placeholder="Languages"
-              value={location.languages}
-              onChange={(e) =>
-                handleChange("languages", e.target.value)
+            <Select
+              isMulti
+              options={languageOptions}
+              value={languageOptions.filter((option) =>
+                selectedLanguages.includes(option.value)
+              )}
+              onChange={(selected) =>
+                handleChange(
+                  "languages",
+                  selected ? selected.map((option) => option.value).join(", ") : ""
+                )
               }
-              className="border rounded px-3 py-2 bg-black text-white w-full"
+              placeholder="Select languages"
+              styles={selectStyles(false)}
             />
           )}
 
         </div>
 
-        <input
-          placeholder="Insurance accepted"
-          value={location.insurance}
-          onChange={(e) =>
-            handleChange("insurance", e.target.value)
-          }
-          className="border rounded px-3 py-2 bg-black text-white"
-        />
+        <label className="flex gap-2">
+          <input
+            type="checkbox"
+            checked={location.insurance === "accept"}
+            onChange={(e) =>
+              handleChange("insurance", e.target.checked ? "accept" : "")
+            }
+          />
+          Accept insurance
+        </label>
 
         <textarea
           placeholder="Any requirements or preferences for CIC referrals?"
@@ -448,6 +810,21 @@ function normalizeEmailList(value) {
     return value
       .split(",")
       .map((email) => email.trim())
+      .filter(Boolean);
+  }
+
+  return [];
+}
+
+function normalizeLanguageList(value) {
+  if (Array.isArray(value)) {
+    return value.map((language) => language.trim()).filter(Boolean);
+  }
+
+  if (typeof value === "string") {
+    return value
+      .split(",")
+      .map((language) => language.trim())
       .filter(Boolean);
   }
 

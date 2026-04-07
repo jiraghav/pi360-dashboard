@@ -11,6 +11,8 @@ export default function Step2Locations({ clinic, setClinic, errors }) {
         ...prev.locations,
         {
           clinic_name: "",
+          full_address: "",
+          address_validated: false,
           street: "",
           city: "",
           state: "",
@@ -33,13 +35,16 @@ export default function Step2Locations({ clinic, setClinic, errors }) {
   };
 
   const updateLocation = (index, field, value) => {
-
-    const updated = [...clinic.locations];
-    updated[index][field] = value;
-
     setClinic(prev => ({
       ...prev,
-      locations: updated
+      locations: prev.locations.map((location, locationIndex) =>
+        locationIndex === index
+          ? {
+              ...location,
+              [field]: value
+            }
+          : location
+      )
     }));
   };
 
