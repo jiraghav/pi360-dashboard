@@ -61,6 +61,29 @@ const languageOptions = [
   label: language,
 }));
 
+function mapGoogleAddressComponents(components = []) {
+  const mapped = components.reduce((acc, component) => {
+    const types = component.types || [];
+
+    if (types.includes("street_number")) acc.streetNumber = component.long_name;
+    if (types.includes("route")) acc.route = component.long_name;
+    if (types.includes("locality")) acc.city = component.long_name;
+    if (types.includes("administrative_area_level_1")) {
+      acc.stateCode = component.short_name;
+      acc.stateName = component.long_name;
+    }
+    if (types.includes("postal_code")) acc.zip = component.long_name;
+    if (types.includes("postal_code_suffix")) acc.zipSuffix = component.long_name;
+
+    return acc;
+  }, {});
+
+  return {
+    ...mapped,
+    zip: mapped.zip && mapped.zipSuffix ? `${mapped.zip}-${mapped.zipSuffix}` : mapped.zip,
+  };
+}
+
 export default function LocationCard({
   index,
   location,
@@ -224,22 +247,6 @@ export default function LocationCard({
 
     autocompleteRef.current = autocomplete;
 
-    const mapAddressComponents = (components = []) =>
-      components.reduce((acc, component) => {
-        const types = component.types || [];
-
-        if (types.includes("street_number")) acc.streetNumber = component.long_name;
-        if (types.includes("route")) acc.route = component.long_name;
-        if (types.includes("locality")) acc.city = component.long_name;
-        if (types.includes("administrative_area_level_1")) {
-          acc.stateCode = component.short_name;
-          acc.stateName = component.long_name;
-        }
-        if (types.includes("postal_code")) acc.zip = component.long_name;
-
-        return acc;
-      }, {});
-
     const findStateOption = (components) =>
       stateOptionsRef.current.find(
         (option) =>
@@ -281,7 +288,7 @@ export default function LocationCard({
       }
 
       const place = autocomplete.getPlace();
-      const addressComponents = mapAddressComponents(place.address_components || []);
+      const addressComponents = mapGoogleAddressComponents(place.address_components || []);
       applyResolvedAddress(addressComponents);
     });
 
@@ -377,20 +384,7 @@ export default function LocationCard({
         const typedNormalized = trimmedValue.replace(/\s+/g, " ").trim().toLowerCase();
         const resolvedNormalized = resolvedAddress.replace(/\s+/g, " ").trim().toLowerCase();
 
-        const components = (results[0].address_components || []).reduce((acc, component) => {
-          const types = component.types || [];
-
-          if (types.includes("street_number")) acc.streetNumber = component.long_name;
-          if (types.includes("route")) acc.route = component.long_name;
-          if (types.includes("locality")) acc.city = component.long_name;
-          if (types.includes("administrative_area_level_1")) {
-            acc.stateCode = component.short_name;
-            acc.stateName = component.long_name;
-          }
-          if (types.includes("postal_code")) acc.zip = component.long_name;
-
-          return acc;
-        }, {});
+        const components = mapGoogleAddressComponents(results[0].address_components || []);
 
         const stateOption = stateOptions.find(
           (option) =>

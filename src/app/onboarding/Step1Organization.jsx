@@ -40,11 +40,20 @@ export default function Step1Organization({
       if (types.includes("locality")) acc.city = component.long_name;
       if (types.includes("administrative_area_level_1")) acc.state = component.short_name;
       if (types.includes("postal_code")) acc.postalCode = component.long_name;
+      if (types.includes("postal_code_suffix")) acc.postalCodeSuffix = component.long_name;
       if (types.includes("post_box")) acc.poBox = component.long_name;
       if (types.includes("country")) acc.country = component.long_name;
 
       return acc;
     }, {});
+
+  const normalizeAddressComponents = (components = {}) => ({
+    ...components,
+    postalCode:
+      components.postalCode && components.postalCodeSuffix
+        ? `${components.postalCode}-${components.postalCodeSuffix}`
+        : components.postalCode,
+  });
 
   useEffect(() => {
     const fetchServices = async () => {
@@ -85,7 +94,9 @@ export default function Step1Organization({
 
     const listener = autocomplete.addListener("place_changed", () => {
       const place = autocomplete.getPlace();
-      const addressComponents = mapAddressComponents(place.address_components || []);
+      const addressComponents = normalizeAddressComponents(
+        mapAddressComponents(place.address_components || [])
+      );
       const composedAddress = buildAddressFromComponents(addressComponents);
       const selectedAddress =
         composedAddress || place.formatted_address || addressInputRef.current.value;
@@ -127,7 +138,9 @@ export default function Step1Organization({
         }
 
         const result = results[0];
-        const addressComponents = mapAddressComponents(result.address_components || []);
+        const addressComponents = normalizeAddressComponents(
+          mapAddressComponents(result.address_components || [])
+        );
         const resolvedAddress =
           buildAddressFromComponents(addressComponents) ||
           result.formatted_address ||
