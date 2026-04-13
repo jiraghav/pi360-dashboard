@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import ProtectedRoute from "../components/ProtectedRoute";
 import TaskNotificationModal from "../components/TaskNotificationModal";
+import DocumentNotificationModal from "../components/DocumentNotificationModal";
 import TaskModal from "./TaskModal";
 import { apiRequest } from "../utils/api";
 import { formatDate } from "../utils/formatter";
@@ -28,6 +29,8 @@ export default function TasksContent() {
   const patientNameParam = searchParams?.get("patient") || "";
   
   const [selectedTask, setSelectedTask] = useState(null);
+  const [selectedDocument, setSelectedDocument] = useState(null);
+  const [documentModalOpen, setDocumentModalOpen] = useState(false);
 
   useEffect(() => {
     fetchToCIC();
@@ -97,12 +100,39 @@ export default function TasksContent() {
         return <span className="badge whitespace-nowrap text-gray-400">Unknown</span>;
     }
   };
+
+  const hasDocument = (task) =>
+    !!(
+      task?.document_id ||
+      task?.documentId ||
+      task?.document_url ||
+      task?.documentUrl ||
+      task?.file_url ||
+      task?.fileUrl ||
+      task?.url
+    );
   
   const onViewProfile = (p) => {
     if (!p?.patient_name) return;
 
     const query = encodeURIComponent(p.patient_name);
     router.push(`/cases?search=${query}`);
+  };
+
+  const onOpenDocument = (task) => {
+    const documentId = task?.document_id || task?.documentId || null;
+    const documentUrl = task?.document_url || task?.documentUrl || task?.file_url || task?.fileUrl || task?.url || null;
+
+    if (!documentId && !documentUrl) return;
+
+    setSelectedDocument({
+      id: task?.notification_id || task?.id || 0,
+      document_id: documentId,
+      document_url: documentUrl,
+      patient_name: task?.patient_name,
+      case_id: task?.caseId,
+    });
+    setDocumentModalOpen(true);
   };
   
   const handleAuthorization = async (taskId, action) => {
@@ -219,7 +249,16 @@ export default function TasksContent() {
                       )}
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex w-full sm:w-auto flex-wrap items-center justify-start sm:justify-end gap-2">
+                    {hasDocument(task) && (
+                      <button
+                        type="button"
+                        className="btn btn-sm btn-outline w-full sm:w-auto"
+                        onClick={() => onOpenDocument(task)}
+                      >
+                        View Document
+                      </button>
+                    )}
                     <span
                       className={`badge whitespace-nowrap text-${
                         task.priority == 3
@@ -241,13 +280,13 @@ export default function TasksContent() {
                         task.status === "1" && (
                           <>
                             <button
-                              className="btn btn-sm btn-success"
+                              className="btn btn-sm btn-success flex-1 sm:flex-none min-w-[110px]"
                               onClick={() => handleAuthorization(task.id, 4)}
                             >
                               Accept
                             </button>
                             <button
-                              className="btn btn-sm btn-danger"
+                              className="btn btn-sm btn-danger flex-1 sm:flex-none min-w-[110px]"
                               onClick={() => handleAuthorization(task.id, 5)}
                             >
                               Decline
@@ -257,7 +296,7 @@ export default function TasksContent() {
                       ) : (
                         task.status === "1" && (
                           <button
-                            className="btn btn-sm"
+                            className="btn btn-sm w-full sm:w-auto"
                             onClick={() => markTaskDone(task.id)}
                           >
                             Mark Done
@@ -351,9 +390,17 @@ export default function TasksContent() {
                 created_at: selectedTask.created_at,
                 task_type: selectedTask.type,
                 task_authorization: selectedTask.authorization,
+                document_id: selectedTask.document_id || selectedTask.documentId,
+                document_url:
+                  selectedTask.document_url ||
+                  selectedTask.documentUrl ||
+                  selectedTask.file_url ||
+                  selectedTask.fileUrl ||
+                  selectedTask.url,
               }
             : null
-        }        fetchNotifications={() => {
+        }
+        fetchNotifications={() => {
           fetchToCIC();
           fetchFromCIC();
         }}
@@ -361,6 +408,15 @@ export default function TasksContent() {
           fetchToCIC();
           fetchFromCIC();
         }}
+      />
+
+      <DocumentNotificationModal
+        open={documentModalOpen}
+        onClose={() => {
+          setDocumentModalOpen(false);
+          setSelectedDocument(null);
+        }}
+        notification={selectedDocument}
       />
     </ProtectedRoute>
   );

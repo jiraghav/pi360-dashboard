@@ -4,6 +4,7 @@ import { apiRequest } from "../utils/api"; // adjust if needed
 import { formatDate } from "../utils/formatter"; // adjust if needed
 import { useRouter } from "next/navigation";
 import TaskNotificationModal from "../components/TaskNotificationModal";
+import DocumentNotificationModal from "../components/DocumentNotificationModal";
 
 export default function ClinicalAlerts({
   alerts,
@@ -17,6 +18,8 @@ export default function ClinicalAlerts({
   
   const [selectedTask, setSelectedTask] = useState(null);
   const [taskModalOpen, setTaskModalOpen] = useState(false);
+  const [selectedDocument, setSelectedDocument] = useState(null);
+  const [documentModalOpen, setDocumentModalOpen] = useState(false);
 
   // ✅ Keep alertList in sync with latest alerts prop
   useEffect(() => {
@@ -51,6 +54,17 @@ export default function ClinicalAlerts({
     }
   };
 
+  const hasDocument = (alert) =>
+    !!(
+      alert?.document_id ||
+      alert?.documentId ||
+      alert?.document_url ||
+      alert?.documentUrl ||
+      alert?.file_url ||
+      alert?.fileUrl ||
+      alert?.url
+    );
+
   const markTaskDone = async (taskId) => {
     const confirmDone = confirm("Are you sure you want to mark this task as done?");
     if (!confirmDone) return;
@@ -78,6 +92,22 @@ export default function ClinicalAlerts({
   const onOpenTask = (task) => {
     setSelectedTask(task);
     setTaskModalOpen(true);
+  };
+
+  const onOpenDocument = (alert) => {
+    const documentId = alert?.document_id || alert?.documentId || null;
+    const documentUrl = alert?.document_url || alert?.documentUrl || alert?.file_url || alert?.fileUrl || alert?.url || null;
+
+    if (!documentId && !documentUrl) return;
+
+    setSelectedDocument({
+      id: alert?.notification_id || alert?.id || 0,
+      document_id: documentId,
+      document_url: documentUrl,
+      patient_name: alert?.patient_name,
+      case_id: alert?.caseId,
+    });
+    setDocumentModalOpen(true);
   };
   
   const handleAuthorization = async (taskId, action) => {
@@ -160,7 +190,16 @@ export default function ClinicalAlerts({
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2">
+                  <div className="flex w-full sm:w-auto flex-wrap items-center justify-start sm:justify-end gap-2">
+                    {hasDocument(alert) && (
+                      <button
+                        type="button"
+                        className="btn btn-sm btn-outline w-full sm:w-auto"
+                        onClick={() => onOpenDocument(alert)}
+                      >
+                        View Document
+                      </button>
+                    )}
                     {getPriorityBadge(alert.priority)}
                     {getStatusBadge(alert.status)}
 
@@ -168,13 +207,13 @@ export default function ClinicalAlerts({
                       alert.status === "1" && (
                         <>
                           <button
-                            className="btn btn-success"
+                            className="btn btn-success flex-1 sm:flex-none min-w-[110px]"
                             onClick={() => handleAuthorization(alert.id, 4)}
                           >
                             Accept
                           </button>
                           <button
-                            className="btn btn-danger"
+                            className="btn btn-danger flex-1 sm:flex-none min-w-[110px]"
                             onClick={() => handleAuthorization(alert.id, 5)}
                           >
                             Decline
@@ -184,7 +223,7 @@ export default function ClinicalAlerts({
                     ) : (
                       alert.status === "1" && (
                         <button
-                          className="btn"
+                          className="btn w-full sm:w-auto"
                           onClick={() => markTaskDone(alert.id)}
                         >
                           Mark Done
@@ -227,11 +266,27 @@ export default function ClinicalAlerts({
                     created_at: selectedTask.created_at,
                     task_type: selectedTask.type,
                     task_authorization: selectedTask.authorization,
+                    document_id: selectedTask.document_id || selectedTask.documentId,
+                    document_url:
+                      selectedTask.document_url ||
+                      selectedTask.documentUrl ||
+                      selectedTask.file_url ||
+                      selectedTask.fileUrl ||
+                      selectedTask.url,
                   }
                 : null
             }
             fetchNotifications={reloadDashboard}
             onMarkDone={reloadDashboard}
+          />
+
+          <DocumentNotificationModal
+            open={documentModalOpen}
+            onClose={() => {
+              setDocumentModalOpen(false);
+              setSelectedDocument(null);
+            }}
+            notification={selectedDocument}
           />
         </>
       )}

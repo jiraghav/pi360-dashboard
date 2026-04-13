@@ -12,38 +12,65 @@ export default function DocumentNotificationModal({
 }) {
   const [loadingDoc, setLoadingDoc] = useState(false);
   const [documentData, setDocumentData] = useState(null);
+  const documentId = notification?.document_id;
+  const directDocumentUrl = notification?.document_url || notification?.url || null;
+  const notificationId = notification?.id || 0;
   
   useEffect(() => {
-    if (open) {
-      document.body.style.overflow = "hidden";
-      return () => {
-        document.body.style.overflow = "";
-      };
-    }
-  }, []);
+    if (!open) return;
+
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [open]);
 
   useEffect(() => {
-    if (!open || !notification?.document_id) return;
+    if (!open) return;
+
+    if (!documentId && !directDocumentUrl) {
+      setDocumentData(null);
+      setLoadingDoc(false);
+      return;
+    }
+
+    if (!documentId && directDocumentUrl) {
+      setLoadingDoc(false);
+      setDocumentData({
+        url: directDocumentUrl,
+      });
+      return;
+    }
+
+    let isMounted = true;
 
     const fetchDocument = async () => {
       setLoadingDoc(true);
 
       try {
         const data = await apiRequest(
-          `get-document-by-id.php?document_id=${notification.document_id}&notification_id=${notification.id}`
+          `get-document-by-id.php?document_id=${documentId}&notification_id=${notificationId}`
         );
 
+        if (!isMounted) return;
+
         setDocumentData(data.document || null);
-        fetchNotifications(); // mark notification read
+        fetchNotifications?.(); // mark notification read
       } catch (error) {
         console.error("Failed to load document:", error);
       } finally {
-        setLoadingDoc(false);
+        if (isMounted) {
+          setLoadingDoc(false);
+        }
       }
     };
 
     fetchDocument();
-  }, [open, notification?.document_id]);
+
+    return () => {
+      isMounted = false;
+    };
+  }, [open, documentId, directDocumentUrl, notificationId]);
 
   if (!open) return null;
 

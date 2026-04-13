@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import moment from "moment-timezone";
 import { apiRequest } from "../utils/api";
 import { useToast } from "../hooks/ToastContext";
+import DocumentNotificationModal from "./DocumentNotificationModal";
 
 export default function TaskNotificationModal({
   open,
@@ -21,6 +22,7 @@ export default function TaskNotificationModal({
   
   const [newNote, setNewNote] = useState("");
   const [addingNote, setAddingNote] = useState(false);
+  const [documentModalOpen, setDocumentModalOpen] = useState(false);
   
   const { showToast } = useToast();
   
@@ -90,6 +92,23 @@ export default function TaskNotificationModal({
         {priority == 3 ? "HIGH" : priority == 2 ? "MEDIUM" : "LOW"}
       </span>
     );
+  };
+
+  const hasDocument =
+    !!(
+      notification?.document_id ||
+      notification?.documentId ||
+      notification?.document_url ||
+      notification?.documentUrl ||
+      notification?.file_url ||
+      notification?.fileUrl ||
+      notification?.url ||
+      notification?.task_document_id
+    );
+
+  const handleViewDocument = () => {
+    if (!hasDocument) return;
+    setDocumentModalOpen(true);
   };
 
   const handleMarkDone = async () => {
@@ -236,6 +255,18 @@ export default function TaskNotificationModal({
           </div>
         </div>
 
+        {hasDocument && (
+          <div className="mb-4">
+            <button
+              type="button"
+              className="btn btn-sm btn-outline w-full sm:w-auto"
+              onClick={handleViewDocument}
+            >
+              View Document
+            </button>
+          </div>
+        )}
+
         {/* ---------------------------- */}
         {/* NOTES LIST */}
         {/* ---------------------------- */}
@@ -326,6 +357,23 @@ export default function TaskNotificationModal({
           )
         )}
       </div>
+
+      <DocumentNotificationModal
+        open={documentModalOpen}
+        onClose={() => setDocumentModalOpen(false)}
+        notification={{
+          id: notification?.id || notification?.task_id || 0,
+          document_id: notification?.task_document_id || notification?.document_id || notification?.documentId,
+          document_url:
+            notification?.document_url ||
+            notification?.documentUrl ||
+            notification?.file_url ||
+            notification?.fileUrl ||
+            notification?.url,
+          patient_name: notification?.patient_name,
+          case_id: notification?.case_id,
+        }}
+      />
     </div>
   );
 }
