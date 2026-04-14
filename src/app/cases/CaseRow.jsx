@@ -5,10 +5,20 @@ import { apiRequest } from "../utils/api";
 import ExpandedCaseDetails from "./ExpandedCaseDetails";
 import { Phone, Mail, MessageSquare } from "lucide-react";
 import MessagesModal from "./MessagesModal";
+import CallLogsModal from "./CallLogsModal";
 import { useRouter } from "next/navigation";
 import TaskModal from "../tasks/TaskModal";
 import { useNotificationUI } from "../context/NotificationContext";
 import { Bell } from "lucide-react";
+
+function formatPhone(value) {
+  if (!value) return "";
+  const raw = String(value);
+  const digits = raw.replace(/\D+/g, "");
+  const ten = digits.length === 10 ? digits : digits.length === 11 && digits.startsWith("1") ? digits.slice(1) : "";
+  if (!ten) return raw;
+  return `(${ten.slice(0, 3)}) ${ten.slice(3, 6)}-${ten.slice(6)}`;
+}
 
 export default function CaseRow({
   caseItem,
@@ -31,6 +41,7 @@ export default function CaseRow({
   const [expandedData, setExpandedData] = useState({});
   const isExpanded = expandedRows[caseItem.pid];
   const [showMessagesModal, setShowMessagesModal] = useState(false);
+  const [showCallLogsModal, setShowCallLogsModal] = useState(false);
 
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef(null);
@@ -332,7 +343,12 @@ export default function CaseRow({
           {caseItem.phone_home && (
             <div className="ml-1 relative group">
               <button
-                className="badge w-8 cursor-default flex items-center justify-center bg-blue-500"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowCallLogsModal(true);
+                }}
+                title="View Call Logs"
+                className="badge w-8 cursor-pointer flex items-center justify-center bg-blue-500 hover:bg-blue-600 transition"
               >
                 <Phone className="w-4 h-4" />
               </button>
@@ -356,7 +372,7 @@ export default function CaseRow({
                   transition
                 "
               >
-                {caseItem.phone_home}
+                {formatPhone(caseItem.phone_home)}
               </div>
             </div>
           )}
@@ -601,6 +617,14 @@ export default function CaseRow({
           open={showMessagesModal}
           onClose={() => setShowMessagesModal(false)}
           pid_group={caseItem.pid_group || ''}
+          caseItem={caseItem}
+        />
+      )}
+
+      {showCallLogsModal && (
+        <CallLogsModal
+          onClose={() => setShowCallLogsModal(false)}
+          pid_group={caseItem.pid_group || ""}
           caseItem={caseItem}
         />
       )}
