@@ -137,24 +137,24 @@ export default function Cases() {
     }
   };
 
-  // Request Records
-  const confirmRequestRecord = async () => {
-    if (!selectedCase) return;
+  // Request Records (FormData built in modal; includes optional affidavit PDF)
+  const confirmRequestRecord = async (formData) => {
+    if (!selectedCase || !formData) return;
     try {
-      const formData = new FormData();
-      formData.append("pid", selectedCase.facilityPid || selectedCase.pid);
-      formData.append("record_type", selectedCase.recordType);
-      formData.append("note", selectedCase.description || "");
       const res = await apiRequest("request_records.php", {
         method: "POST",
         body: formData,
       });
       if (res.status) {
-        showToast("success", `Records requested for ${selectedCase.fname} ${selectedCase.lname}`);
+        const suffix = res.affidavit_saved ? " Affidavit saved to chart." : "";
+        showToast("success", `Records requested for ${selectedCase.fname} ${selectedCase.lname}.${suffix}`);
         setShowRequestRecordModal(false);
+      } else {
+        showToast("error", res.message || "Failed to request records");
       }
     } catch (e) {
       console.error(e);
+      showToast("error", e.message || "Failed to request records");
     }
   };
 

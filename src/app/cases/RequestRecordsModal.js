@@ -11,6 +11,8 @@ export default function RequestRecordsModal({
 }) {
   const [loading, setLoading] = useState(false);
   const [facilities, setFacilities] = useState([]);
+  const [affidavitFile, setAffidavitFile] = useState(null);
+  const [affidavitError, setAffidavitError] = useState("");
 
   useEffect(() => {
     if (selectedCase) {
@@ -30,14 +32,17 @@ export default function RequestRecordsModal({
     };
   }, [selectedCase, onClose]);
 
-  if (!selectedCase) return null;
-  
   useEffect(() => {
-    if (!selectedCase?.pid) return;
+    if (!selectedCase?.pid) {
+      setFacilities([]);
+      return;
+    }
 
     const fetchFacilities = async () => {
       try {
-        const details = await apiRequest(`/case_details.php?pid=${selectedCase.pid}`);
+        const details = await apiRequest(
+          `/case_details.php?pid=${selectedCase.pid}`
+        );
 
         if (details?.data?.sections) {
           setFacilities(details.data.sections);
@@ -49,22 +54,54 @@ export default function RequestRecordsModal({
 
     fetchFacilities();
   }, [selectedCase?.pid]);
-  
+
   useEffect(() => {
-    if (facilities.length === 1) {
-      setSelectedCase((prev) => ({
-        ...prev,
-        facilityPid: facilities[0].pid,
-      }));
+    if (!selectedCase?.pid) return;
+    if (facilities.length !== 1) return;
+    setSelectedCase((prev) => {
+      if (!prev) return prev;
+      if (String(prev.facilityPid) === String(facilities[0].pid)) return prev;
+      return { ...prev, facilityPid: facilities[0].pid };
+    });
+  }, [facilities, setSelectedCase, selectedCase?.pid]);
+
+  useEffect(() => {
+    setAffidavitFile(null);
+    setAffidavitError("");
+  }, [selectedCase?.pid]);
+
+  if (!selectedCase) return null;
+
+  const handleAffidavitChange = (e) => {
+    const selected = e.target.files?.[0];
+    if (!selected) {
+      setAffidavitFile(null);
+      setAffidavitError("");
+      return;
     }
-  }, [facilities, setSelectedCase]);
+    if (selected.type !== "application/pdf") {
+      setAffidavitError("Only PDF files are allowed.");
+      setAffidavitFile(null);
+      e.target.value = "";
+      return;
+    }
+    setAffidavitError("");
+    setAffidavitFile(selected);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     setLoading(true);
     try {
-      await onConfirm();
+      const formData = new FormData();
+      formData.append("pid", selectedCase.facilityPid || selectedCase.pid);
+      formData.append("record_type", selectedCase.recordType);
+      formData.append("note", selectedCase.description || "");
+      if (affidavitFile) {
+        formData.append("affidavit", affidavitFile);
+      }
+      await onConfirm(formData);
     } finally {
       setLoading(false);
     }
@@ -79,7 +116,6 @@ export default function RequestRecordsModal({
       }}
     >
       <div className="card max-w-lg w-full p-6 shadow-xl rounded-2xl bg-[#111827] border border-stroke">
-        
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
           <h4 className="font-semibold text-lg text-white">Request Records</h4>
@@ -93,7 +129,6 @@ export default function RequestRecordsModal({
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-
           {/* Patient Info */}
           <p className="text-sm text-gray-300">
             Are you sure you want to request records for:
@@ -106,13 +141,13 @@ export default function RequestRecordsModal({
             <br />
             DOB: {selectedCase.dob || "N/A"}
           </p>
-          
+
           {facilities.length >= 1 && (
             <div>
               <label className="block text-sm mb-1 text-white">
                 Facility <span className="text-red-500">*</span>
               </label>
-          
+
               <select
                 required
                 value={selectedCase.facilityPid || ""}
@@ -125,7 +160,7 @@ export default function RequestRecordsModal({
                 className="w-full px-3 py-2 rounded-lg bg-[#0b0f16] border border-stroke text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="">Select Facility</option>
-          
+
                 {facilities.map((fac) => (
                   <option key={fac.pid} value={fac.pid}>
                     {fac.title} — {fac.fac_name}
@@ -180,9 +215,32 @@ export default function RequestRecordsModal({
             </div>
           </div>
 
+          {/* Optional affidavit (same EMR document pipeline as other lawyer uploads) */}
+          <div>
+            <label className="block text-sm mb-1 text-white">
+              Affidavit (optional)
+            </label>
+            <input
+              type="file"
+              accept="application/pdf"
+              onChange={handleAffidavitChange}
+              className="w-full px-3 py-2 rounded-lg bg-[#0b0f16] border border-stroke text-white text-sm file:mr-3 file:py-1 file:px-2 file:rounded file:border-0 file:bg-gray-700 file:text-white"
+            />
+            <p className="text-xs text-gray-500 mt-1">
+              PDF only. If attached, it is saved to the patient chart when the
+              request is sent.
+            </p>
+            {affidavitError && (
+              <p className="text-xs text-red-500 mt-1">{affidavitError}</p>
+            )}
+          </div>
+
           {/* Description */}
           <div>
-            <label htmlFor="description" className="block text-sm mb-1 text-white">
+            <label
+              htmlFor="description"
+              className="block text-sm mb-1 text-white"
+            >
               Please add any specifics or description
             </label>
             <textarea
@@ -219,7 +277,6 @@ export default function RequestRecordsModal({
               {loading ? "Submitting..." : "Request Records"}
             </button>
           </div>
-
         </form>
       </div>
     </div>
