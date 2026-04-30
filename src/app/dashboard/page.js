@@ -16,6 +16,7 @@ import SendMessageModal from "../cases/SendMessageModal";
 import { useToast } from "../hooks/ToastContext";
 import SendTelemedLinkModal from "../cases/SendTelemedLinkModal";
 import SendTeleneuroLinkModal from "../cases/SendTeleneuroLinkModal";
+import UploadDocumentModal from "../cases/UploadDocumentModal";
 
 export default function Dashboard() {
   const [dashboardData, setDashboardData] = useState(null);
@@ -27,6 +28,7 @@ export default function Dashboard() {
   const [showSendMessageModal, setShowSendMessageModal] = useState(false);
   const [showSendTelemedLinkModal, setShowSendTelemedLinkModal] = useState(false);
   const [showSendTeleneuroLinkModal, setShowSendTeleneuroLinkModal] = useState(false);
+  const [showUploadDocumentModal, setShowUploadDocumentModal] = useState(false);
   const router = useRouter();
 
   const [selectedCase, setSelectedCase] = useState({"message": ""});
@@ -92,6 +94,29 @@ export default function Dashboard() {
     }
   };
   
+  const uploadDocument = async (formData) => {
+    try {
+      const res = await apiRequest("upload_document.php", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (res.status) {
+        showToast("success", res.message || "Document uploaded successfully");
+        if (selectedCase?.onSuccess) {
+          selectedCase.onSuccess();
+        }
+        setShowUploadDocumentModal(false);
+        setSelectedCase({ message: "" });
+      } else {
+        showToast("error", res.message || "Failed to upload document");
+      }
+    } catch (e) {
+      console.error(e);
+      showToast("error", "Something went wrong");
+    }
+  };
+
   const sendTeleneuroLink = async () => {
     if (!selectedCase) return;
     try {
@@ -136,14 +161,18 @@ export default function Dashboard() {
             setReferralModalOpen={setReferralModalOpen}
             setShowSendMessageModal={setShowSendMessageModal}
           />
-          <KPIs kpis={kpis}
-                loading={loading}
-                router={router}
-                setReferralModalOpen={setReferralModalOpen}
-                setNewLocationRequestModalOpen={setNewLocationRequestModalOpen}
-                setShowSendTelemedLinkModal={setShowSendTelemedLinkModal}
-                setShowSendTeleneuroLinkModal={setShowSendTeleneuroLinkModal}
-               />
+          <KPIs
+            kpis={kpis}
+            loading={loading}
+            router={router}
+            setReferralModalOpen={setReferralModalOpen}
+            setNewLocationRequestModalOpen={setNewLocationRequestModalOpen}
+            setShowSendTelemedLinkModal={setShowSendTelemedLinkModal}
+            setShowSendTeleneuroLinkModal={setShowSendTeleneuroLinkModal}
+            setShowUploadDocumentModal={setShowUploadDocumentModal}
+            setSelectedCase={setSelectedCase}
+            fetchDashboard={fetchDashboard}
+          />
         </section>
 
         <section className="grid grid-cols-12 gap-4">
@@ -194,6 +223,19 @@ export default function Dashboard() {
           setSelectedCase={setSelectedCase}
           onClose={() => {setShowSendTeleneuroLinkModal(false); setSelectedCase();}}
           onConfirm={sendTeleneuroLink}
+        />
+      )}
+
+      {showUploadDocumentModal && selectedCase && (
+        <UploadDocumentModal
+          selectedCase={selectedCase}
+          showPatientSelection
+          setSelectedCase={setSelectedCase}
+          onClose={() => {
+            setShowUploadDocumentModal(false);
+            setSelectedCase({ message: "" });
+          }}
+          onConfirm={uploadDocument}
         />
       )}
 

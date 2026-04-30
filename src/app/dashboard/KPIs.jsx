@@ -1,6 +1,6 @@
 "use client";
 
-import { PlusCircle, MapPin, CarFront, Siren, PhoneCall, BrainCircuit, Video } from "lucide-react";
+import { PlusCircle, MapPin, CarFront, Siren, PhoneCall, BrainCircuit, Video, FileStack } from "lucide-react";
 import { useToast } from "../hooks/ToastContext";
 import { apiRequest } from "../utils/api";
 
@@ -12,6 +12,9 @@ export default function KPIs({
   setNewLocationRequestModalOpen,
   setShowSendTelemedLinkModal,
   setShowSendTeleneuroLinkModal,
+  setShowUploadDocumentModal,
+  setSelectedCase,
+  fetchDashboard,
 }) {
   const { showToast } = useToast();
 
@@ -72,6 +75,17 @@ export default function KPIs({
       label: "Schedule Virtual PT",
       value: <Video className="w-7 h-7 inline text-blue-400" />,
       path: "/referrals/new?refer_to=virtual_pt",
+    },
+    {
+      label: "Upload Reductions",
+      value: <FileStack className="w-7 h-7 inline text-blue-400" />,
+      action: () => {
+        setSelectedCase({
+          doc_type: "reduction",
+          onSuccess: fetchDashboard,
+        });
+        setShowUploadDocumentModal(true);
+      },
     },
   ];
 
