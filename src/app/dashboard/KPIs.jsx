@@ -1,6 +1,6 @@
 "use client";
 
-import { PlusCircle, MapPin, CarFront, Siren, PhoneCall, BrainCircuit, Video, FileStack } from "lucide-react";
+import { MapPin, CarFront, Siren, PhoneCall, BrainCircuit, Video, FileStack, ClipboardList } from "lucide-react";
 import { useToast } from "../hooks/ToastContext";
 import { apiRequest } from "../utils/api";
 
@@ -15,6 +15,7 @@ export default function KPIs({
   setShowUploadDocumentModal,
   setSelectedCase,
   fetchDashboard,
+  setRequestedRecordsModalOpen,
 }) {
   const { showToast } = useToast();
 
@@ -30,7 +31,7 @@ export default function KPIs({
       label: "Pending Reports",
       value: kpis?.pendingReports,
       path: "/cases?status=pending_reports",
-      description: "Requested records",
+      description: "Awaiting reports",
     },
     {
       label: "Open Tasks",
@@ -86,6 +87,12 @@ export default function KPIs({
         });
         setShowUploadDocumentModal(true);
       },
+    },
+    {
+      label: "Requested records",
+      value: <ClipboardList className="w-7 h-7 inline text-blue-400" />,
+      description: "Final & interim requests",
+      action: () => setRequestedRecordsModalOpen(true),
     },
   ];
 

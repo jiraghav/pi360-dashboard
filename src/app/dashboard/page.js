@@ -11,6 +11,7 @@ import KPIs from "./KPIs";
 import ClinicalAlerts from "./ClinicalAlerts";
 import ActivityFeed from "./ActivityFeed";
 import GreetingHeader from "./GreetingHeader";
+import RequestedRecordsModal from "./RequestedRecordsModal";
 import NewLocationRequestModal from "./NewLocationRequestModal";
 import SendMessageModal from "../cases/SendMessageModal";
 import { useToast } from "../hooks/ToastContext";
@@ -29,6 +30,7 @@ export default function Dashboard() {
   const [showSendTelemedLinkModal, setShowSendTelemedLinkModal] = useState(false);
   const [showSendTeleneuroLinkModal, setShowSendTeleneuroLinkModal] = useState(false);
   const [showUploadDocumentModal, setShowUploadDocumentModal] = useState(false);
+  const [requestedRecordsModalOpen, setRequestedRecordsModalOpen] = useState(false);
   const router = useRouter();
 
   const [selectedCase, setSelectedCase] = useState({"message": ""});
@@ -172,6 +174,7 @@ export default function Dashboard() {
             setShowUploadDocumentModal={setShowUploadDocumentModal}
             setSelectedCase={setSelectedCase}
             fetchDashboard={fetchDashboard}
+            setRequestedRecordsModalOpen={setRequestedRecordsModalOpen}
           />
         </section>
 
@@ -185,6 +188,11 @@ export default function Dashboard() {
           />
         </section>
       </main>
+
+      <RequestedRecordsModal
+        isOpen={requestedRecordsModalOpen}
+        onClose={() => setRequestedRecordsModalOpen(false)}
+      />
 
       <ReviewNotesModal
         isOpen={reviewModalOpen}
