@@ -32,6 +32,7 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.example
 
 # vercel
 .vercel
@@ -39,3 +40,21 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Android / TWA (Bubblewrap) — root `app/` is the Gradle app module, not Next.js `src/app`
+/app/build/
+/app/release/
+/app/.cxx/
+/.gradle/
+**/local.properties
+.idea/
+*.iml
+*.hprof
+
+# signing artifacts & store binaries (never commit secrets)
+*.apk
+*.aab
+*.apks
+*.keystore
+*.jks
+android.keystore
