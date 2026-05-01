@@ -1,72 +1,120 @@
-import AppShell from "./AppShell";
+"use client";
 
-export const metadata = {
-  applicationName: "PI360",
-  title: {
-    default: "PI360",
-    template: "%s | PI360",
-  },
-  description: "Complete Injury Centers — PI360 dashboard",
-  appleWebApp: {
-    capable: true,
-    statusBarStyle: "black-translucent",
-    title: "PI360",
-  },
-  formatDetection: {
-    telephone: false,
-  },
-  icons: {
-    icon: [
-      { url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
-      { url: "/icons/icon-512.png", sizes: "512x512", type: "image/png" },
-    ],
-    apple: [{ url: "/icons/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
-  },
-};
+import "./globals.css";
+import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
+import Navbar from "./components/Navbar";
+import Sidebar from "./components/Sidebar";
+import Link from "next/link";
+import { routeMap } from "./config/routes";
+import Toast from "./components/Toast";
+import { ToastProvider, useToast } from "./hooks/ToastContext";
+import { NotificationProvider } from "./context/NotificationContext";
+import AuthGuard from "./context/AuthGuard";
 
-export const viewport = {
-  width: "device-width",
-  initialScale: 1,
-  viewportFit: "cover",
-  themeColor: [
-    { media: "(prefers-color-scheme: dark)", color: "#0b0f16" },
-    { media: "(prefers-color-scheme: light)", color: "#0b0f16" },
-  ],
-};
+function LayoutContent({ children }) {
+  const pathname = usePathname();
+  const isOnboardingPath = pathname === "/onboarding" || pathname.startsWith("/onboarding/");
+  const route = routeMap[pathname] || (isOnboardingPath ? { title: "Clinic Onboarding" } : { title: "Dashboard" });
+  const [pageTitle, setPageTitle] = useState(route.title);
+  const { toast, hideToast } = useToast(false);
+  const [isMobile, setIsMobile] = useState(false);
 
-const tailwindConfigInline = `
-tailwind.config = {
-  theme: {
-    extend: {
-      colors: {
-        bg: '#0b0f16',
-        card: '#0e1420',
-        stroke: '#1b2534',
-        ink: '#e6edf3',
-        mute: '#9aa8bd',
-        sky: { 500: '#38bdf8', 400:'#60c5fa' },
-        mint: { 500: '#34d399' },
-        grape: { 500: '#a78bfa' },
-        amber: { 500: '#f59e0b' },
-        rose: { 500: '#f87171' },
-      }
-    }
-  }
+  useEffect(() => {
+    const route = routeMap[pathname] || (isOnboardingPath ? { title: "Clinic Onboarding" } : { title: "Dashboard" });
+    setPageTitle(route.title);
+    document.title = route.title;
+  }, [pathname, isOnboardingPath]);
+  
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768); // Tailwind md breakpoint
+    handleResize(); // initial check
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  const hideLayout =
+    pathname === "/login" ||
+    pathname === "/register" ||
+    pathname === "/magic-login" ||
+    isOnboardingPath;
+
+  return (
+    <>
+      <div className="md:hidden">
+        {!hideLayout && isMobile && <Navbar />}
+      </div>
+
+      <div className="min-h-screen grid md:grid-cols-12">
+        {!hideLayout && <Sidebar />}
+
+        <section
+          className={hideLayout ? "col-span-12" : "md:col-span-9 xl:col-span-10"}
+        >
+          <div className="hidden md:block">
+            {!hideLayout && !isMobile && <Navbar />}
+          </div>
+          <main className="main">{children}</main>
+
+          {/* ✅ Toast stays globally mounted */}
+          {toast && (
+            <Toast
+              type={toast.type}
+              message={toast.message}
+              onClose={hideToast}
+            />
+          )}
+        </section>
+      </div>
+    </>
+  );
 }
-`;
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body className="bg-bg text-ink antialiased">
-        {/* Sync load preserves original behavior: config runs after Tailwind runtime exists */}
-        <script src="https://cdn.tailwindcss.com" />
+      <head>
+        <title>PI360</title>
+
+        <link rel="icon" href="/favicon.ico" sizes="any" />
+
+        {/* ✅ Keep Tailwind setup for global styling */}
+        <script src="https://cdn.tailwindcss.com"></script>
         <script
           dangerouslySetInnerHTML={{
-            __html: tailwindConfigInline,
+            __html: `
+              tailwind.config = {
+                theme: {
+                  extend: {
+                    colors: {
+                      bg: '#0b0f16',
+                      card: '#0e1420',
+                      stroke: '#1b2534',
+                      ink: '#e6edf3',
+                      mute: '#9aa8bd',
+                      sky: { 500: '#38bdf8', 400:'#60c5fa' },
+                      mint: { 500: '#34d399' },
+                      grape: { 500: '#a78bfa' },
+                      amber: { 500: '#f59e0b' },
+                      rose: { 500: '#f87171' },
+                    }
+                  }
+                }
+              }
+            `,
           }}
         />
-        <AppShell>{children}</AppShell>
+      </head>
+
+      <body className="bg-bg text-ink">
+          <AuthGuard>
+            <NotificationProvider>
+              <ToastProvider>
+                <LayoutContent>{children}</LayoutContent>
+              </ToastProvider>
+            </NotificationProvider>
+          </AuthGuard>
       </body>
     </html>
   );

@@ -1,26 +1,6 @@
-:root {
-  color-scheme: dark;
-  --safe-top: env(safe-area-inset-top, 0px);
-  --safe-right: env(safe-area-inset-right, 0px);
-  --safe-bottom: env(safe-area-inset-bottom, 0px);
-  --safe-left: env(safe-area-inset-left, 0px);
-}
-body {
-  background: radial-gradient(1200px 600px at 20% -10%, rgba(56,189,248,.12), transparent 60%),
-                 radial-gradient(1000px 600px at 120% 10%, rgba(167,139,250,.10), transparent 60%), #0b0f16;
-}
-/* Main scroll area: respect home indicator on notched phones */
-.main {
-  padding-bottom: max(0.75rem, var(--safe-bottom));
-}
-@media (min-width: 768px) {
-  .main {
-    padding-bottom: 1rem;
-  }
-}
-.app-shell-grid {
-  padding-bottom: env(safe-area-inset-bottom, 0px);
-}
+:root { color-scheme: dark; }
+body { background: radial-gradient(1200px 600px at 20% -10%, rgba(56,189,248,.12), transparent 60%),
+                 radial-gradient(1000px 600px at 120% 10%, rgba(167,139,250,.10), transparent 60%), #0b0f16; }
 .glass { background: #0e1420cc; backdrop-filter: blur(6px); }
 .card { background: linear-gradient(180deg, rgba(255,255,255,.03), transparent 40%) , #0e1420;
          border: 1px solid #1b2534; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,.35); }
