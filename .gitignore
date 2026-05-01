@@ -15,7 +15,6 @@
 
 # next.js
 /.next/
-/.next-use-src-app
 /out/
 
 # production
@@ -42,10 +41,10 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# Android / TWA (Bubblewrap) — module under android/app/ so root ./app does not shadow Next.js src/app
-/android/app/build/
-/android/app/release/
-/android/app/.cxx/
+# Android / TWA (Bubblewrap) — root `app/` is the Gradle app module, not Next.js `src/app`
+/app/build/
+/app/release/
+/app/.cxx/
 /.gradle/
 **/local.properties
 .idea/

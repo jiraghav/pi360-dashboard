@@ -1,11 +1,5 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
-### Repository layout (Next.js + Android TWA)
-
-Next.js resolves the App Router as **`./app` first**, then **`./src/app`**. A **Gradle module named `app` at the repo root** therefore hijacks Next: you get **404 on every route** and no `/manifest.webmanifest`. The Android Bubblewrap project lives under **`android/app/`** instead, and **`settings.gradle`** sets `project(':app').projectDir = file('android/app')` so Gradle is unchanged from a module named `:app`.
-
-If you previously had a root `app/` folder and dev shows **500** with `scandir '...\\app'` in the terminal, **`npm run dev`** runs `scripts/clear-stale-next-once.cjs` once to remove a stale **`.next`** (see **`.next-use-src-app`** in the repo root, gitignored). To force another wipe, delete **`.next`** and **`.next-use-src-app`**, then run **`npm run dev`** again.
-
 ## PWA (installable app)
 
 This app uses the **App Router** (`src/app/`) and is configured as a **Progressive Web App** for Android Chrome and iOS Safari (“Add to Home Screen”).

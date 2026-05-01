@@ -1,4 +1,1 @@
-// Android app module lives under android/app/ so the repo root has no ./app folder.
-// Next.js resolves ./app before ./src/app; a root "app" directory breaks the Next App Router.
 include ':app'
-project(':app').projectDir = file('android/app')
