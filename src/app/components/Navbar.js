@@ -134,7 +134,7 @@ export default function Navbar() {
     if (document.hidden && "Notification" in window && Notification.permission === "granted") {
       const notif = new Notification(title, {
         body: message,
-        icon: "/notification-icon.png" // optional
+        icon: "/icons/icon-192.png",
       });
 
       notif.onclick = () => {
@@ -241,7 +241,7 @@ export default function Navbar() {
   // -------------------------------
   return (
     <>
-      <header className="sticky top-0 z-40 glass border-b border-stroke/70">
+      <header className="sticky top-0 z-40 glass border-b border-stroke/70 pt-[max(0.5rem,env(safe-area-inset-top,0px))] md:pt-0">
         <div className="px-3 md:px-6 py-3 md:py-4">
       
           {/* GRID HEADER */}
