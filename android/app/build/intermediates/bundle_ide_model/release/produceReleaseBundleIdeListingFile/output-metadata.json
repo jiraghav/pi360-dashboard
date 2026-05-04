@@ -4,7 +4,7 @@
     "type": "BUNDLE",
     "kind": "RegularFile"
   },
-  "applicationId": "com.pi_360.cic.twa",
+  "applicationId": "com.pi360.dashboard",
   "variantName": "release",
   "elements": [
     {
