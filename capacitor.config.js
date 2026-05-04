@@ -41,7 +41,7 @@ const serverUrl = (process.env.CAPACITOR_SERVER_URL || "").trim();
 /** @type {import('@capacitor/cli').CapacitorConfig} */
 const config = {
   appId: "com.dashboard.pi360",
-  appName: "CIC Dashboard",
+  appName: "CIC",
   webDir: "www",
   android: {
     allowMixedContent: true,

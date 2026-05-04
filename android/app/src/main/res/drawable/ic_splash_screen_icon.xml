@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Android 12+ splash applies a circular mask to windowSplashScreenAnimatedIcon.
+  Percent insets shrink the mark so the squircle logo stays inside the circle (minSdk 23).
+-->
+<inset xmlns:android="http://schemas.android.com/apk/res/android"
+    android:drawable="@drawable/ic_pi360_logo"
+    android:insetLeft="30%"
+    android:insetTop="30%"
+    android:insetRight="30%"
+    android:insetBottom="30%" />

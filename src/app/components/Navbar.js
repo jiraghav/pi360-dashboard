@@ -241,7 +241,7 @@ export default function Navbar() {
   // -------------------------------
   return (
     <>
-      <header className="sticky top-0 z-40 glass border-b border-stroke/70 pt-[env(safe-area-inset-top,0px)]">
+      <header className="sticky top-0 z-40 glass border-b border-stroke/70">
         <div className="px-3 md:px-6 py-3 md:py-4">
       
           {/* GRID HEADER */}

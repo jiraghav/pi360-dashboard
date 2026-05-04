@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Overrides Capacitor default: WebView lays out below status/navigation bars. -->
+<!-- App override merges over Capacitor default. Do NOT set fitsSystemWindows here:
+     it stacks with WindowCompat.setDecorFitsSystemWindows(true) and causes a double
+     top gap below the status bar on Android 14/15. -->
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
     tools:context="com.getcapacitor.BridgeActivity">
 
     <com.getcapacitor.CapacitorWebView

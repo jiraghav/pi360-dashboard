@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">CIC Dashboard</string>
-    <string name="title_activity_main">CIC Dashboard</string>
+    <string name="app_name">CIC</string>
+    <string name="title_activity_main">CIC</string>
     <string name="package_name">com.dashboard.pi360</string>
     <string name="custom_url_scheme">com.dashboard.pi360</string>
 </resources>
