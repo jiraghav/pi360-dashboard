@@ -4,15 +4,15 @@
     "type": "PACKAGED_MANIFESTS",
     "kind": "Directory"
   },
-  "applicationId": "com.pi_360.cic.twa",
+  "applicationId": "com.pi360.dashboard",
   "variantName": "release",
   "elements": [
     {
       "type": "SINGLE",
       "filters": [],
       "attributes": [],
-      "versionCode": 2,
-      "versionName": "2",
+      "versionCode": 1,
+      "versionName": "1.0",
       "outputFile": "AndroidManifest.xml"
     }
   ],

@@ -1,0 +1,15 @@
+package com.pi360.dashboard;
+
+import android.os.Bundle;
+import androidx.core.view.WindowCompat;
+import com.getcapacitor.BridgeActivity;
+
+public class MainActivity extends BridgeActivity {
+
+  @Override
+  public void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    // Keep WebView layout below status bar (pairs with StatusBar overlaysWebView: false).
+    WindowCompat.setDecorFitsSystemWindows(getWindow(), true);
+  }
+}

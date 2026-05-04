@@ -7,9 +7,17 @@
     "build": "next build",
     "start": "next start",
     "export": "next export",
-    "lint": "eslint"
+    "lint": "eslint",
+    "android:sync": "node scripts/require-dashboard-url-for-android.js && npx cap sync android",
+    "android:open": "npx cap open android",
+    "android:run": "npx cap run android"
   },
   "dependencies": {
+    "@capacitor/android": "^7.4.4",
+    "@capacitor/app": "^7.1.0",
+    "@capacitor/core": "^7.4.4",
+    "@capacitor/splash-screen": "^7.0.3",
+    "@capacitor/status-bar": "^7.0.3",
     "@react-google-maps/api": "^2.20.7",
     "date-fns": "^4.1.0",
     "jwt-decode": "^4.0.0",
@@ -26,6 +34,7 @@
     "recharts": "^3.4.1"
   },
   "devDependencies": {
+    "@capacitor/cli": "^7.4.4",
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
     "eslint": "^9",

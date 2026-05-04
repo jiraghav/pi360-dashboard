@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CIC Dashboard — configuration needed</title>
+    <style>
+      body {
+        font-family: system-ui, sans-serif;
+        margin: 1.25rem;
+        color: #1a1a1a;
+        line-height: 1.5;
+        max-width: 36rem;
+      }
+      code {
+        background: #f0f0f0;
+        padding: 0.15rem 0.35rem;
+        border-radius: 4px;
+        font-size: 0.9em;
+      }
+    </style>
+  </head>
+  <body>
+    <p><strong>This screen means the app was built without a dashboard URL.</strong></p>
+    <p>
+      Add <code>CAPACITOR_SERVER_URL=…</code> to <code>.env.local</code> (your hosted Next.js
+      site), then from the project root run <code>npm run android:sync</code> and rebuild the
+      APK.
+    </p>
+    <p>
+      Example: <code>CAPACITOR_SERVER_URL=https://dashboard.yourdomain.com</code>
+    </p>
+  </body>
+</html>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Wide CIC mark: side + top/bottom insets and ScaleDrawable so the full logo fits
+  inside adaptive masks. Taller padding (top/bottom) reduces vertical use; tweak
+  dp or scale% if you need more room.
+-->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:left="16dp"
+        android:top="20dp"
+        android:right="16dp"
+        android:bottom="20dp">
+        <scale
+            android:drawable="@drawable/ic_pi360_logo"
+            android:scaleGravity="center"
+            android:scaleHeight="15%"
+            android:scaleWidth="15%"
+            android:level="10000" />
+    </item>
+</layer-list>
