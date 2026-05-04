@@ -40,7 +40,7 @@ const serverUrl = (process.env.CAPACITOR_SERVER_URL || "").trim();
 
 /** @type {import('@capacitor/cli').CapacitorConfig} */
 const config = {
-  appId: "com.pi360.dashboard",
+  appId: "com.dashboard.pi360",
   appName: "CIC Dashboard",
   webDir: "www",
   android: {

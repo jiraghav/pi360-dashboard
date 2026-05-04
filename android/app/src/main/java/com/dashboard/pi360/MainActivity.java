@@ -1,4 +1,4 @@
-package com.pi360.dashboard;
+package com.dashboard.pi360;
 
 import android.os.Bundle;
 import androidx.core.view.WindowCompat;

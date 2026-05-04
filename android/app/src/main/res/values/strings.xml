@@ -2,6 +2,6 @@
 <resources>
     <string name="app_name">CIC Dashboard</string>
     <string name="title_activity_main">CIC Dashboard</string>
-    <string name="package_name">com.pi360.dashboard</string>
-    <string name="custom_url_scheme">com.pi360.dashboard</string>
+    <string name="package_name">com.dashboard.pi360</string>
+    <string name="custom_url_scheme">com.dashboard.pi360</string>
 </resources>

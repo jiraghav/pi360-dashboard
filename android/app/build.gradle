@@ -7,10 +7,10 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
-    namespace "com.pi360.dashboard"
+    namespace "com.dashboard.pi360"
     compileSdk rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "com.pi360.dashboard"
+        applicationId "com.dashboard.pi360"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="ic_launcher_background">#FFFFFF</color>
-    <string name="app_name">PI360 Dashboard</string>
-    <string name="custom_url_scheme">com.pi360.dashboard</string>
-    <string name="package_name">com.pi360.dashboard</string>
-    <string name="title_activity_main">PI360 Dashboard</string>
+    <string name="app_name">CIC Dashboard</string>
+    <string name="custom_url_scheme">com.dashboard.pi360</string>
+    <string name="package_name">com.dashboard.pi360</string>
+    <string name="title_activity_main">CIC Dashboard</string>
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         
         <item name="colorPrimary">@color/colorPrimary</item>

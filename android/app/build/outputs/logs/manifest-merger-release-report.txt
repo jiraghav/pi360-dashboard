@@ -94,7 +94,7 @@ MERGED from [androidx.versionedparcelable:versionedparcelable:1.1.1] C:\Users\De
 		ADDED from D:\pi360-dashboard\android\app\src\main\AndroidManifest.xml:5:9-35
 	android:theme
 		ADDED from D:\pi360-dashboard\android\app\src\main\AndroidManifest.xml:10:9-40
-activity#com.pi360.dashboard.MainActivity
+activity#com.dashboard.pi360.MainActivity
 ADDED from D:\pi360-dashboard\android\app\src\main\AndroidManifest.xml:12:9-25:20
 	android:label
 		ADDED from D:\pi360-dashboard\android\app\src\main\AndroidManifest.xml:15:13-56
@@ -246,7 +246,7 @@ ADDED from [androidx.core:core:1.15.0] C:\Users\Dell\.gradle\caches\8.11.1\trans
 		ADDED from [androidx.core:core:1.15.0] C:\Users\Dell\.gradle\caches\8.11.1\transforms\5f51ed623ec66baebfa6a053fe8a8b2a\transformed\core-1.15.0\AndroidManifest.xml:24:9-44
 	android:name
 		ADDED from [androidx.core:core:1.15.0] C:\Users\Dell\.gradle\caches\8.11.1\transforms\5f51ed623ec66baebfa6a053fe8a8b2a\transformed\core-1.15.0\AndroidManifest.xml:23:9-81
-permission#com.pi360.dashboard.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION
+permission#com.dashboard.pi360.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION
 ADDED from [androidx.core:core:1.15.0] C:\Users\Dell\.gradle\caches\8.11.1\transforms\5f51ed623ec66baebfa6a053fe8a8b2a\transformed\core-1.15.0\AndroidManifest.xml:22:5-24:47
 	android:protectionLevel
 		ADDED from [androidx.core:core:1.15.0] C:\Users\Dell\.gradle\caches\8.11.1\transforms\5f51ed623ec66baebfa6a053fe8a8b2a\transformed\core-1.15.0\AndroidManifest.xml:24:9-44
@@ -256,7 +256,7 @@ uses-permission#${applicationId}.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION
 ADDED from [androidx.core:core:1.15.0] C:\Users\Dell\.gradle\caches\8.11.1\transforms\5f51ed623ec66baebfa6a053fe8a8b2a\transformed\core-1.15.0\AndroidManifest.xml:26:5-97
 	android:name
 		ADDED from [androidx.core:core:1.15.0] C:\Users\Dell\.gradle\caches\8.11.1\transforms\5f51ed623ec66baebfa6a053fe8a8b2a\transformed\core-1.15.0\AndroidManifest.xml:26:22-94
-uses-permission#com.pi360.dashboard.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION
+uses-permission#com.dashboard.pi360.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION
 ADDED from [androidx.core:core:1.15.0] C:\Users\Dell\.gradle\caches\8.11.1\transforms\5f51ed623ec66baebfa6a053fe8a8b2a\transformed\core-1.15.0\AndroidManifest.xml:26:5-97
 	android:name
 		ADDED from [androidx.core:core:1.15.0] C:\Users\Dell\.gradle\caches\8.11.1\transforms\5f51ed623ec66baebfa6a053fe8a8b2a\transformed\core-1.15.0\AndroidManifest.xml:26:22-94

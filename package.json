@@ -8,12 +8,16 @@
     "start": "next start",
     "export": "next export",
     "lint": "eslint",
-    "android:sync": "node scripts/require-dashboard-url-for-android.js && npx cap sync android",
+    "android:sync": "node scripts/require-capacitor-server-url.js && npx cap sync android",
     "android:open": "npx cap open android",
-    "android:run": "npx cap run android"
+    "android:run": "npx cap run android",
+    "ios:sync": "node scripts/require-capacitor-server-url.js && npx cap sync ios",
+    "ios:open": "npx cap open ios",
+    "ios:run": "npx cap run ios"
   },
   "dependencies": {
     "@capacitor/android": "^7.4.4",
+    "@capacitor/ios": "^7.4.4",
     "@capacitor/app": "^7.1.0",
     "@capacitor/core": "^7.4.4",
     "@capacitor/splash-screen": "^7.0.3",

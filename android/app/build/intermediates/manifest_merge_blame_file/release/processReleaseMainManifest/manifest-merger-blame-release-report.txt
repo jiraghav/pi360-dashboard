@@ -1,6 +1,6 @@
 1<?xml version="1.0" encoding="utf-8"?>
 2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-3    package="com.pi360.dashboard"
+3    package="com.dashboard.pi360"
 4    android:versionCode="1"
 5    android:versionName="1.0" >
 6
@@ -16,12 +16,12 @@
 14
 15    <permission
 15-->[androidx.core:core:1.15.0] C:\Users\Dell\.gradle\caches\8.11.1\transforms\5f51ed623ec66baebfa6a053fe8a8b2a\transformed\core-1.15.0\AndroidManifest.xml:22:5-24:47
-16        android:name="com.pi360.dashboard.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+16        android:name="com.dashboard.pi360.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
 16-->[androidx.core:core:1.15.0] C:\Users\Dell\.gradle\caches\8.11.1\transforms\5f51ed623ec66baebfa6a053fe8a8b2a\transformed\core-1.15.0\AndroidManifest.xml:23:9-81
 17        android:protectionLevel="signature" />
 17-->[androidx.core:core:1.15.0] C:\Users\Dell\.gradle\caches\8.11.1\transforms\5f51ed623ec66baebfa6a053fe8a8b2a\transformed\core-1.15.0\AndroidManifest.xml:24:9-44
 18
-19    <uses-permission android:name="com.pi360.dashboard.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
+19    <uses-permission android:name="com.dashboard.pi360.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
 19-->[androidx.core:core:1.15.0] C:\Users\Dell\.gradle\caches\8.11.1\transforms\5f51ed623ec66baebfa6a053fe8a8b2a\transformed\core-1.15.0\AndroidManifest.xml:26:5-97
 19-->[androidx.core:core:1.15.0] C:\Users\Dell\.gradle\caches\8.11.1\transforms\5f51ed623ec66baebfa6a053fe8a8b2a\transformed\core-1.15.0\AndroidManifest.xml:26:22-94
 20
@@ -44,7 +44,7 @@
 29-->D:\pi360-dashboard\android\app\src\main\AndroidManifest.xml:10:9-40
 30        <activity
 30-->D:\pi360-dashboard\android\app\src\main\AndroidManifest.xml:12:9-25:20
-31            android:name="com.pi360.dashboard.MainActivity"
+31            android:name="com.dashboard.pi360.MainActivity"
 31-->D:\pi360-dashboard\android\app\src\main\AndroidManifest.xml:14:13-41
 32            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|smallestScreenSize|screenLayout|uiMode|navigation"
 32-->D:\pi360-dashboard\android\app\src\main\AndroidManifest.xml:13:13-140
@@ -71,7 +71,7 @@
 44        <provider
 45            android:name="androidx.core.content.FileProvider"
 45-->D:\pi360-dashboard\android\app\src\main\AndroidManifest.xml:28:13-62
-46            android:authorities="com.pi360.dashboard.fileprovider"
+46            android:authorities="com.dashboard.pi360.fileprovider"
 46-->D:\pi360-dashboard\android\app\src\main\AndroidManifest.xml:29:13-64
 47            android:exported="false"
 47-->D:\pi360-dashboard\android\app\src\main\AndroidManifest.xml:30:13-37
@@ -88,7 +88,7 @@
 53-->[androidx.emoji2:emoji2:1.3.0] C:\Users\Dell\.gradle\caches\8.11.1\transforms\455628e39230ce08b70f281b4ac99c3c\transformed\emoji2-1.3.0\AndroidManifest.xml:24:9-32:20
 54            android:name="androidx.startup.InitializationProvider"
 54-->[androidx.emoji2:emoji2:1.3.0] C:\Users\Dell\.gradle\caches\8.11.1\transforms\455628e39230ce08b70f281b4ac99c3c\transformed\emoji2-1.3.0\AndroidManifest.xml:25:13-67
-55            android:authorities="com.pi360.dashboard.androidx-startup"
+55            android:authorities="com.dashboard.pi360.androidx-startup"
 55-->[androidx.emoji2:emoji2:1.3.0] C:\Users\Dell\.gradle\caches\8.11.1\transforms\455628e39230ce08b70f281b4ac99c3c\transformed\emoji2-1.3.0\AndroidManifest.xml:26:13-68
 56            android:exported="false" >
 56-->[androidx.emoji2:emoji2:1.3.0] C:\Users\Dell\.gradle\caches\8.11.1\transforms\455628e39230ce08b70f281b4ac99c3c\transformed\emoji2-1.3.0\AndroidManifest.xml:27:13-37

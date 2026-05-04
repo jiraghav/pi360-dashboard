@@ -4,7 +4,7 @@
     "type": "MERGED_MANIFESTS",
     "kind": "Directory"
   },
-  "applicationId": "com.pi360.dashboard",
+  "applicationId": "com.dashboard.pi360",
   "variantName": "release",
   "elements": [
     {
