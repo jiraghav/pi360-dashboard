@@ -139,10 +139,10 @@ export default function LoginPage() {
 
             {error && <p className="text-red-400 text-sm">{error}</p>}
 
-            <div className="flex justify-end text-xs text-slate-500 mt-3">
-              {/*<a href="#" className="hover:text-sky-400">
-                Forgot Password?
-              </a>*/}
+            <div className="flex justify-between text-xs text-slate-500 mt-3">
+              <Link href="/request-login-info" className="hover:text-sky-400">
+                Request login info
+              </Link>
               <Link href="/register" className="hover:text-sky-400">
                 Create Account
               </Link>

@@ -3,7 +3,7 @@
 import { useRouter, usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
-const AUTH_PAGES = ["/login", "/register", "/onboarding"];
+const AUTH_PAGES = ["/login", "/register", "/request-login-info", "/onboarding"];
 
 export default function AuthGuard({ children }) {
   const router = useRouter();
