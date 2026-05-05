@@ -26,6 +26,7 @@
 *.jks
 *.keystore
 android/keystore.properties
+android/app/build/
 
 # debug
 npm-debug.log*
