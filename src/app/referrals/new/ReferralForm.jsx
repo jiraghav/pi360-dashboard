@@ -319,6 +319,7 @@ export default function ReferralForm({ router, pid }) {
       <input
         type="file"
         name="attachment"
+        accept="application/pdf"
         onChange={handleChange}
         className="border rounded px-3 py-2 md:col-span-2 bg-black text-white"
       />

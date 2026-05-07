@@ -303,6 +303,7 @@ export default function DroppedCaseModal({
               <input
                 type="file"
                 name="file_withdraw_notice"
+                accept="application/pdf"
                 onChange={(e) =>
                   setFormData((prev) => ({
                     ...prev,
@@ -328,6 +329,7 @@ export default function DroppedCaseModal({
               <input
                 type="file"
                 name="file_lop"
+                accept="application/pdf"
                 onChange={(e) =>
                   setFormData((prev) => ({
                     ...prev,
@@ -353,6 +355,7 @@ export default function DroppedCaseModal({
               <input
                 type="file"
                 name="file_settlement"
+                accept="application/pdf"
                 onChange={(e) =>
                   setFormData((prev) => ({
                     ...prev,
