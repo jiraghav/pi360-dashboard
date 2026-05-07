@@ -251,7 +251,7 @@ export default function Navbar() {
             <div className="flex items-center gap-2 min-w-0">
       
               <button
-                className="md:hidden btn px-3 py-2"
+                className="lg:hidden btn px-3 py-2"
                 onClick={() => {
                   const sidebar = document.getElementById("sidebar");
                   if (!sidebar) return;
@@ -470,7 +470,7 @@ export default function Navbar() {
               {/* Create Task */}
               <Link
                 href="/tasks"
-                className="btn hidden md:inline-flex px-3 py-2.5"
+                className="btn hidden lg:inline-flex px-3 py-2.5"
               >
                 Create Task
               </Link>

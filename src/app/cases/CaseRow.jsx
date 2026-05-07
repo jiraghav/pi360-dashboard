@@ -138,13 +138,13 @@ export default function CaseRow({
 
   return (
     <div
-      className="mb-4 border border-stroke/30 rounded-xl md:border-0 md:rounded-none md:border-b md:border-stroke/50"
+      className="mb-4 border border-stroke/30 rounded-xl lg:border-0 lg:rounded-none lg:border-b lg:border-stroke/50"
     >
-      <div className="grid grid-cols-1 md:grid-cols-12 items-start md:items-center gap-2 md:gap-0 p-4 md:p-0"
+      <div className="grid grid-cols-1 lg:grid-cols-12 items-start lg:items-center gap-2 lg:gap-0 p-4 lg:p-0"
         onClick={toggleRow}
         >
         {/* Expand */}
-        <div className="flex items-center md:col-span-3">
+        <div className="flex items-center lg:col-span-3">
           <button
             onClick={(e) => {
               e.stopPropagation();
@@ -410,36 +410,36 @@ export default function CaseRow({
           </span>
         </div>
 
-        <div className="md:col-span-1">
-          <span className="md:hidden font-semibold">First: </span>
+        <div className="lg:col-span-1">
+          <span className="lg:hidden font-semibold">First: </span>
           {caseItem.fname}
         </div>
-        <div className="md:col-span-1">
-          <span className="md:hidden font-semibold">Last: </span>
+        <div className="lg:col-span-1">
+          <span className="lg:hidden font-semibold">Last: </span>
           {caseItem.lname}
         </div>
-        <div className="md:col-span-1">
-          <span className="md:hidden font-semibold">DOB: </span>
+        <div className="lg:col-span-1">
+          <span className="lg:hidden font-semibold">DOB: </span>
           {caseItem.dob}
         </div>
-        <div className="md:col-span-1">
-          <span className="md:hidden font-semibold">DOI: </span>
+        <div className="lg:col-span-1">
+          <span className="lg:hidden font-semibold">DOI: </span>
           {caseItem.doi}
         </div>
-        <div className="md:col-span-1">
-          <span className="md:hidden font-semibold">Referral Date: </span>
+        <div className="lg:col-span-1">
+          <span className="lg:hidden font-semibold">Referral Date: </span>
           {caseItem.referral_date}
         </div>
-        <div className="md:col-span-2">
+        <div className="lg:col-span-2">
           {caseItem.status && (
             <>
-              <span className="md:hidden font-semibold">Status: </span>
+              <span className="lg:hidden font-semibold">Status: </span>
               <span className="badge text-mint-300">{caseItem.status}</span>
             </>
           )}
         </div>
 
-        <div className="md:col-span-2 flex flex-col sm:flex-row">
+        <div className="lg:col-span-2 flex flex-col sm:flex-row">
           <div ref={menuRef} className="relative inline-block text-left w-full sm:w-auto">
             {/* Toggle Button */}
             <button

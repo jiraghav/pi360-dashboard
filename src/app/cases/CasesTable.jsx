@@ -76,7 +76,7 @@ const CasesTable = forwardRef(function CasesTable(
   return (
     <>
       {/* Header */}
-      <div className="hidden md:grid grid-cols-12 text-mute text-xs uppercase tracking-wide pb-3 border-b border-stroke">
+      <div className="hidden lg:grid grid-cols-12 text-mute text-xs uppercase tracking-wide pb-3 border-b border-stroke">
         <div className="col-span-3">Expand</div>
         <div className="col-span-1 cursor-pointer select-none" onClick={() => toggleSort("patient_data.fname")}>
           First <SortIcon column="patient_data.fname" />

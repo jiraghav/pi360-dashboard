@@ -144,7 +144,7 @@ export default function CasesHeader({
   };
 
   return (
-    <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
+    <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-4">
       <h3 className="text-lg font-semibold">
         {statusFilter === "active"
           ? "Active Cases"
@@ -157,7 +157,7 @@ export default function CasesHeader({
           : "All Cases"}
       </h3>
 
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-1 w-full md:w-auto">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-1 w-full lg:w-auto">
         <div className="flex flex-row gap-2 shrink-0">
           <Link href="/referrals/new" className="btn btn-primary whitespace-nowrap">
             New Referral

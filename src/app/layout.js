@@ -27,7 +27,7 @@ function LayoutContent({ children }) {
   }, [pathname, isOnboardingPath]);
   
   useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 768); // Tailwind md breakpoint
+    const handleResize = () => setIsMobile(window.innerWidth < 1024); // Treat tablets as mobile drawer layout
     handleResize(); // initial check
 
     window.addEventListener("resize", handleResize);
@@ -43,17 +43,17 @@ function LayoutContent({ children }) {
 
   return (
     <>
-      <div className="md:hidden">
+      <div className="lg:hidden">
         {!hideLayout && isMobile && <Navbar />}
       </div>
 
-      <div className="min-h-screen grid md:grid-cols-12">
+      <div className="min-h-screen grid lg:grid-cols-12">
         {!hideLayout && <Sidebar />}
 
         <section
-          className={hideLayout ? "col-span-12" : "md:col-span-9 xl:col-span-10"}
+          className={hideLayout ? "col-span-12" : "lg:col-span-9 xl:col-span-10"}
         >
-          <div className="hidden md:block">
+          <div className="hidden lg:block">
             {!hideLayout && !isMobile && <Navbar />}
           </div>
           <main className="main">{children}</main>
