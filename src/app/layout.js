@@ -27,7 +27,7 @@ function LayoutContent({ children }) {
   }, [pathname, isOnboardingPath]);
   
   useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 1024); // Treat tablets as mobile drawer layout
+    const handleResize = () => setIsMobile(window.innerWidth < 1280); // Keep iPad/tablet on drawer navigation
     handleResize(); // initial check
 
     window.addEventListener("resize", handleResize);
@@ -43,17 +43,17 @@ function LayoutContent({ children }) {
 
   return (
     <>
-      <div className="lg:hidden">
+      <div className="xl:hidden">
         {!hideLayout && isMobile && <Navbar />}
       </div>
 
-      <div className="min-h-screen grid lg:grid-cols-12">
+      <div className="min-h-screen grid xl:grid-cols-12">
         {!hideLayout && <Sidebar />}
 
         <section
-          className={hideLayout ? "col-span-12" : "lg:col-span-9 xl:col-span-10"}
+          className={hideLayout ? "col-span-12" : "xl:col-span-9 2xl:col-span-10"}
         >
-          <div className="hidden lg:block">
+          <div className="hidden xl:block">
             {!hideLayout && !isMobile && <Navbar />}
           </div>
           <main className="main">{children}</main>

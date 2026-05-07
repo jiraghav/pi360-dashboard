@@ -48,7 +48,7 @@ export default function ExpandedCaseDetails({
   };
 
   return (
-    <div className="mt-2 lg:mt-4 p-3 lg:p-4 rounded-xl border border-stroke bg-card">
+    <div className="mt-2 xl:mt-4 p-3 xl:p-4 rounded-xl border border-stroke bg-card">
       {data ? (
         <>
           <div className="flex items-center justify-end mb-1">            
@@ -116,7 +116,7 @@ export default function ExpandedCaseDetails({
             </button>
 
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mt-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 mt-2">
           {/* Case Info Card */}
           <div className="card p-3">
               <div className="flex items-center justify-between mb-1">

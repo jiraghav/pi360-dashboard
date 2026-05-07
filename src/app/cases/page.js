@@ -320,7 +320,7 @@ export default function Cases() {
 
   return (
     <ProtectedRoute>
-      <main className="px-4 lg:px-20 py-8 mx-auto space-y-8">
+      <main className="px-4 md:px-6 xl:px-8 2xl:px-20 py-8 mx-auto space-y-8">
         <section className="card p-5">
           <CasesHeader
             statusFilter={statusFilter}

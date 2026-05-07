@@ -49,7 +49,7 @@ export default function Sidebar() {
     <>
       <aside
         id="sidebar"
-        className="hidden flex-col fixed inset-0 z-50 w-full overflow-hidden p-4 glass border-r border-stroke/70 lg:sticky lg:top-0 lg:z-10 lg:col-span-3 lg:flex lg:flex-col lg:w-auto xl:col-span-2"
+        className="hidden flex-col fixed inset-0 z-50 w-full overflow-hidden p-4 glass border-r border-stroke/70 xl:sticky xl:top-0 xl:z-10 xl:col-span-3 xl:flex xl:flex-col xl:w-auto 2xl:col-span-2"
       >
         <div
           className="min-h-0 flex-1 overflow-y-auto overscroll-contain pr-1 pb-6"

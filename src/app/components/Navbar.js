@@ -251,7 +251,7 @@ export default function Navbar() {
             <div className="flex items-center gap-2 min-w-0">
       
               <button
-                className="lg:hidden btn px-3 py-2"
+                className="xl:hidden btn px-3 py-2"
                 onClick={() => {
                   const sidebar = document.getElementById("sidebar");
                   if (!sidebar) return;
@@ -304,7 +304,7 @@ export default function Navbar() {
             <div className="flex items-center justify-end gap-1 sm:gap-2 flex-wrap">
       
               {/* Help Text — only large screens */}
-              <div className="hidden lg:flex items-center gap-2 text-[11px] md:text-sm text-gray-300 flex-wrap justify-end">
+              <div className="hidden xl:flex items-center gap-2 text-[11px] md:text-sm text-gray-300 flex-wrap justify-end">
                 Text{" "}
                 <a
                   href="sms:2146666651"
@@ -470,7 +470,7 @@ export default function Navbar() {
               {/* Create Task */}
               <Link
                 href="/tasks"
-                className="btn hidden lg:inline-flex px-3 py-2.5"
+                className="btn hidden xl:inline-flex px-3 py-2.5"
               >
                 Create Task
               </Link>

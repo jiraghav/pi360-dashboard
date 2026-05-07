@@ -144,7 +144,7 @@ export default function CasesHeader({
   };
 
   return (
-    <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-4">
+    <div className="flex flex-col xl:flex-row xl:items-center xl:justify-between mb-4">
       <h3 className="text-lg font-semibold">
         {statusFilter === "active"
           ? "Active Cases"
@@ -157,8 +157,8 @@ export default function CasesHeader({
           : "All Cases"}
       </h3>
 
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-1 w-full lg:w-auto">
-        <div className="flex flex-row gap-2 shrink-0">
+      <div className="flex flex-col items-stretch gap-2 w-full xl:w-auto xl:flex-row xl:items-center xl:flex-nowrap xl:gap-1.5">
+        <div className="flex flex-row gap-2 shrink-0 flex-wrap xl:flex-nowrap">
           <Link href="/referrals/new" className="btn btn-primary whitespace-nowrap">
             New Referral
           </Link>
@@ -181,7 +181,7 @@ export default function CasesHeader({
         <select
           value={statusFilter}
           onChange={handleStatusChange}
-          className="border rounded px-3 py-2 bg-black text-white"
+          className="w-full xl:w-[150px] border rounded px-3 py-2 bg-black text-white"
         >
           <option value="">All Cases</option>
           <option value="active">Active</option>
@@ -205,7 +205,7 @@ export default function CasesHeader({
 
             window.history.replaceState({}, "", `?${params.toString()}`);
           }}
-          className="w-full sm:w-64 border rounded px-3 py-2 bg-black text-white placeholder-gray-400"
+          className="w-full xl:w-[180px] border rounded px-3 py-2 bg-black text-white placeholder-gray-400"
         />
 
         {/* 🔥 Date Range Picker (single input) */}
@@ -215,7 +215,7 @@ export default function CasesHeader({
           endDate={toDate(doiTo)}
           onChange={handleDateChange}
           placeholderText="Select DOI Range"
-          className="w-full px-3 py-2 bg-[#111] text-white border border-gray-700 rounded-lg"
+          className="w-full xl:w-[180px] px-3 py-2 bg-[#111] text-white border border-gray-700 rounded-lg"
           calendarClassName="dark-datepicker"
           isClearable
         />
@@ -228,8 +228,8 @@ export default function CasesHeader({
                 onClick={() => setShowAffiliateDropdown(v => !v)}
                 className="
                   bg-black border flex items-center justify-between
-                  w-full sm:w-auto shrink-0
-                  min-w-[200px]
+                  w-full xl:w-auto shrink-0
+                  xl:min-w-[160px]
                   px-3 py-2 rounded text-white
                 "
               >
